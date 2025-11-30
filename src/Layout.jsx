@@ -27,8 +27,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+import { Activity } from 'lucide-react';
+
 const navigation = [
   { name: 'Command Center', page: 'Dashboard', icon: LayoutDashboard },
+  { name: 'System Health', page: 'SystemHealth', icon: Activity },
   { name: 'Workflows', page: 'Workflows', icon: Workflow },
   { name: 'Analytics', page: 'Analytics', icon: BarChart3 },
   { name: 'Integrations', page: 'Integrations', icon: Plug },

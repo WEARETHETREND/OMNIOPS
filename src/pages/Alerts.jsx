@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
@@ -10,8 +12,11 @@ import {
   CheckCircle,
   Check,
   X,
-  Filter
+  Filter,
+  ExternalLink,
+  Send
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -82,6 +87,33 @@ export default function Alerts() {
 
   const handleDismiss = (alertId) => {
     updateMutation.mutate({ id: alertId, data: { status: 'dismissed' } });
+  };
+
+  const handleEscalate = async (alert) => {
+    try {
+      await base44.integrations.Core.SendEmail({
+        to: 'admin@company.com',
+        subject: `[ESCALATED] ${alert.severity.toUpperCase()}: ${alert.title}`,
+        body: `
+Alert has been escalated and requires immediate attention.
+
+Title: ${alert.title}
+Severity: ${alert.severity}
+Category: ${alert.category}
+Source: ${alert.source || 'N/A'}
+
+Message:
+${alert.message}
+
+Time: ${new Date(alert.created_date).toLocaleString()}
+
+Please investigate immediately.
+        `
+      });
+      toast.success('Alert escalated via email');
+    } catch (e) {
+      toast.error('Failed to escalate');
+    }
   };
 
   const filteredAlerts = alerts.filter(alert => {
@@ -220,7 +252,7 @@ export default function Alerts() {
                     </div>
                     <p className="text-sm text-slate-600 mb-3">{alert.message}</p>
                     {statusTab === 'new' && (
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         <Button
                           size="sm"
                           variant="outline"
@@ -239,6 +271,27 @@ export default function Alerts() {
                           <CheckCircle className="w-3.5 h-3.5 mr-1" />
                           Resolve
                         </Button>
+                        {alert.severity === 'critical' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEscalate(alert)}
+                            className="text-rose-600 border-rose-200 hover:bg-rose-50"
+                          >
+                            <Send className="w-3.5 h-3.5 mr-1" />
+                            Escalate
+                          </Button>
+                        )}
+                        <Link to={createPageUrl(`AlertDetails?id=${alert.id}`)}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-slate-600"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5 mr-1" />
+                            Details
+                          </Button>
+                        </Link>
                         <Button
                           size="sm"
                           variant="ghost"

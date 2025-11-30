@@ -95,6 +95,25 @@ export default function Integrations() {
     }
   });
 
+  const retryMutation = useMutation({
+    mutationFn: async (integration) => {
+      // Simulate retry - in real app this would attempt reconnection
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      return base44.entities.Integration.update(integration.id, { 
+        status: 'connected',
+        error_message: null,
+        last_sync: new Date().toISOString()
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['integrations'] });
+    }
+  });
+
+  const handleRetry = (integration) => {
+    retryMutation.mutate(integration);
+  };
+
   const filteredIntegrations = integrations.filter(integration => {
     const matchesSearch = integration.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          integration.provider?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -181,7 +200,11 @@ export default function Integrations() {
       ) : filteredIntegrations.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {filteredIntegrations.map(integration => (
-            <IntegrationCard key={integration.id} integration={integration} />
+            <IntegrationCard 
+              key={integration.id} 
+              integration={integration} 
+              onRetry={handleRetry}
+            />
           ))}
         </div>
       ) : (
