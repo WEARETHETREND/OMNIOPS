@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { CheckCircle, XCircle, AlertCircle, Clock, RefreshCw } from 'lucide-react';
+import { CheckCircle, XCircle, AlertCircle, Clock, RefreshCw, RotateCcw, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 const statusConfig = {
   connected: { icon: CheckCircle, color: 'text-emerald-500', bg: 'bg-emerald-50', label: 'Connected' },
@@ -22,10 +23,23 @@ const typeGradients = {
   storage: 'from-slate-500 to-slate-700'
 };
 
-export default function IntegrationCard({ integration, onSync }) {
+export default function IntegrationCard({ integration, onSync, onRetry }) {
+  const [retrying, setRetrying] = useState(false);
   const status = statusConfig[integration.status] || statusConfig.pending;
   const StatusIcon = status.icon;
   const gradient = typeGradients[integration.type] || typeGradients.api;
+
+  const handleRetry = async () => {
+    setRetrying(true);
+    try {
+      await onRetry?.(integration);
+      toast.success(`Reconnecting to ${integration.name}...`);
+    } catch (e) {
+      toast.error('Retry failed');
+    } finally {
+      setTimeout(() => setRetrying(false), 2000);
+    }
+  };
 
   return (
     <div className="group bg-white rounded-2xl border border-slate-200/60 p-5 hover:shadow-lg hover:shadow-slate-200/50 transition-all duration-300">
@@ -50,7 +64,13 @@ export default function IntegrationCard({ integration, onSync }) {
         <span>{integration.sync_frequency}</span>
       </div>
 
-      {integration.data_synced !== undefined && (
+      {integration.status === 'error' && integration.error_message && (
+        <div className="bg-rose-50 rounded-lg p-3 mb-4 border border-rose-100">
+          <p className="text-xs text-rose-600 line-clamp-2">{integration.error_message}</p>
+        </div>
+      )}
+
+      {integration.data_synced !== undefined && integration.status !== 'error' && (
         <div className="bg-slate-50 rounded-lg p-3 mb-4">
           <div className="flex items-center justify-between">
             <span className="text-xs text-slate-400">Records synced</span>
@@ -68,16 +88,34 @@ export default function IntegrationCard({ integration, onSync }) {
             : 'Never synced'
           }
         </span>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 px-3 text-slate-600"
-          onClick={() => onSync?.(integration)}
-          disabled={integration.status === 'disconnected'}
-        >
-          <RefreshCw className="w-3.5 h-3.5 mr-1" />
-          Sync
-        </Button>
+        <div className="flex gap-1">
+          {integration.status === 'error' && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 px-3 text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+              onClick={handleRetry}
+              disabled={retrying}
+            >
+              {retrying ? (
+                <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
+              ) : (
+                <RotateCcw className="w-3.5 h-3.5 mr-1" />
+              )}
+              Retry
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 px-3 text-slate-600"
+            onClick={() => onSync?.(integration)}
+            disabled={integration.status === 'disconnected' || integration.status === 'error'}
+          >
+            <RefreshCw className="w-3.5 h-3.5 mr-1" />
+            Sync
+          </Button>
+        </div>
       </div>
     </div>
   );
