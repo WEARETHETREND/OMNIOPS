@@ -6,6 +6,7 @@ import Alerts from './pages/Alerts';
 import Settings from './pages/Settings';
 import AlertDetails from './pages/AlertDetails';
 import SystemHealth from './pages/SystemHealth';
+import WorkflowBuilder from './pages/WorkflowBuilder';
 import __Layout from './Layout.jsx';
 
 
@@ -18,6 +19,7 @@ export const PAGES = {
     "Settings": Settings,
     "AlertDetails": AlertDetails,
     "SystemHealth": SystemHealth,
+    "WorkflowBuilder": WorkflowBuilder,
 }
 
 export const pagesConfig = {
