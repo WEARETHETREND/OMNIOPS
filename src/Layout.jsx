@@ -26,6 +26,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import AIAssistant from '@/components/ai/AIAssistant';
 
 import { Activity } from 'lucide-react';
 
@@ -194,7 +195,10 @@ export default function Layout({ children, currentPageName }) {
         <main className="p-6">
           {children}
         </main>
-      </div>
-    </div>
-  );
-}
+        </div>
+
+        {/* AI Assistant */}
+        <AIAssistant />
+        </div>
+        );
+        }
