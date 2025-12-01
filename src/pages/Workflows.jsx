@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
@@ -7,7 +9,8 @@ import {
   Filter, 
   Grid3X3, 
   List,
-  Zap
+  Zap,
+  Wand2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -193,9 +196,15 @@ export default function Workflows() {
               <List className="w-4 h-4" />
             </Button>
           </div>
+          <Link to={createPageUrl('WorkflowBuilder')}>
+            <Button className="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600">
+              <Wand2 className="w-4 h-4 mr-2" />
+              Visual Builder
+            </Button>
+          </Link>
           <Button onClick={() => setIsCreateOpen(true)} className="bg-slate-900 hover:bg-slate-800">
             <Plus className="w-4 h-4 mr-2" />
-            New Workflow
+            Quick Create
           </Button>
         </div>
       </div>
