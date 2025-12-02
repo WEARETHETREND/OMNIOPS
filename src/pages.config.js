@@ -12,6 +12,7 @@ import AuditTrail from './pages/AuditTrail';
 import AccessControl from './pages/AccessControl';
 import WhiteLabel from './pages/WhiteLabel';
 import Automations from './pages/Automations';
+import Infrastructure from './pages/Infrastructure';
 import __Layout from './Layout.jsx';
 
 
@@ -30,6 +31,7 @@ export const PAGES = {
     "AccessControl": AccessControl,
     "WhiteLabel": WhiteLabel,
     "Automations": Automations,
+    "Infrastructure": Infrastructure,
 }
 
 export const pagesConfig = {

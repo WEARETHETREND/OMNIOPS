@@ -20,7 +20,8 @@ import {
   FileText,
   Users,
   Palette,
-  Bot
+  Bot,
+  Server
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -38,6 +39,7 @@ import { Activity } from 'lucide-react';
 const navigation = [
   { name: 'Command Center', page: 'Dashboard', icon: LayoutDashboard },
   { name: 'System Health', page: 'SystemHealth', icon: Activity },
+  { name: 'Infrastructure', page: 'Infrastructure', icon: Server },
   { name: 'Workflows', page: 'Workflows', icon: Workflow },
   { name: 'Automations', page: 'Automations', icon: Bot },
   { name: 'Analytics', page: 'Analytics', icon: BarChart3 },
