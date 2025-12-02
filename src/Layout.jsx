@@ -15,7 +15,11 @@ import {
   ChevronRight,
   Zap,
   LogOut,
-  User
+  User,
+  Shield,
+  FileText,
+  Users,
+  Palette
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -37,6 +41,10 @@ const navigation = [
   { name: 'Analytics', page: 'Analytics', icon: BarChart3 },
   { name: 'Integrations', page: 'Integrations', icon: Plug },
   { name: 'Alerts', page: 'Alerts', icon: Bell },
+  { name: 'Compliance', page: 'Compliance', icon: Shield },
+  { name: 'Audit Trail', page: 'AuditTrail', icon: FileText },
+  { name: 'Access Control', page: 'AccessControl', icon: Users },
+  { name: 'White Label', page: 'WhiteLabel', icon: Palette },
   { name: 'Settings', page: 'Settings', icon: Settings },
 ];
 
