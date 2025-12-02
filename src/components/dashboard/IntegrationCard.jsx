@@ -15,12 +15,17 @@ const statusConfig = {
 const typeGradients = {
   crm: 'from-blue-500 to-indigo-600',
   erp: 'from-violet-500 to-purple-600',
+  hcm: 'from-pink-500 to-fuchsia-600',
   database: 'from-emerald-500 to-teal-600',
+  data_warehouse: 'from-cyan-500 to-teal-600',
   api: 'from-orange-500 to-red-600',
   cloud_service: 'from-cyan-500 to-blue-600',
   communication: 'from-pink-500 to-rose-600',
   analytics: 'from-amber-500 to-orange-600',
-  storage: 'from-slate-500 to-slate-700'
+  storage: 'from-slate-500 to-slate-700',
+  identity: 'from-indigo-500 to-blue-600',
+  iot: 'from-green-500 to-emerald-600',
+  gis: 'from-teal-500 to-cyan-600'
 };
 
 export default function IntegrationCard({ integration, onSync, onRetry }) {

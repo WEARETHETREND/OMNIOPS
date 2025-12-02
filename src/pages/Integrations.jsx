@@ -34,12 +34,17 @@ const integrationTypes = [
   { value: 'all', label: 'All Types' },
   { value: 'crm', label: 'CRM' },
   { value: 'erp', label: 'ERP' },
+  { value: 'hcm', label: 'HCM / HR' },
   { value: 'database', label: 'Database' },
+  { value: 'data_warehouse', label: 'Data Warehouse' },
   { value: 'api', label: 'API' },
   { value: 'cloud_service', label: 'Cloud Service' },
   { value: 'communication', label: 'Communication' },
   { value: 'analytics', label: 'Analytics' },
-  { value: 'storage', label: 'Storage' }
+  { value: 'storage', label: 'Storage' },
+  { value: 'identity', label: 'Identity & Access' },
+  { value: 'iot', label: 'IoT / Telematics' },
+  { value: 'gis', label: 'GIS / Mapping' }
 ];
 
 const syncFrequencies = [
@@ -50,15 +55,65 @@ const syncFrequencies = [
   { value: 'manual', label: 'Manual' }
 ];
 
-const popularIntegrations = [
-  { name: 'Salesforce', provider: 'Salesforce', type: 'crm' },
-  { name: 'SAP', provider: 'SAP', type: 'erp' },
-  { name: 'HubSpot', provider: 'HubSpot', type: 'crm' },
-  { name: 'Slack', provider: 'Slack', type: 'communication' },
-  { name: 'Google Analytics', provider: 'Google', type: 'analytics' },
-  { name: 'AWS S3', provider: 'Amazon', type: 'storage' },
-  { name: 'PostgreSQL', provider: 'PostgreSQL', type: 'database' },
-  { name: 'Stripe', provider: 'Stripe', type: 'api' }
+const integrationCategories = [
+  {
+    name: 'CRM & Sales',
+    integrations: [
+      { name: 'Salesforce', provider: 'Salesforce', type: 'crm' },
+      { name: 'HubSpot', provider: 'HubSpot', type: 'crm' },
+      { name: 'Microsoft Dynamics', provider: 'Microsoft', type: 'crm' },
+    ]
+  },
+  {
+    name: 'ERP & Finance',
+    integrations: [
+      { name: 'SAP S/4HANA', provider: 'SAP', type: 'erp' },
+      { name: 'Oracle Financials', provider: 'Oracle', type: 'erp' },
+      { name: 'NetSuite', provider: 'Oracle', type: 'erp' },
+    ]
+  },
+  {
+    name: 'HCM & HR',
+    integrations: [
+      { name: 'Workday', provider: 'Workday', type: 'hcm' },
+    ]
+  },
+  {
+    name: 'Data & Analytics',
+    integrations: [
+      { name: 'Snowflake', provider: 'Snowflake', type: 'data_warehouse' },
+      { name: 'Databricks', provider: 'Databricks', type: 'data_warehouse' },
+      { name: 'Google Analytics', provider: 'Google', type: 'analytics' },
+    ]
+  },
+  {
+    name: 'Identity & Access',
+    integrations: [
+      { name: 'Okta', provider: 'Okta', type: 'identity' },
+      { name: 'Azure AD', provider: 'Microsoft', type: 'identity' },
+    ]
+  },
+  {
+    name: 'IoT & Telematics',
+    integrations: [
+      { name: 'Fleet Telematics', provider: 'Samsara', type: 'iot' },
+      { name: 'IoT Sensors', provider: 'AWS IoT', type: 'iot' },
+    ]
+  },
+  {
+    name: 'GIS & Mapping',
+    integrations: [
+      { name: 'ESRI ArcGIS', provider: 'ESRI', type: 'gis' },
+    ]
+  },
+  {
+    name: 'Infrastructure',
+    integrations: [
+      { name: 'AWS S3', provider: 'Amazon', type: 'storage' },
+      { name: 'PostgreSQL', provider: 'PostgreSQL', type: 'database' },
+      { name: 'Slack', provider: 'Slack', type: 'communication' },
+    ]
+  }
 ];
 
 export default function Integrations() {
@@ -230,28 +285,32 @@ export default function Integrations() {
             <DialogTitle>Add New Integration</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-4">
-            {/* Popular Integrations */}
-            <div>
-              <Label className="text-xs text-slate-500">Popular Integrations</Label>
-              <div className="grid grid-cols-4 gap-2 mt-2">
-                {popularIntegrations.map(pi => (
-                  <button
-                    key={pi.name}
-                    onClick={() => selectPopular(pi)}
-                    className={cn(
-                      "p-3 rounded-lg border text-center transition-colors",
-                      newIntegration.name === pi.name 
-                        ? "border-slate-900 bg-slate-50" 
-                        : "border-slate-200 hover:border-slate-300"
-                    )}
-                  >
-                    <div className="w-8 h-8 mx-auto mb-1 rounded-lg bg-gradient-to-br from-slate-500 to-slate-700 flex items-center justify-center text-white font-bold text-sm">
-                      {pi.provider[0]}
-                    </div>
-                    <p className="text-xs font-medium text-slate-700 truncate">{pi.name}</p>
-                  </button>
-                ))}
-              </div>
+            {/* Integration Categories */}
+            <div className="max-h-64 overflow-y-auto pr-2 space-y-4">
+              {integrationCategories.map(cat => (
+                <div key={cat.name}>
+                  <Label className="text-xs text-slate-500">{cat.name}</Label>
+                  <div className="grid grid-cols-3 gap-2 mt-2">
+                    {cat.integrations.map(pi => (
+                      <button
+                        key={pi.name}
+                        onClick={() => selectPopular(pi)}
+                        className={cn(
+                          "p-2 rounded-lg border text-center transition-colors",
+                          newIntegration.name === pi.name 
+                            ? "border-slate-900 bg-slate-50" 
+                            : "border-slate-200 hover:border-slate-300"
+                        )}
+                      >
+                        <div className="w-7 h-7 mx-auto mb-1 rounded-lg bg-gradient-to-br from-slate-500 to-slate-700 flex items-center justify-center text-white font-bold text-xs">
+                          {pi.provider[0]}
+                        </div>
+                        <p className="text-xs font-medium text-slate-700 truncate">{pi.name}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
 
             <div className="border-t pt-4 space-y-4">
