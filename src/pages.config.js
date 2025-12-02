@@ -7,6 +7,10 @@ import Settings from './pages/Settings';
 import AlertDetails from './pages/AlertDetails';
 import SystemHealth from './pages/SystemHealth';
 import WorkflowBuilder from './pages/WorkflowBuilder';
+import Compliance from './pages/Compliance';
+import AuditTrail from './pages/AuditTrail';
+import AccessControl from './pages/AccessControl';
+import WhiteLabel from './pages/WhiteLabel';
 import __Layout from './Layout.jsx';
 
 
@@ -20,6 +24,10 @@ export const PAGES = {
     "AlertDetails": AlertDetails,
     "SystemHealth": SystemHealth,
     "WorkflowBuilder": WorkflowBuilder,
+    "Compliance": Compliance,
+    "AuditTrail": AuditTrail,
+    "AccessControl": AccessControl,
+    "WhiteLabel": WhiteLabel,
 }
 
 export const pagesConfig = {
