@@ -1,6 +1,12 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, HelpCircle } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 export default function StatCard({ 
   title, 
@@ -9,7 +15,8 @@ export default function StatCard({
   change, 
   trend = 'stable', 
   icon: Icon,
-  gradient = 'from-slate-500 to-slate-600'
+  gradient = 'from-slate-500 to-slate-600',
+  tooltip
 }) {
   const trendConfig = {
     up: { icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-50' },
@@ -23,7 +30,22 @@ export default function StatCard({
     <div className="relative overflow-hidden bg-white rounded-2xl border border-slate-200/60 p-6 hover:shadow-lg hover:shadow-slate-200/50 transition-all duration-300">
       <div className="flex items-start justify-between">
         <div className="space-y-3">
-          <p className="text-sm font-medium text-slate-500">{title}</p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm font-medium text-slate-500">{title}</p>
+            {tooltip && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="text-slate-400 hover:text-slate-600">
+                      <HelpCircle className="w-3.5 h-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-xs">
+                    {tooltip}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}</div>
           <div className="flex items-baseline gap-1">
             <span className="text-3xl font-bold text-slate-900">{value}</span>
             {unit && <span className="text-lg text-slate-400">{unit}</span>}

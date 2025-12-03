@@ -12,6 +12,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
+import ExportButton from '@/components/ui/ExportButton';
 import {
   Select,
   SelectContent,
@@ -108,14 +110,21 @@ export default function Analytics() {
               ))}
             </SelectContent>
           </Select>
-          <Button variant="outline" onClick={() => refetch()}>
+          <Button variant="outline" onClick={() => { refetch(); toast.success('Data refreshed'); }}>
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
           </Button>
-          <Button variant="outline">
-            <Download className="w-4 h-4 mr-2" />
-            Export
-          </Button>
+          <ExportButton 
+            data={metrics} 
+            filename="analytics-metrics"
+            columns={[
+              { key: 'name', label: 'Metric' },
+              { key: 'category', label: 'Category' },
+              { key: 'value', label: 'Value' },
+              { key: 'target', label: 'Target' },
+              { key: 'trend', label: 'Trend' }
+            ]}
+          />
         </div>
       </div>
 

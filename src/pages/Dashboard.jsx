@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { 
   Activity, 
   Zap, 
@@ -11,18 +11,34 @@ import {
   ArrowRight,
   Workflow as WorkflowIcon,
   Plug,
-  AlertTriangle
+  AlertTriangle,
+  RefreshCw,
+  TrendingUp,
+  Clock,
+  CheckCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from 'sonner';
 import StatCard from '@/components/dashboard/StatCard';
 import AlertBanner from '@/components/dashboard/AlertBanner';
 import WorkflowCard from '@/components/dashboard/WorkflowCard';
 import IntegrationCard from '@/components/dashboard/IntegrationCard';
 import AreaChartCard from '@/components/charts/AreaChartCard';
 import DonutChartCard from '@/components/charts/DonutChartCard';
+import InfoTooltip from '@/components/ui/InfoTooltip';
 
 export default function Dashboard() {
+  const queryClient = useQueryClient();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await queryClient.invalidateQueries();
+    toast.success('Dashboard refreshed');
+    setTimeout(() => setRefreshing(false), 500);
+  };
+
   const { data: workflows = [], isLoading: loadingWorkflows } = useQuery({
     queryKey: ['workflows'],
     queryFn: () => base44.entities.Workflow.list('-created_date', 4)
@@ -78,6 +94,24 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8">
+      {/* Welcome Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Welcome back!</h1>
+          <p className="text-slate-500 mt-1">Here's what's happening with your operations today.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm">
+            <CheckCircle className="w-4 h-4" />
+            All systems operational
+          </div>
+          <Button variant="outline" onClick={handleRefresh} disabled={refreshing}>
+            <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        </div>
+      </div>
+
       {/* Critical Alerts Banner */}
       {criticalAlerts > 0 && alerts.filter(a => a.severity === 'critical').slice(0, 1).map(alert => (
         <AlertBanner key={alert.id} alert={alert} onDismiss={handleDismissAlert} />
@@ -92,6 +126,7 @@ export default function Dashboard() {
           trend="up"
           icon={WorkflowIcon}
           gradient="from-emerald-500 to-teal-600"
+          tooltip="Number of workflows currently running"
         />
         <StatCard
           title="Connected Integrations"
@@ -100,6 +135,7 @@ export default function Dashboard() {
           trend="up"
           icon={Plug}
           gradient="from-blue-500 to-cyan-600"
+          tooltip="External services connected to your platform"
         />
         <StatCard
           title="Operations Today"
@@ -108,6 +144,7 @@ export default function Dashboard() {
           trend="up"
           icon={Activity}
           gradient="from-violet-500 to-purple-600"
+          tooltip="Total automated operations performed today"
         />
         <StatCard
           title="Cost Savings"
@@ -117,7 +154,25 @@ export default function Dashboard() {
           trend="up"
           icon={DollarSign}
           gradient="from-amber-500 to-orange-600"
+          tooltip="Estimated monthly savings from automation"
         />
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label: 'New Workflow', icon: WorkflowIcon, href: 'WorkflowBuilder', color: 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100' },
+          { label: 'Add Integration', icon: Plug, href: 'Integrations', color: 'text-blue-600 bg-blue-50 hover:bg-blue-100' },
+          { label: 'View Alerts', icon: AlertTriangle, href: 'Alerts', color: 'text-amber-600 bg-amber-50 hover:bg-amber-100' },
+          { label: 'Analytics', icon: TrendingUp, href: 'Analytics', color: 'text-violet-600 bg-violet-50 hover:bg-violet-100' }
+        ].map((action, i) => (
+          <Link key={i} to={createPageUrl(action.href)}>
+            <div className={`flex items-center gap-3 p-4 rounded-xl transition-colors cursor-pointer ${action.color}`}>
+              <action.icon className="w-5 h-5" />
+              <span className="font-medium">{action.label}</span>
+            </div>
+          </Link>
+        ))}
       </div>
 
       {/* Charts Row */}
