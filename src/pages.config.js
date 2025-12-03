@@ -13,6 +13,7 @@ import AccessControl from './pages/AccessControl';
 import WhiteLabel from './pages/WhiteLabel';
 import Automations from './pages/Automations';
 import Infrastructure from './pages/Infrastructure';
+import TechStack from './pages/TechStack';
 import __Layout from './Layout.jsx';
 
 
@@ -32,6 +33,7 @@ export const PAGES = {
     "WhiteLabel": WhiteLabel,
     "Automations": Automations,
     "Infrastructure": Infrastructure,
+    "TechStack": TechStack,
 }
 
 export const pagesConfig = {
