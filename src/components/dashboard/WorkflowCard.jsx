@@ -1,8 +1,9 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { Play, Pause, Clock, CheckCircle, AlertCircle, Zap } from 'lucide-react';
+import { Play, Pause, Clock, CheckCircle, AlertCircle, Zap, TrendingUp } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import Sparkline from '@/components/charts/Sparkline';
 
 const statusConfig = {
   active: { color: 'bg-emerald-500', text: 'text-emerald-700', bg: 'bg-emerald-50', label: 'Active' },
@@ -57,6 +58,23 @@ export default function WorkflowCard({ workflow, onToggle }) {
           <p className="text-xs text-slate-400">Avg Time</p>
           <p className="text-sm font-semibold text-slate-900">{workflow.avg_duration || 0}s</p>
         </div>
+      </div>
+
+      {/* Mini Sparkline */}
+      <div className="flex items-center justify-between mb-4 px-2">
+        <span className="text-xs text-slate-400">7-day trend</span>
+        <Sparkline 
+          data={[
+            { value: 45 + Math.random() * 20 },
+            { value: 50 + Math.random() * 20 },
+            { value: 48 + Math.random() * 20 },
+            { value: 55 + Math.random() * 20 },
+            { value: 52 + Math.random() * 20 },
+            { value: 60 + Math.random() * 20 },
+            { value: 58 + Math.random() * 20 }
+          ]}
+          showTrend
+        />
       </div>
 
       <div className="flex items-center justify-between pt-3 border-t border-slate-100">

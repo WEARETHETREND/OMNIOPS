@@ -97,7 +97,7 @@ export default function Dashboard() {
       {/* Welcome Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Welcome back!</h1>
+          <h1 className="text-2xl font-bold text-slate-900" data-tour="dashboard">Welcome back!</h1>
           <p className="text-slate-500 mt-1">Here's what's happening with your operations today.</p>
         </div>
         <div className="flex items-center gap-3">
