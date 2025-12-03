@@ -21,7 +21,10 @@ import {
   Users,
   Palette,
   Bot,
-  Server
+  Server,
+  Search,
+  Activity,
+  Command
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -33,8 +36,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import AIAssistant from '@/components/ai/AIAssistant';
-
-import { Activity } from 'lucide-react';
+import GlobalSearch from '@/components/ui/GlobalSearch';
 
 const navigation = [
   { name: 'Command Center', page: 'Dashboard', icon: LayoutDashboard },
@@ -54,10 +56,23 @@ const navigation = [
 
 export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
+  }, []);
+
+  // Keyboard shortcut for search
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const getInitials = (name) => {
@@ -193,13 +208,32 @@ export default function Layout({ children, currentPageName }) {
             </div>
 
             <div className="flex items-center gap-3">
-              <Link to={createPageUrl('Alerts')}>
-                <Button variant="ghost" size="icon" className="relative">
-                  <Bell className="w-5 h-5 text-slate-600" />
-                  <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full" />
-                </Button>
-              </Link>
-            </div>
+                            <Button 
+                              variant="outline" 
+                              className="hidden md:flex items-center gap-2 text-slate-500 w-64"
+                              onClick={() => setSearchOpen(true)}
+                            >
+                              <Search className="w-4 h-4" />
+                              <span className="flex-1 text-left">Search...</span>
+                              <kbd className="hidden lg:inline-flex items-center gap-1 px-1.5 py-0.5 bg-slate-100 text-slate-400 text-xs rounded">
+                                ⌘K
+                              </kbd>
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              className="md:hidden"
+                              onClick={() => setSearchOpen(true)}
+                            >
+                              <Search className="w-5 h-5 text-slate-600" />
+                            </Button>
+                            <Link to={createPageUrl('Alerts')}>
+                              <Button variant="ghost" size="icon" className="relative">
+                                <Bell className="w-5 h-5 text-slate-600" />
+                                <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full" />
+                              </Button>
+                            </Link>
+                          </div>
           </div>
         </header>
 
@@ -210,7 +244,10 @@ export default function Layout({ children, currentPageName }) {
         </div>
 
         {/* AI Assistant */}
-        <AIAssistant />
-        </div>
+                    <AIAssistant />
+
+                    {/* Global Search */}
+                    <GlobalSearch isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+                    </div>
         );
         }
