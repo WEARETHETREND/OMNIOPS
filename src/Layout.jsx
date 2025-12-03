@@ -207,7 +207,7 @@ export default function Layout({ children, currentPageName }) {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
                             <Button 
                               variant="outline" 
                               className="hidden md:flex items-center gap-2 text-slate-500 w-64"

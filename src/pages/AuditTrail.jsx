@@ -29,6 +29,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
+import ExportButton from '@/components/ui/ExportButton';
 
 const actionIcons = {
   create: { icon: Edit, color: 'text-emerald-500', bg: 'bg-emerald-50' },
@@ -167,10 +169,19 @@ export default function AuditTrail() {
             </SelectContent>
           </Select>
         </div>
-        <Button onClick={handleExport} variant="outline">
-          <Download className="w-4 h-4 mr-2" />
-          Export CSV
-        </Button>
+        <ExportButton 
+          data={filteredLogs}
+          filename={`audit-log-${format(new Date(), 'yyyy-MM-dd')}`}
+          columns={[
+            { key: 'created_date', label: 'Timestamp' },
+            { key: 'user_email', label: 'User' },
+            { key: 'action', label: 'Action' },
+            { key: 'entity_type', label: 'Entity' },
+            { key: 'status', label: 'Status' },
+            { key: 'risk_level', label: 'Risk Level' },
+            { key: 'ip_address', label: 'IP Address' }
+          ]}
+        />
       </div>
 
       {/* Audit Log Table */}
