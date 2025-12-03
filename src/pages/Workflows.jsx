@@ -31,6 +31,9 @@ import {
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import WorkflowCard from '@/components/dashboard/WorkflowCard';
+import InlineEdit from '@/components/ui/InlineEdit';
+import { showUndoToast } from '@/components/ui/UndoToast';
+import { toast } from 'sonner';
 
 const departments = [
   { value: 'all', label: 'All Departments' },
@@ -99,8 +102,37 @@ export default function Workflows() {
 
   const toggleMutation = useMutation({
     mutationFn: ({ id, status }) => base44.entities.Workflow.update(id, { status }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workflows'] });
+      toast.success('Workflow updated');
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => base44.entities.Workflow.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['workflows'] })
   });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Workflow.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workflows'] });
+      toast.success('Workflow updated');
+    }
+  });
+
+  const handleDelete = (workflow) => {
+    const backup = { ...workflow };
+    deleteMutation.mutate(workflow.id);
+    showUndoToast('Workflow deleted', async () => {
+      await base44.entities.Workflow.create(backup);
+      queryClient.invalidateQueries({ queryKey: ['workflows'] });
+    });
+  };
+
+  const handleNameUpdate = (workflow, newName) => {
+    updateMutation.mutate({ id: workflow.id, data: { name: newName } });
+  };
 
   const handleToggle = (workflow) => {
     const newStatus = workflow.status === 'active' ? 'paused' : 'active';

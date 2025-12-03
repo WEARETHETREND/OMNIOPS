@@ -37,6 +37,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import AIAssistant from '@/components/ai/AIAssistant';
 import GlobalSearch from '@/components/ui/GlobalSearch';
+import KeyboardShortcuts from '@/components/ui/KeyboardShortcuts';
+import OnboardingTour from '@/components/ui/OnboardingTour';
 
 const navigation = [
   { name: 'Command Center', page: 'Dashboard', icon: LayoutDashboard },
@@ -123,25 +125,26 @@ export default function Layout({ children, currentPageName }) {
               const isActive = currentPageName === item.page;
               return (
                 <Link
-                  key={item.name}
-                  to={createPageUrl(item.page)}
-                  onClick={() => setSidebarOpen(false)}
-                  className={cn(
-                    "group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
-                    isActive 
-                      ? "bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 text-white" 
-                      : "text-slate-400 hover:text-white hover:bg-slate-800/50"
-                  )}
-                >
-                  <item.icon className={cn(
-                    "w-5 h-5 transition-colors",
-                    isActive ? "text-emerald-400" : "text-slate-500 group-hover:text-slate-300"
-                  )} />
-                  <span>{item.name}</span>
-                  {isActive && (
-                    <ChevronRight className="w-4 h-4 ml-auto text-emerald-400" />
-                  )}
-                </Link>
+                                        key={item.name}
+                                        to={createPageUrl(item.page)}
+                                        onClick={() => setSidebarOpen(false)}
+                                        data-tour={item.page.toLowerCase()}
+                                        className={cn(
+                                          "group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
+                                          isActive 
+                                            ? "bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 text-white" 
+                                            : "text-slate-400 hover:text-white hover:bg-slate-800/50"
+                                        )}
+                                      >
+                                        <item.icon className={cn(
+                                          "w-5 h-5 transition-colors",
+                                          isActive ? "text-emerald-400" : "text-slate-500 group-hover:text-slate-300"
+                                        )} />
+                                        <span>{item.name}</span>
+                                        {isActive && (
+                                          <ChevronRight className="w-4 h-4 ml-auto text-emerald-400" />
+                                        )}
+                                      </Link>
               );
             })}
           </nav>
@@ -209,16 +212,17 @@ export default function Layout({ children, currentPageName }) {
 
             <div className="flex items-center gap-2">
                             <Button 
-                              variant="outline" 
-                              className="hidden md:flex items-center gap-2 text-slate-500 w-64"
-                              onClick={() => setSearchOpen(true)}
-                            >
-                              <Search className="w-4 h-4" />
-                              <span className="flex-1 text-left">Search...</span>
-                              <kbd className="hidden lg:inline-flex items-center gap-1 px-1.5 py-0.5 bg-slate-100 text-slate-400 text-xs rounded">
-                                ⌘K
-                              </kbd>
-                            </Button>
+                                              variant="outline" 
+                                              className="hidden md:flex items-center gap-2 text-slate-500 w-64"
+                                              onClick={() => setSearchOpen(true)}
+                                              data-tour="search"
+                                            >
+                                              <Search className="w-4 h-4" />
+                                              <span className="flex-1 text-left">Search...</span>
+                                              <kbd className="hidden lg:inline-flex items-center gap-1 px-1.5 py-0.5 bg-slate-100 text-slate-400 text-xs rounded">
+                                                ⌘K
+                                              </kbd>
+                                            </Button>
                             <Button 
                               variant="ghost" 
                               size="icon"
@@ -247,7 +251,13 @@ export default function Layout({ children, currentPageName }) {
                     <AIAssistant />
 
                     {/* Global Search */}
-                    <GlobalSearch isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
-                    </div>
+                                <GlobalSearch isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+
+                                {/* Keyboard Shortcuts */}
+                                <KeyboardShortcuts onSearch={() => setSearchOpen(true)} />
+
+                                {/* Onboarding Tour */}
+                                <OnboardingTour />
+                                </div>
         );
         }

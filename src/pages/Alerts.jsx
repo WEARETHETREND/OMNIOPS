@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { showUndoToast } from '@/components/ui/UndoToast';
 
 const severities = [
   { value: 'all', label: 'All Severity' },
@@ -85,8 +86,12 @@ export default function Alerts() {
     });
   };
 
-  const handleDismiss = (alertId) => {
-    updateMutation.mutate({ id: alertId, data: { status: 'dismissed' } });
+  const handleDismiss = (alert) => {
+    const previousStatus = alert.status;
+    updateMutation.mutate({ id: alert.id, data: { status: 'dismissed' } });
+    showUndoToast('Alert dismissed', () => {
+      updateMutation.mutate({ id: alert.id, data: { status: previousStatus } });
+    });
   };
 
   const handleEscalate = async (alert) => {
@@ -293,14 +298,14 @@ Please investigate immediately.
                           </Button>
                         </Link>
                         <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleDismiss(alert.id)}
-                          className="text-slate-500"
-                        >
-                          <X className="w-3.5 h-3.5 mr-1" />
-                          Dismiss
-                        </Button>
+                                                      size="sm"
+                                                      variant="ghost"
+                                                      onClick={() => handleDismiss(alert)}
+                                                      className="text-slate-500"
+                                                    >
+                                                      <X className="w-3.5 h-3.5 mr-1" />
+                                                      Dismiss
+                                                    </Button>
                       </div>
                     )}
                     {statusTab === 'acknowledged' && (
