@@ -39,6 +39,11 @@ import AIAssistant from '@/components/ai/AIAssistant';
 import GlobalSearch from '@/components/ui/GlobalSearch';
 import KeyboardShortcuts from '@/components/ui/KeyboardShortcuts';
 import OnboardingTour from '@/components/ui/OnboardingTour';
+import ProjectSelector from '@/components/layout/ProjectSelector';
+import QuickActions from '@/components/layout/QuickActions';
+import NotificationsDropdown from '@/components/layout/NotificationsDropdown';
+import Footer from '@/components/layout/Footer';
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
 
 const navigation = [
   { name: 'Command Center', page: 'Dashboard', icon: LayoutDashboard },
@@ -120,8 +125,13 @@ export default function Layout({ children, currentPageName }) {
             </Button>
           </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+          {/* Project Selector */}
+                      <div className="px-4 py-2 border-b border-slate-800">
+                        <ProjectSelector />
+                      </div>
+
+                      {/* Navigation */}
+                      <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
             {navigation.map((item) => {
               const isActive = currentPageName === item.page;
               return (
@@ -150,8 +160,11 @@ export default function Layout({ children, currentPageName }) {
             })}
           </nav>
 
-          {/* User section */}
-          <div className="p-4 border-t border-slate-800">
+          {/* Quick Actions */}
+                        <QuickActions />
+
+                        {/* User section */}
+                        <div className="p-4 border-t border-slate-800">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800/50 transition-colors">
@@ -232,20 +245,23 @@ export default function Layout({ children, currentPageName }) {
                             >
                               <Search className="w-5 h-5 text-slate-600" />
                             </Button>
-                            <Link to={createPageUrl('Alerts')}>
-                              <Button variant="ghost" size="icon" className="relative">
-                                <Bell className="w-5 h-5 text-slate-600" />
-                                <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full" />
-                              </Button>
-                            </Link>
+                            <NotificationsDropdown />
                           </div>
           </div>
         </header>
 
-        {/* Page content */}
-        <main className="p-6">
-          {children}
-        </main>
+        {/* Breadcrumbs */}
+                    <div className="px-6 pt-4">
+                      <Breadcrumbs items={[{ label: navigation.find(n => n.page === currentPageName)?.name || currentPageName }]} />
+                    </div>
+
+                    {/* Page content */}
+                    <main className="px-6 pb-6">
+                      {children}
+                    </main>
+
+                    {/* Footer */}
+                    <Footer />
         </div>
 
         {/* AI Assistant */}
