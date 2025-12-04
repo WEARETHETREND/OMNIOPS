@@ -14,6 +14,12 @@ import WhiteLabel from './pages/WhiteLabel';
 import Automations from './pages/Automations';
 import Infrastructure from './pages/Infrastructure';
 import TechStack from './pages/TechStack';
+import AICopilot from './pages/AICopilot';
+import FieldApp from './pages/FieldApp';
+import CustomerPortal from './pages/CustomerPortal';
+import FinancialIntelligence from './pages/FinancialIntelligence';
+import WorkflowAutomation from './pages/WorkflowAutomation';
+import LiveCollaboration from './pages/LiveCollaboration';
 import __Layout from './Layout.jsx';
 
 
@@ -34,6 +40,12 @@ export const PAGES = {
     "Automations": Automations,
     "Infrastructure": Infrastructure,
     "TechStack": TechStack,
+    "AICopilot": AICopilot,
+    "FieldApp": FieldApp,
+    "CustomerPortal": CustomerPortal,
+    "FinancialIntelligence": FinancialIntelligence,
+    "WorkflowAutomation": WorkflowAutomation,
+    "LiveCollaboration": LiveCollaboration,
 }
 
 export const pagesConfig = {
