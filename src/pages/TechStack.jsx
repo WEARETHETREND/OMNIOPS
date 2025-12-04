@@ -27,6 +27,76 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+const coreBusinessModules = [
+  {
+    category: 'Sales & Proposals',
+    color: 'from-blue-500 to-indigo-600',
+    items: [
+      { name: 'Proposal Builder', desc: 'Create branded proposals that auto-convert to agreements' },
+      { name: 'Estimates', desc: 'Increase average tickets and convert more jobs' },
+      { name: 'Progress Billing', desc: 'Collect payments in stages as jobs progress' }
+    ]
+  },
+  {
+    category: 'Job & Project Management',
+    color: 'from-emerald-500 to-teal-600',
+    items: [
+      { name: 'Job Costing', desc: 'Real-time insight into expenses, margins, and contracts' },
+      { name: 'Project Management', desc: 'Track schedule, budget, and progress' },
+      { name: 'Crew Management', desc: 'Manage field teams and assignments' },
+      { name: 'Dynamic Forms', desc: 'Standardize work across jobs with automated forms' },
+      { name: 'WIP Reporting', desc: 'See live work-in-progress insights' }
+    ]
+  },
+  {
+    category: 'Customer & CRM',
+    color: 'from-violet-500 to-purple-600',
+    items: [
+      { name: 'CRM Records', desc: 'All customer info, history, equipment' },
+      { name: 'Client Portal', desc: 'Customers view work history, request work orders, pay invoices' },
+      { name: 'Client-Specific Pricing', desc: 'Tailor pricebooks and dynamically update costs' },
+      { name: 'Customer Experience', desc: 'Two-way channel for service visibility and CSR support' }
+    ]
+  },
+  {
+    category: 'Dispatching & Field Ops',
+    color: 'from-amber-500 to-orange-600',
+    items: [
+      { name: 'Dispatching', desc: 'Schedule technicians efficiently, optimize routes' },
+      { name: 'Booking', desc: 'Simplify customer scheduling online & phone' },
+      { name: 'Mobile App', desc: 'Field app for techs: jobs, pricebook, photos, signatures' },
+      { name: 'GPS Tracking', desc: 'Real-time location of field teams' }
+    ]
+  },
+  {
+    category: 'Accounting & Financials',
+    color: 'from-green-500 to-emerald-600',
+    items: [
+      { name: 'Accounting', desc: 'Automate core finance tasks, track cash flow' },
+      { name: 'Invoicing', desc: 'Collect payments efficiently, visibility for office' },
+      { name: 'Accounting Integration', desc: 'Sync with external accounting software' },
+      { name: 'Purchasing & Inventory', desc: 'Automate procurement and inventory' }
+    ]
+  },
+  {
+    category: 'Reporting & Analytics',
+    color: 'from-cyan-500 to-blue-600',
+    items: [
+      { name: 'Dashboards', desc: 'Visualize KPIs, financials, job progress' },
+      { name: 'WIP Reporting', desc: 'Track real-time work-in-progress insights' },
+      { name: 'AI Insights', desc: 'Suggest optimization, route planning, cost savings' }
+    ]
+  },
+  {
+    category: 'Marketing & Growth',
+    color: 'from-rose-500 to-pink-600',
+    items: [
+      { name: 'Marketing Automation', desc: 'Targeted campaigns, ROI tracking' },
+      { name: 'Customer Engagement', desc: 'Keep customers informed, upsell service' }
+    ]
+  }
+];
+
 const expansionModules = [
   {
     name: 'AI & Automation',
@@ -199,12 +269,64 @@ export default function TechStack() {
         <p className="text-slate-500 mt-1">Core technologies and expansion modules powering OmniOps</p>
       </div>
 
-      <Tabs defaultValue="tech" className="w-full">
+      <Tabs defaultValue="business" className="w-full">
         <TabsList className="mb-4">
-          <TabsTrigger value="tech">Core Tech Stack</TabsTrigger>
+          <TabsTrigger value="business">Business Modules</TabsTrigger>
+          <TabsTrigger value="tech">Tech Stack</TabsTrigger>
           <TabsTrigger value="modules">Expansion Modules</TabsTrigger>
           <TabsTrigger value="strategy">Strategy</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="business" className="space-y-6">
+          {/* Core Business Modules */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {coreBusinessModules.map((module) => (
+              <div 
+                key={module.category}
+                className="bg-white rounded-2xl border border-slate-200/60 p-5 hover:shadow-lg transition-shadow"
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <div className={cn(
+                    "w-2 h-10 rounded-full bg-gradient-to-b",
+                    module.color
+                  )} />
+                  <h3 className="font-semibold text-slate-900">{module.category}</h3>
+                </div>
+                <div className="space-y-3">
+                  {module.items.map((item, i) => (
+                    <div key={i} className="group">
+                      <p className="text-sm font-medium text-slate-700 flex items-center gap-2">
+                        <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
+                        {item.name}
+                      </p>
+                      <p className="text-xs text-slate-400 ml-5.5 pl-1">{item.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Module Summary Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { label: 'Core Modules', value: '7', color: 'bg-emerald-500' },
+              { label: 'Features', value: '25+', color: 'bg-blue-500' },
+              { label: 'Integrations', value: '10+', color: 'bg-violet-500' },
+              { label: 'User Roles', value: '5+', color: 'bg-amber-500' }
+            ].map((stat, i) => (
+              <div key={i} className="bg-white rounded-xl border border-slate-200/60 p-4">
+                <div className="flex items-center gap-3">
+                  <div className={cn("w-2 h-8 rounded-full", stat.color)} />
+                  <div>
+                    <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
+                    <p className="text-sm text-slate-500">{stat.label}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </TabsContent>
 
         <TabsContent value="tech" className="space-y-6">
           {/* Tech Grid */}
