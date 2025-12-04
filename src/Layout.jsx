@@ -47,17 +47,17 @@ import Breadcrumbs from '@/components/ui/Breadcrumbs';
 
 const navigation = [
   { name: 'Command Center', page: 'Dashboard', icon: LayoutDashboard },
-  { name: 'System Health', page: 'SystemHealth', icon: Activity },
-  { name: 'Infrastructure', page: 'Infrastructure', icon: Server },
+  { name: 'AI Copilot', page: 'AICopilot', icon: Bot },
+  { name: 'Field App', page: 'FieldApp', icon: Server },
+  { name: 'Collaboration', page: 'LiveCollaboration', icon: Users },
+  { name: 'Customer Portal', page: 'CustomerPortal', icon: Users },
+  { name: 'Financials', page: 'FinancialIntelligence', icon: BarChart3 },
+  { name: 'Automation', page: 'WorkflowAutomation', icon: Workflow },
   { name: 'Workflows', page: 'Workflows', icon: Workflow },
-  { name: 'Automations', page: 'Automations', icon: Bot },
-  { name: 'Analytics', page: 'Analytics', icon: BarChart3 },
   { name: 'Integrations', page: 'Integrations', icon: Plug },
   { name: 'Alerts', page: 'Alerts', icon: Bell },
   { name: 'Compliance', page: 'Compliance', icon: Shield },
   { name: 'Audit Trail', page: 'AuditTrail', icon: FileText },
-  { name: 'Access Control', page: 'AccessControl', icon: Users },
-  { name: 'White Label', page: 'WhiteLabel', icon: Palette },
   { name: 'Tech Stack', page: 'TechStack', icon: Command },
   { name: 'Settings', page: 'Settings', icon: Settings },
 ];
