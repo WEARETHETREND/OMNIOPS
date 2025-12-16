@@ -47,18 +47,11 @@ import Breadcrumbs from '@/components/ui/Breadcrumbs';
 
 const navigation = [
   { name: 'Command Center', page: 'Dashboard', icon: LayoutDashboard },
-  { name: 'AI Copilot', page: 'AICopilot', icon: Bot },
-  { name: 'Field App', page: 'FieldApp', icon: Server },
-  { name: 'Collaboration', page: 'LiveCollaboration', icon: Users },
-  { name: 'Customer Portal', page: 'CustomerPortal', icon: Users },
-  { name: 'Financials', page: 'FinancialIntelligence', icon: BarChart3 },
-  { name: 'Automation', page: 'WorkflowAutomation', icon: Workflow },
+  { name: 'AI Copilot', page: 'Copilot', icon: Bot },
   { name: 'Workflows', page: 'Workflows', icon: Workflow },
-  { name: 'Integrations', page: 'Integrations', icon: Plug },
+  { name: 'Dispatches', page: 'Dispatches', icon: Activity },
   { name: 'Alerts', page: 'Alerts', icon: Bell },
-  { name: 'Compliance', page: 'Compliance', icon: Shield },
-  { name: 'Audit Trail', page: 'AuditTrail', icon: FileText },
-  { name: 'Tech Stack', page: 'TechStack', icon: Command },
+  { name: 'Audit Trail', page: 'Audit', icon: FileText },
   { name: 'Settings', page: 'Settings', icon: Settings },
 ];
 
