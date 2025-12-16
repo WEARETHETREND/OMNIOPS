@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { base44 } from '@/api/base44Client';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { safeGet } from '@/components/api/apiClient';
 import { 
   Activity, 
   Zap, 
@@ -20,77 +19,65 @@ import {
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
-import StatCard from '@/components/dashboard/StatCard';
-import AlertBanner from '@/components/dashboard/AlertBanner';
-import WorkflowCard from '@/components/dashboard/WorkflowCard';
-import IntegrationCard from '@/components/dashboard/IntegrationCard';
 import AreaChartCard from '@/components/charts/AreaChartCard';
 import DonutChartCard from '@/components/charts/DonutChartCard';
-import InfoTooltip from '@/components/ui/InfoTooltip';
 
 export default function Dashboard() {
-  const queryClient = useQueryClient();
-  const [refreshing, setRefreshing] = useState(false);
+  const [health, setHealth] = useState(null);
+  const [today, setToday] = useState(null);
+  const [savings, setSavings] = useState(null);
+  const [activity, setActivity] = useState(null);
+  const [byDept, setByDept] = useState(null);
+  const [workflows, setWorkflows] = useState([]);
+  const [alerts, setAlerts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const loadData = async () => {
+    setLoading(true);
+    setError('');
+
+    const [h, t, s, a, d, w, al] = await Promise.all([
+      safeGet('/health'),
+      safeGet('/metrics/today'),
+      safeGet('/metrics/savings'),
+      safeGet('/metrics/activity', { range: '7d' }),
+      safeGet('/metrics/by-department', { range: '7d' }),
+      safeGet('/workflows', { status: 'active' }),
+      safeGet('/alerts')
+    ]);
+
+    if (!h.ok) setError(`Health: ${h.error}`);
+    else setHealth(h.data);
+
+    if (t.ok) setToday(t.data);
+    if (s.ok) setSavings(s.data);
+    if (a.ok) setActivity(a.data);
+    if (d.ok) setByDept(d.data);
+    if (w.ok) setWorkflows(w.data.workflows || []);
+    if (al.ok) setAlerts(al.data.alerts || []);
+
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const handleRefresh = async () => {
-    setRefreshing(true);
-    await queryClient.invalidateQueries();
+    await loadData();
     toast.success('Dashboard refreshed');
-    setTimeout(() => setRefreshing(false), 500);
   };
 
-  const { data: workflows = [], isLoading: loadingWorkflows } = useQuery({
-    queryKey: ['workflows'],
-    queryFn: () => base44.entities.Workflow.list('-created_date', 4)
-  });
+  const activityChartData = activity?.points?.map(p => ({
+    name: new Date(p.date).toLocaleDateString('en-US', { weekday: 'short' }),
+    value: p.value
+  })) || [];
 
-  const { data: alerts = [], isLoading: loadingAlerts } = useQuery({
-    queryKey: ['alerts'],
-    queryFn: () => base44.entities.Alert.filter({ status: 'new' }, '-created_date', 3)
-  });
-
-  const { data: integrations = [], isLoading: loadingIntegrations } = useQuery({
-    queryKey: ['integrations'],
-    queryFn: () => base44.entities.Integration.list('-last_sync', 4)
-  });
-
-  const { data: metrics = [], isLoading: loadingMetrics } = useQuery({
-    queryKey: ['metrics'],
-    queryFn: () => base44.entities.Metric.list()
-  });
-
-  // Generate mock chart data
-  const activityData = [
-    { name: 'Mon', value: 2400 },
-    { name: 'Tue', value: 1398 },
-    { name: 'Wed', value: 9800 },
-    { name: 'Thu', value: 3908 },
-    { name: 'Fri', value: 4800 },
-    { name: 'Sat', value: 3800 },
-    { name: 'Sun', value: 4300 }
-  ];
-
-  const departmentData = [
-    { name: 'HR', value: 15 },
-    { name: 'Finance', value: 25 },
-    { name: 'IT', value: 30 },
-    { name: 'Sales', value: 20 },
-    { name: 'Marketing', value: 10 }
-  ];
-
-  // Calculate stats
-  const activeWorkflows = workflows.filter(w => w.status === 'active').length;
-  const connectedIntegrations = integrations.filter(i => i.status === 'connected').length;
-  const criticalAlerts = alerts.filter(a => a.severity === 'critical').length;
-
-  const handleDismissAlert = async (alertId) => {
-    await base44.entities.Alert.update(alertId, { status: 'dismissed' });
-  };
-
-  const handleToggleWorkflow = async (workflow) => {
-    const newStatus = workflow.status === 'active' ? 'paused' : 'active';
-    await base44.entities.Workflow.update(workflow.id, { status: newStatus });
-  };
+  const deptChartData = byDept?.items?.map(item => ({
+    name: item.department,
+    value: item.value
+  })) || [];
 
   return (
     <div className="space-y-8">
@@ -103,102 +90,116 @@ export default function Dashboard() {
         <div className="flex items-center gap-3">
           <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm">
             <CheckCircle className="w-4 h-4" />
-            All systems operational
+            {health?.status === 'ok' ? 'All systems operational' : 'Checking...'}
           </div>
-          <Button variant="outline" onClick={handleRefresh} disabled={refreshing}>
-            <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+          <Button variant="outline" onClick={handleRefresh} disabled={loading}>
+            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
         </div>
       </div>
 
-      {/* Critical Alerts Banner */}
-      {criticalAlerts > 0 && alerts.filter(a => a.severity === 'critical').slice(0, 1).map(alert => (
-        <AlertBanner key={alert.id} alert={alert} onDismiss={handleDismissAlert} />
-      ))}
+      {error && (
+        <div className="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-lg">
+          ⚠️ {error}
+        </div>
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatCard
           title="Active Workflows"
-          value={loadingWorkflows ? '...' : activeWorkflows}
-          change={12}
-          trend="up"
+          value={loading ? '...' : workflows.length}
           icon={WorkflowIcon}
           gradient="from-emerald-500 to-teal-600"
-          tooltip="Number of workflows currently running"
         />
         <StatCard
-          title="Connected Integrations"
-          value={loadingIntegrations ? '...' : connectedIntegrations}
-          change={5}
-          trend="up"
-          icon={Plug}
-          gradient="from-blue-500 to-cyan-600"
-          tooltip="External services connected to your platform"
+          title="Alerts"
+          value={loading ? '...' : alerts.length}
+          icon={AlertTriangle}
+          gradient="from-amber-500 to-orange-600"
         />
         <StatCard
           title="Operations Today"
-          value="12,847"
-          change={8}
-          trend="up"
+          value={loading ? '...' : (today?.operationsToday || 0).toLocaleString()}
           icon={Activity}
           gradient="from-violet-500 to-purple-600"
-          tooltip="Total automated operations performed today"
         />
         <StatCard
           title="Cost Savings"
-          value="$45.2K"
+          value={loading ? '...' : `$${((savings?.monthlySavingsUsd || 0) / 1000).toFixed(1)}K`}
           unit="/mo"
-          change={23}
-          trend="up"
           icon={DollarSign}
-          gradient="from-amber-500 to-orange-600"
-          tooltip="Estimated monthly savings from automation"
+          gradient="from-blue-500 to-cyan-600"
         />
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: 'New Workflow', icon: WorkflowIcon, href: 'WorkflowBuilder', color: 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100' },
-          { label: 'Add Integration', icon: Plug, href: 'Integrations', color: 'text-blue-600 bg-blue-50 hover:bg-blue-100' },
-          { label: 'View Alerts', icon: AlertTriangle, href: 'Alerts', color: 'text-amber-600 bg-amber-50 hover:bg-amber-100' },
-          { label: 'Analytics', icon: TrendingUp, href: 'Analytics', color: 'text-violet-600 bg-violet-50 hover:bg-violet-100' }
-        ].map((action, i) => (
-          <Link key={i} to={createPageUrl(action.href)}>
-            <div className={`flex items-center gap-3 p-4 rounded-xl transition-colors cursor-pointer ${action.color}`}>
-              <action.icon className="w-5 h-5" />
-              <span className="font-medium">{action.label}</span>
-            </div>
-          </Link>
-        ))}
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <AreaChartCard
-            title="Operations Activity"
-            subtitle="Total automated operations this week"
-            data={activityData}
-            color="#10b981"
-          />
+      {!loading && activityChartData.length > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <AreaChartCard
+              title="Operations Activity"
+              subtitle="Total automated operations this week"
+              data={activityChartData}
+              color="#10b981"
+            />
+          </div>
+          {deptChartData.length > 0 && (
+            <DonutChartCard
+              title="By Department"
+              subtitle="Workflow distribution"
+              data={deptChartData}
+            />
+          )}
         </div>
-        <DonutChartCard
-          title="By Department"
-          subtitle="Workflow distribution"
-          data={departmentData}
-        />
-      </div>
+      )}
 
-      {/* Alerts Section */}
+      {/* Active Workflows */}
+      {workflows.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-900">Active Workflows</h2>
+              <p className="text-sm text-slate-500">{workflows.length} running</p>
+            </div>
+            <Link to={createPageUrl('Workflows')}>
+              <Button variant="ghost" className="text-slate-600">
+                View all <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {workflows.slice(0, 4).map(wf => (
+              <Link key={wf.id} to={createPageUrl(`WorkflowDetails?id=${wf.id}`)}>
+                <div className="bg-white rounded-xl border border-slate-200/60 p-4 hover:shadow-lg transition-all cursor-pointer">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-semibold text-slate-900">{wf.name}</h3>
+                    <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                  </div>
+                  <p className="text-sm text-slate-500 mb-3">{wf.status}</p>
+                  <div className="flex items-center gap-4 text-xs text-slate-400">
+                    {wf.successRate && (
+                      <span>{Math.round(wf.successRate * 100)}% success</span>
+                    )}
+                    {wf.avgDurationMs && (
+                      <span>{Math.round(wf.avgDurationMs / 1000)}s avg</span>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Recent Alerts */}
       {alerts.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-lg font-semibold text-slate-900">Recent Alerts</h2>
-              <p className="text-sm text-slate-500">Requiring your attention</p>
+              <p className="text-sm text-slate-500">{alerts.length} active</p>
             </div>
             <Link to={createPageUrl('Alerts')}>
               <Button variant="ghost" className="text-slate-600">
@@ -206,93 +207,44 @@ export default function Dashboard() {
               </Button>
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {loadingAlerts ? (
-              Array(3).fill(0).map((_, i) => (
-                <Skeleton key={i} className="h-32 rounded-xl" />
-              ))
-            ) : (
-              alerts.slice(0, 3).map(alert => (
-                <AlertBanner key={alert.id} alert={alert} onDismiss={handleDismissAlert} />
-              ))
-            )}
+          <div className="space-y-3">
+            {alerts.slice(0, 3).map(alert => (
+              <div key={alert.id} className="bg-white rounded-lg border border-slate-200/60 p-4">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className={`w-5 h-5 flex-shrink-0 ${
+                    alert.severity === 'high' ? 'text-rose-500' : 
+                    alert.severity === 'medium' ? 'text-amber-500' : 'text-blue-500'
+                  }`} />
+                  <div className="flex-1">
+                    <h4 className="font-medium text-slate-900">{alert.title}</h4>
+                    <p className="text-sm text-slate-500 mt-1">{alert.service}</p>
+                  </div>
+                  <span className="text-xs text-slate-400">
+                    {new Date(alert.createdAt).toLocaleTimeString()}
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
+    </div>
+  );
+}
 
-      {/* Workflows Section */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900">Active Workflows</h2>
-            <p className="text-sm text-slate-500">Your automated processes</p>
+function StatCard({ title, value, unit, icon: Icon, gradient }) {
+  return (
+    <div className="bg-white rounded-xl border border-slate-200/60 p-6">
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-sm text-slate-500 mb-2">{title}</p>
+          <div className="flex items-baseline gap-1">
+            <p className="text-3xl font-bold text-slate-900">{value}</p>
+            {unit && <span className="text-sm text-slate-400">{unit}</span>}
           </div>
-          <Link to={createPageUrl('Workflows')}>
-            <Button variant="ghost" className="text-slate-600">
-              View all <ArrowRight className="w-4 h-4 ml-1" />
-            </Button>
-          </Link>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-          {loadingWorkflows ? (
-            Array(4).fill(0).map((_, i) => (
-              <Skeleton key={i} className="h-64 rounded-2xl" />
-            ))
-          ) : workflows.length > 0 ? (
-            workflows.map(workflow => (
-              <WorkflowCard 
-                key={workflow.id} 
-                workflow={workflow} 
-                onToggle={handleToggleWorkflow}
-              />
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12 bg-white rounded-2xl border border-slate-200/60">
-              <WorkflowIcon className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-              <p className="text-slate-500">No workflows yet</p>
-              <Link to={createPageUrl('Workflows')}>
-                <Button className="mt-4 bg-slate-900 hover:bg-slate-800">
-                  Create your first workflow
-                </Button>
-              </Link>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Integrations Section */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900">Integrations</h2>
-            <p className="text-sm text-slate-500">Connected services</p>
-          </div>
-          <Link to={createPageUrl('Integrations')}>
-            <Button variant="ghost" className="text-slate-600">
-              View all <ArrowRight className="w-4 h-4 ml-1" />
-            </Button>
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-          {loadingIntegrations ? (
-            Array(4).fill(0).map((_, i) => (
-              <Skeleton key={i} className="h-56 rounded-2xl" />
-            ))
-          ) : integrations.length > 0 ? (
-            integrations.map(integration => (
-              <IntegrationCard key={integration.id} integration={integration} />
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12 bg-white rounded-2xl border border-slate-200/60">
-              <Plug className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-              <p className="text-slate-500">No integrations connected</p>
-              <Link to={createPageUrl('Integrations')}>
-                <Button className="mt-4 bg-slate-900 hover:bg-slate-800">
-                  Connect your first integration
-                </Button>
-              </Link>
-            </div>
-          )}
+        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center`}>
+          <Icon className="w-6 h-6 text-white" />
         </div>
       </div>
     </div>

@@ -20,6 +20,10 @@ import CustomerPortal from './pages/CustomerPortal';
 import FinancialIntelligence from './pages/FinancialIntelligence';
 import WorkflowAutomation from './pages/WorkflowAutomation';
 import LiveCollaboration from './pages/LiveCollaboration';
+import WorkflowDetails from './pages/WorkflowDetails';
+import Dispatches from './pages/Dispatches';
+import Audit from './pages/Audit';
+import Copilot from './pages/Copilot';
 import __Layout from './Layout.jsx';
 
 
@@ -46,6 +50,10 @@ export const PAGES = {
     "FinancialIntelligence": FinancialIntelligence,
     "WorkflowAutomation": WorkflowAutomation,
     "LiveCollaboration": LiveCollaboration,
+    "WorkflowDetails": WorkflowDetails,
+    "Dispatches": Dispatches,
+    "Audit": Audit,
+    "Copilot": Copilot,
 }
 
 export const pagesConfig = {
