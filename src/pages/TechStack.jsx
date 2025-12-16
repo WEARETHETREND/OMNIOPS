@@ -1,568 +1,163 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { safeGet } from '@/components/api/apiClient';
 import { 
-  Code2, 
-  Database, 
-  Palette, 
-  BarChart3, 
-  Wifi, 
-  HardDrive,
-  FileCheck,
-  Layers,
+  Server,
+  Database,
+  Cloud,
+  Code,
+  RefreshCw,
   CheckCircle,
-  ExternalLink,
-  Brain,
-  BookOpen,
-  Users,
-  Package,
-  Heart,
-  Plug2,
-  Shield,
-  PieChart,
-  UserCheck,
-  Building2,
-  Sparkles,
-  Zap
+  XCircle,
+  Loader2
 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-const coreBusinessModules = [
-  {
-    category: 'Sales & Proposals',
-    color: 'from-blue-500 to-indigo-600',
-    items: [
-      { name: 'Proposal Builder', desc: 'Create branded proposals that auto-convert to agreements' },
-      { name: 'Estimates', desc: 'Increase average tickets and convert more jobs' },
-      { name: 'Progress Billing', desc: 'Collect payments in stages as jobs progress' }
-    ]
-  },
-  {
-    category: 'Job & Project Management',
-    color: 'from-emerald-500 to-teal-600',
-    items: [
-      { name: 'Job Costing', desc: 'Real-time insight into expenses, margins, and contracts' },
-      { name: 'Project Management', desc: 'Track schedule, budget, and progress' },
-      { name: 'Crew Management', desc: 'Manage field teams and assignments' },
-      { name: 'Dynamic Forms', desc: 'Standardize work across jobs with automated forms' },
-      { name: 'WIP Reporting', desc: 'See live work-in-progress insights' }
-    ]
-  },
-  {
-    category: 'Customer & CRM',
-    color: 'from-violet-500 to-purple-600',
-    items: [
-      { name: 'CRM Records', desc: 'All customer info, history, equipment' },
-      { name: 'Client Portal', desc: 'Customers view work history, request work orders, pay invoices' },
-      { name: 'Client-Specific Pricing', desc: 'Tailor pricebooks and dynamically update costs' },
-      { name: 'Customer Experience', desc: 'Two-way channel for service visibility and CSR support' }
-    ]
-  },
-  {
-    category: 'Dispatching & Field Ops',
-    color: 'from-amber-500 to-orange-600',
-    items: [
-      { name: 'Dispatching', desc: 'Schedule technicians efficiently, optimize routes' },
-      { name: 'Booking', desc: 'Simplify customer scheduling online & phone' },
-      { name: 'Mobile App', desc: 'Field app for techs: jobs, pricebook, photos, signatures' },
-      { name: 'GPS Tracking', desc: 'Real-time location of field teams' }
-    ]
-  },
-  {
-    category: 'Accounting & Financials',
-    color: 'from-green-500 to-emerald-600',
-    items: [
-      { name: 'Accounting', desc: 'Automate core finance tasks, track cash flow' },
-      { name: 'Invoicing', desc: 'Collect payments efficiently, visibility for office' },
-      { name: 'Accounting Integration', desc: 'Sync with external accounting software' },
-      { name: 'Purchasing & Inventory', desc: 'Automate procurement and inventory' }
-    ]
-  },
-  {
-    category: 'Reporting & Analytics',
-    color: 'from-cyan-500 to-blue-600',
-    items: [
-      { name: 'Dashboards', desc: 'Visualize KPIs, financials, job progress' },
-      { name: 'WIP Reporting', desc: 'Track real-time work-in-progress insights' },
-      { name: 'AI Insights', desc: 'Suggest optimization, route planning, cost savings' }
-    ]
-  },
-  {
-    category: 'Marketing & Growth',
-    color: 'from-rose-500 to-pink-600',
-    items: [
-      { name: 'Marketing Automation', desc: 'Targeted campaigns, ROI tracking' },
-      { name: 'Customer Engagement', desc: 'Keep customers informed, upsell service' }
-    ]
-  }
-];
-
-const expansionModules = [
-  {
-    name: 'AI & Automation',
-    icon: Brain,
-    color: 'from-violet-500 to-purple-600',
-    status: 'planned',
-    features: ['Predictive Maintenance', 'Smart Scheduling', 'Auto-Response', 'Revenue Forecasting'],
-    benefit: 'Adds intelligence to workflows; reduces manual effort'
-  },
-  {
-    name: 'Knowledge Base',
-    icon: BookOpen,
-    color: 'from-blue-500 to-cyan-600',
-    status: 'planned',
-    features: ['SOPs', 'Training Docs', 'Onboarding Guides'],
-    benefit: 'Reduces errors & training time'
-  },
-  {
-    name: 'Vendor Management',
-    icon: Users,
-    color: 'from-amber-500 to-orange-600',
-    status: 'planned',
-    features: ['Assign Jobs', 'Track Invoices', 'Evaluate Performance'],
-    benefit: 'Needed for multi-team / multi-contractor setups'
-  },
-  {
-    name: 'Inventory & Assets',
-    icon: Package,
-    color: 'from-emerald-500 to-teal-600',
-    status: 'planned',
-    features: ['Tools & Equipment', 'Low Stock Alerts', 'QR/Barcode Scanning'],
-    benefit: 'Ideal for field-heavy industries'
-  },
-  {
-    name: 'Customer Loyalty',
-    icon: Heart,
-    color: 'from-rose-500 to-pink-600',
-    status: 'planned',
-    features: ['Points System', 'Referrals', 'Automated Follow-ups'],
-    benefit: 'Keeps customers returning'
-  },
-  {
-    name: 'Integrations Marketplace',
-    icon: Plug2,
-    color: 'from-indigo-500 to-blue-600',
-    status: 'active',
-    features: ['QuickBooks', 'Salesforce', 'Zapier', 'Payment Gateways'],
-    benefit: 'Extends platform without custom code'
-  },
-  {
-    name: 'Compliance Tracking',
-    icon: Shield,
-    color: 'from-slate-500 to-slate-700',
-    status: 'active',
-    features: ['Licenses', 'Certifications', 'Renewal Reminders'],
-    benefit: 'Critical for regulated industries'
-  },
-  {
-    name: 'Advanced BI & Reporting',
-    icon: PieChart,
-    color: 'from-cyan-500 to-blue-600',
-    status: 'planned',
-    features: ['Custom Dashboards', 'KPI Benchmarking', 'Geospatial Analytics'],
-    benefit: 'Insights for executives & analysts'
-  },
-  {
-    name: 'HR & Performance',
-    icon: UserCheck,
-    color: 'from-green-500 to-emerald-600',
-    status: 'planned',
-    features: ['Productivity Tracking', 'Payroll', 'Certifications'],
-    benefit: 'Builds internal efficiency & accountability'
-  },
-  {
-    name: 'Industry Vertical Packs',
-    icon: Building2,
-    color: 'from-purple-500 to-violet-600',
-    status: 'planned',
-    features: ['Pre-built Workflows', 'Industry Templates', 'Best Practices'],
-    benefit: 'Enables OmniOps to scale into multiple markets'
-  }
-];
-
-const techCategories = [
-  {
-    name: 'Framework',
-    icon: Code2,
-    color: 'from-blue-500 to-indigo-600',
-    technologies: [
-      { name: 'React 18', status: 'active', description: 'Component-based UI with concurrent features' },
-      { name: 'TypeScript', status: 'active', description: 'Type-safe development experience' },
-      { name: 'Vite', status: 'active', description: 'Fast build tool and dev server' }
-    ]
-  },
-  {
-    name: 'State Management',
-    icon: Layers,
-    color: 'from-violet-500 to-purple-600',
-    technologies: [
-      { name: 'React Query', status: 'active', description: 'Server state management and caching' },
-      { name: 'React Context', status: 'active', description: 'Local state for themes, auth' },
-      { name: 'LocalStorage', status: 'active', description: 'Persist user preferences' }
-    ]
-  },
-  {
-    name: 'UI Library',
-    icon: Palette,
-    color: 'from-pink-500 to-rose-600',
-    technologies: [
-      { name: 'TailwindCSS', status: 'active', description: 'Utility-first CSS framework' },
-      { name: 'ShadCN/UI', status: 'active', description: 'Accessible component primitives' },
-      { name: 'Framer Motion', status: 'active', description: 'Animation library' },
-      { name: 'Lucide Icons', status: 'active', description: 'Beautiful icon set' }
-    ]
-  },
-  {
-    name: 'Charts & Visuals',
-    icon: BarChart3,
-    color: 'from-emerald-500 to-teal-600',
-    technologies: [
-      { name: 'Recharts', status: 'active', description: 'Composable charting library' },
-      { name: 'Sparklines', status: 'active', description: 'Mini inline charts' }
-    ]
-  },
-  {
-    name: 'Real-Time',
-    icon: Wifi,
-    color: 'from-amber-500 to-orange-600',
-    technologies: [
-      { name: 'React Query Polling', status: 'active', description: 'Automatic data refetching' },
-      { name: 'Sonner Toasts', status: 'active', description: 'Real-time notifications' }
-    ]
-  },
-  {
-    name: 'Persistence',
-    icon: HardDrive,
-    color: 'from-slate-500 to-slate-700',
-    technologies: [
-      { name: 'LocalStorage', status: 'active', description: 'Theme, layout preferences' },
-      { name: 'Base44 Backend', status: 'active', description: 'Cloud database & auth' }
-    ]
-  },
-  {
-    name: 'Forms & Validation',
-    icon: FileCheck,
-    color: 'from-cyan-500 to-blue-600',
-    technologies: [
-      { name: 'React Hook Form', status: 'active', description: 'Performant form handling' },
-      { name: 'Native Validation', status: 'active', description: 'HTML5 + custom validation' }
-    ]
-  },
-  {
-    name: 'Backend Services',
-    icon: Database,
-    color: 'from-green-500 to-emerald-600',
-    technologies: [
-      { name: 'Base44 Entities', status: 'active', description: 'Schema-based data models' },
-      { name: 'Base44 Auth', status: 'active', description: 'User authentication' },
-      { name: 'Base44 Integrations', status: 'active', description: 'AI, Email, File storage' }
-    ]
-  }
-];
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function TechStack() {
+  const [stack, setStack] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const loadStack = async () => {
+    setLoading(true);
+    setError('');
+    const r = await safeGet('/tech-stack');
+    if (!r.ok) {
+      setError(r.error);
+    } else {
+      setStack(r.data);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadStack();
+  }, []);
+
+  const categories = [
+    { id: 'backend', label: 'Backend', icon: Server, gradient: 'from-blue-500 to-cyan-500' },
+    { id: 'database', label: 'Database', icon: Database, gradient: 'from-emerald-500 to-teal-500' },
+    { id: 'infrastructure', label: 'Infrastructure', icon: Cloud, gradient: 'from-violet-500 to-purple-500' },
+    { id: 'frontend', label: 'Frontend', icon: Code, gradient: 'from-amber-500 to-orange-500' },
+  ];
+
+  const getStatusIcon = (status) => {
+    if (status === 'healthy') return <CheckCircle className="w-4 h-4 text-emerald-500" />;
+    if (status === 'degraded') return <Loader2 className="w-4 h-4 text-amber-500" />;
+    if (status === 'down') return <XCircle className="w-4 h-4 text-rose-500" />;
+    return <Loader2 className="w-4 h-4 text-slate-400" />;
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Platform Architecture</h1>
-        <p className="text-slate-500 mt-1">Core technologies and expansion modules powering OmniOps</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Tech Stack</h1>
+          <p className="text-slate-500 mt-1">Infrastructure, services, and dependencies</p>
+        </div>
+        <Button onClick={loadStack} variant="outline">
+          <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
       </div>
 
-      <Tabs defaultValue="business" className="w-full">
-        <TabsList className="mb-4">
-          <TabsTrigger value="business">Business Modules</TabsTrigger>
-          <TabsTrigger value="tech">Tech Stack</TabsTrigger>
-          <TabsTrigger value="modules">Expansion Modules</TabsTrigger>
-          <TabsTrigger value="strategy">Strategy</TabsTrigger>
-        </TabsList>
+      {error && (
+        <div className="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-lg">
+          ⚠️ {error}
+        </div>
+      )}
 
-        <TabsContent value="business" className="space-y-6">
-          {/* Core Business Modules */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {coreBusinessModules.map((module) => (
-              <div 
-                key={module.category}
-                className="bg-white rounded-2xl border border-slate-200/60 p-5 hover:shadow-lg transition-shadow"
-              >
-                <div className="flex items-center gap-2 mb-4">
-                  <div className={cn(
-                    "w-2 h-10 rounded-full bg-gradient-to-b",
-                    module.color
-                  )} />
-                  <h3 className="font-semibold text-slate-900">{module.category}</h3>
-                </div>
-                <div className="space-y-3">
-                  {module.items.map((item, i) => (
-                    <div key={i} className="group">
-                      <p className="text-sm font-medium text-slate-700 flex items-center gap-2">
-                        <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
-                        {item.name}
-                      </p>
-                      <p className="text-xs text-slate-400 ml-5.5 pl-1">{item.desc}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Module Summary Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { label: 'Core Modules', value: '7', color: 'bg-emerald-500' },
-              { label: 'Features', value: '25+', color: 'bg-blue-500' },
-              { label: 'Integrations', value: '10+', color: 'bg-violet-500' },
-              { label: 'User Roles', value: '5+', color: 'bg-amber-500' }
-            ].map((stat, i) => (
-              <div key={i} className="bg-white rounded-xl border border-slate-200/60 p-4">
-                <div className="flex items-center gap-3">
-                  <div className={cn("w-2 h-8 rounded-full", stat.color)} />
-                  <div>
-                    <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
-                    <p className="text-sm text-slate-500">{stat.label}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="tech" className="space-y-6">
-          {/* Tech Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {techCategories.map((category) => (
-          <div 
-            key={category.name}
-            className="bg-white rounded-2xl border border-slate-200/60 p-5 hover:shadow-lg transition-shadow"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className={cn(
-                "w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center",
-                category.color
-              )}>
-                <category.icon className="w-5 h-5 text-white" />
-              </div>
-              <h3 className="font-semibold text-slate-900">{category.name}</h3>
+      {/* System Overview */}
+      {loading ? (
+        <Skeleton className="h-32 rounded-xl" />
+      ) : stack?.system && (
+        <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-8 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-slate-300 mb-2">System Version</p>
+              <p className="text-4xl font-bold">{stack.system.version || 'v1.0.0'}</p>
             </div>
-
-            <div className="space-y-3">
-              {category.technologies.map((tech) => (
-                <div key={tech.name} className="flex items-start gap-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium text-slate-700">{tech.name}</p>
-                    <p className="text-xs text-slate-400">{tech.description}</p>
-                  </div>
-                </div>
-              ))}
+            <div className="text-right">
+              <p className="text-sm text-slate-300 mb-2">Environment</p>
+              <span className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg text-sm font-medium">
+                {stack.system.environment || 'Production'}
+              </span>
             </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Architecture Overview */}
-      <div className="bg-white rounded-2xl border border-slate-200/60 p-6">
-        <h2 className="text-lg font-semibold text-slate-900 mb-4">Architecture Overview</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
-            <h4 className="font-medium text-blue-900 mb-2">Frontend Layer</h4>
-            <p className="text-sm text-blue-700">React 18 with ShadCN components, TailwindCSS styling, and Recharts visualizations. Optimized for performance with React Query caching.</p>
-          </div>
-          <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
-            <h4 className="font-medium text-emerald-900 mb-2">State Layer</h4>
-            <p className="text-sm text-emerald-700">React Query for server state, Context for UI state, LocalStorage for persistence. Automatic background refetching keeps data fresh.</p>
-          </div>
-          <div className="p-4 bg-violet-50 rounded-xl border border-violet-100">
-            <h4 className="font-medium text-violet-900 mb-2">Backend Layer</h4>
-            <p className="text-sm text-violet-700">Base44 managed services for database, authentication, file storage, and AI integrations. Zero backend code required.</p>
           </div>
         </div>
-      </div>
+      )}
 
-          {/* Features */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div className="bg-white rounded-2xl border border-slate-200/60 p-6">
-              <h3 className="font-semibold text-slate-900 mb-4">Developer Experience</h3>
-              <ul className="space-y-2">
-                {[
-                  'Hot module replacement for instant updates',
-                  'TypeScript for type safety',
-                  'Component-driven development',
-                  'Utility-first CSS with Tailwind',
-                  'Pre-built accessible UI components'
-                ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-2 text-sm text-slate-600">
-                    <CheckCircle className="w-4 h-4 text-emerald-500" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="bg-white rounded-2xl border border-slate-200/60 p-6">
-              <h3 className="font-semibold text-slate-900 mb-4">Production Ready</h3>
-              <ul className="space-y-2">
-                {[
-                  'Responsive design for all devices',
-                  'Accessible components (WCAG 2.1)',
-                  'Optimized bundle size',
-                  'Error boundaries for stability',
-                  'Real-time data synchronization'
-                ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-2 text-sm text-slate-600">
-                    <CheckCircle className="w-4 h-4 text-emerald-500" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="modules" className="space-y-6">
-          {/* Expansion Modules Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-            {expansionModules.map((module) => (
-              <div 
-                key={module.name}
-                className="bg-white rounded-xl border border-slate-200/60 p-4 hover:shadow-lg transition-shadow"
-              >
-                <div className="flex items-center gap-2 mb-3">
-                  <div className={cn(
-                    "w-9 h-9 rounded-lg bg-gradient-to-br flex items-center justify-center",
-                    module.color
-                  )}>
-                    <module.icon className="w-4 h-4 text-white" />
-                  </div>
-                  <Badge className={module.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}>
-                    {module.status === 'active' ? 'Active' : 'Planned'}
-                  </Badge>
-                </div>
-                <h3 className="font-semibold text-slate-900 text-sm mb-2">{module.name}</h3>
-                <ul className="space-y-1 mb-3">
-                  {module.features.slice(0, 3).map((feature, i) => (
-                    <li key={i} className="text-xs text-slate-500 flex items-center gap-1">
-                      <Sparkles className="w-3 h-3 text-amber-400" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                <p className="text-xs text-slate-400 italic">{module.benefit}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Module Integration Map */}
-          <div className="bg-white rounded-2xl border border-slate-200/60 p-6">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4">Module Integration</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[
-                { module: 'Operations', components: ['ActivityFeed', 'InlineEditTable'], desc: 'Job lists, schedules' },
-                { module: 'Sales', components: ['KPICard', 'DrillDownChart'], desc: 'Estimates, proposals, conversion' },
-                { module: 'Customer', components: ['NotificationsDropdown', 'CollaboratorAvatars'], desc: 'CSRs & client communication' },
-                { module: 'Finance', components: ['DrillDownChart', 'KPICard'], desc: 'Expenses, margins, cash flow' },
-                { module: 'Reporting', components: ['All Dashboard Components'], desc: 'Visual insights & analytics' },
-                { module: 'Projects', components: ['ProjectSelector', 'QuickActions', 'InlineEditTable'], desc: 'Multi-project management' }
-              ].map((item, i) => (
-                <div key={i} className="p-4 bg-slate-50 rounded-xl">
-                  <h4 className="font-medium text-slate-900 mb-1">{item.module} Module</h4>
-                  <p className="text-xs text-slate-500 mb-2">{item.desc}</p>
-                  <div className="flex flex-wrap gap-1">
-                    {item.components.map((c, j) => (
-                      <Badge key={j} variant="outline" className="text-xs">{c}</Badge>
-                    ))}
+      {/* Tech Stack Categories */}
+      {loading ? (
+        <div className="space-y-6">
+          {Array(4).fill(0).map((_, i) => (
+            <Skeleton key={i} className="h-64 rounded-xl" />
+          ))}
+        </div>
+      ) : stack?.components ? (
+        <div className="space-y-6">
+          {categories.map(category => {
+            const components = stack.components[category.id] || [];
+            const Icon = category.icon;
+            
+            return (
+              <div key={category.id} className="bg-white rounded-xl border border-slate-200/60 overflow-hidden">
+                <div className={`bg-gradient-to-r ${category.gradient} p-6 text-white`}>
+                  <div className="flex items-center gap-3">
+                    <Icon className="w-8 h-8" />
+                    <div>
+                      <h2 className="text-xl font-semibold">{category.label}</h2>
+                      <p className="text-sm opacity-90">{components.length} components</p>
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </TabsContent>
 
-        <TabsContent value="strategy" className="space-y-6">
-          {/* Strategy for Greatness */}
-          <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 text-white">
-            <div className="flex items-center gap-2 mb-4">
-              <Zap className="w-6 h-6 text-amber-400" />
-              <h2 className="text-xl font-bold">Strategy for Greatness</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[
-                { title: 'Core First', desc: 'Get OmniOps fully functional in one month' },
-                { title: 'Modular Architecture', desc: 'Optional modules can be added without disrupting the core' },
-                { title: 'Role-Based Dashboards', desc: 'Prevents feature overload for end-users' },
-                { title: 'AI & Automation Early', desc: 'Differentiates OmniOps from competitors' },
-                { title: 'Industry Vertical Packs', desc: 'Scale into new markets while keeping core stable' },
-                { title: 'Incremental Upgrades', desc: 'Increase stickiness, revenue, and differentiation' }
-              ].map((item, i) => (
-                <div key={i} className="p-4 bg-white/10 rounded-xl backdrop-blur">
-                  <h4 className="font-semibold text-emerald-400 mb-1">{item.title}</h4>
-                  <p className="text-sm text-slate-300">{item.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Big Picture */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div className="bg-emerald-50 rounded-2xl border border-emerald-200 p-6">
-              <h3 className="font-semibold text-emerald-900 mb-3 flex items-center gap-2">
-                <CheckCircle className="w-5 h-5" />
-                Core Modules
-              </h3>
-              <ul className="space-y-2">
-                {['MVP launch ready', 'Investor-ready polish', 'Essential workflows', 'Real-time dashboards'].map((item, i) => (
-                  <li key={i} className="flex items-center gap-2 text-sm text-emerald-700">
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="bg-violet-50 rounded-2xl border border-violet-200 p-6">
-              <h3 className="font-semibold text-violet-900 mb-3 flex items-center gap-2">
-                <Sparkles className="w-5 h-5" />
-                Optional Modules
-              </h3>
-              <ul className="space-y-2">
-                {['Incremental revenue streams', 'Increased user stickiness', 'Market differentiation', 'Enterprise-grade features'].map((item, i) => (
-                  <li key={i} className="flex items-center gap-2 text-sm text-violet-700">
-                    <div className="w-1.5 h-1.5 rounded-full bg-violet-500" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {/* Value Proposition */}
-          <div className="bg-white rounded-2xl border border-slate-200/60 p-6">
-            <h3 className="font-semibold text-slate-900 mb-4">Platform Value</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="text-center p-4">
-                <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center mx-auto mb-3">
-                  <Layers className="w-6 h-6 text-blue-600" />
-                </div>
-                <h4 className="font-medium text-slate-900">Navigation & Productivity</h4>
-                <p className="text-xs text-slate-500 mt-1">ProjectSelector, QuickActions, Breadcrumbs</p>
+                {components.length > 0 ? (
+                  <div className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {components.map((comp, i) => (
+                        <div key={i} className="border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <h3 className="font-semibold text-slate-900">{comp.name}</h3>
+                              <p className="text-sm text-slate-500 mt-1">{comp.version}</p>
+                            </div>
+                            {getStatusIcon(comp.status)}
+                          </div>
+                          {comp.description && (
+                            <p className="text-sm text-slate-600 mb-2">{comp.description}</p>
+                          )}
+                          {comp.url && (
+                            <a 
+                              href={comp.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-xs text-blue-600 hover:text-blue-700"
+                            >
+                              Documentation →
+                            </a>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-8 text-center text-slate-500">
+                    No {category.label.toLowerCase()} components configured
+                  </div>
+                )}
               </div>
-              <div className="text-center p-4">
-                <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center mx-auto mb-3">
-                  <Users className="w-6 h-6 text-amber-600" />
-                </div>
-                <h4 className="font-medium text-slate-900">Engagement & Communication</h4>
-                <p className="text-xs text-slate-500 mt-1">NotificationsDropdown, ActivityFeed, CollaboratorAvatars</p>
-              </div>
-              <div className="text-center p-4">
-                <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center mx-auto mb-3">
-                  <BarChart3 className="w-6 h-6 text-emerald-600" />
-                </div>
-                <h4 className="font-medium text-slate-900">Data Visibility & Interactivity</h4>
-                <p className="text-xs text-slate-500 mt-1">KPICard, DrillDownChart, InlineEditTable</p>
-              </div>
-            </div>
-          </div>
-        </TabsContent>
-      </Tabs>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="text-center py-16 bg-white rounded-2xl border border-slate-200/60">
+          <Server className="w-16 h-16 text-slate-200 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-slate-900 mb-2">No stack data</h3>
+          <p className="text-slate-500">Tech stack information not available</p>
+        </div>
+      )}
     </div>
   );
 }

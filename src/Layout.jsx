@@ -21,7 +21,8 @@ import {
   Palette,
   Bot,
   Search,
-  Activity
+  Activity,
+  Server
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -55,6 +56,7 @@ const navigation = [
   { name: 'Audit Trail', page: 'Audit', icon: FileText },
   { name: 'Notifications', page: 'NotificationsCenter', icon: Bell },
   { name: 'White Label', page: 'WhiteLabel', icon: Palette },
+  { name: 'Tech Stack', page: 'TechStack', icon: Server },
   { name: 'Settings', page: 'Settings', icon: Settings },
 ];
 
