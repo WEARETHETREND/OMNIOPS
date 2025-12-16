@@ -7,7 +7,6 @@ import {
   LayoutDashboard,
   Workflow,
   BarChart3,
-  Plug,
   Bell,
   Settings,
   Menu,
@@ -21,10 +20,8 @@ import {
   Users,
   Palette,
   Bot,
-  Server,
   Search,
-  Activity,
-  Command
+  Activity
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -51,7 +48,13 @@ const navigation = [
   { name: 'Workflows', page: 'Workflows', icon: Workflow },
   { name: 'Dispatches', page: 'Dispatches', icon: Activity },
   { name: 'Alerts', page: 'Alerts', icon: Bell },
+  { name: 'Analytics', page: 'Analytics', icon: BarChart3 },
+  { name: 'Anomaly Detection', page: 'AnomalyDetection', icon: Activity },
+  { name: 'Compliance', page: 'Compliance', icon: Shield },
+  { name: 'Access Control', page: 'AccessControl', icon: Users },
   { name: 'Audit Trail', page: 'Audit', icon: FileText },
+  { name: 'Notifications', page: 'NotificationsCenter', icon: Bell },
+  { name: 'White Label', page: 'WhiteLabel', icon: Palette },
   { name: 'Settings', page: 'Settings', icon: Settings },
 ];
 
