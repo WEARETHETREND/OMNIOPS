@@ -24,6 +24,8 @@ import WorkflowDetails from './pages/WorkflowDetails';
 import Dispatches from './pages/Dispatches';
 import Audit from './pages/Audit';
 import Copilot from './pages/Copilot';
+import NotificationsCenter from './pages/NotificationsCenter';
+import AnomalyDetection from './pages/AnomalyDetection';
 import __Layout from './Layout.jsx';
 
 
@@ -54,6 +56,8 @@ export const PAGES = {
     "Dispatches": Dispatches,
     "Audit": Audit,
     "Copilot": Copilot,
+    "NotificationsCenter": NotificationsCenter,
+    "AnomalyDetection": AnomalyDetection,
 }
 
 export const pagesConfig = {
