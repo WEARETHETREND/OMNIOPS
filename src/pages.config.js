@@ -30,6 +30,12 @@ import WorkflowTemplates from './pages/WorkflowTemplates';
 import ScheduledReports from './pages/ScheduledReports';
 import DataImportExport from './pages/DataImportExport';
 import SharedDashboards from './pages/SharedDashboards';
+import CRM from './pages/CRM';
+import Inventory from './pages/Inventory';
+import Projects from './pages/Projects';
+import HR from './pages/HR';
+import Billing from './pages/Billing';
+import Marketing from './pages/Marketing';
 import __Layout from './Layout.jsx';
 
 
@@ -66,6 +72,12 @@ export const PAGES = {
     "ScheduledReports": ScheduledReports,
     "DataImportExport": DataImportExport,
     "SharedDashboards": SharedDashboards,
+    "CRM": CRM,
+    "Inventory": Inventory,
+    "Projects": Projects,
+    "HR": HR,
+    "Billing": Billing,
+    "Marketing": Marketing,
 }
 
 export const pagesConfig = {
