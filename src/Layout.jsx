@@ -22,7 +22,13 @@ import {
   Bot,
   Search,
   Activity,
-  Server
+  Server,
+  Package,
+  Folder,
+  DollarSign,
+  Megaphone,
+  Download,
+  Share2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -47,10 +53,21 @@ const navigation = [
   { name: 'Command Center', page: 'Dashboard', icon: LayoutDashboard },
   { name: 'AI Copilot', page: 'Copilot', icon: Bot },
   { name: 'Workflows', page: 'Workflows', icon: Workflow },
+  { name: 'Workflow Builder', page: 'WorkflowBuilder', icon: Workflow },
+  { name: 'Templates', page: 'WorkflowTemplates', icon: Zap },
   { name: 'Dispatches', page: 'Dispatches', icon: Activity },
   { name: 'Alerts', page: 'Alerts', icon: Bell },
   { name: 'Analytics', page: 'Analytics', icon: BarChart3 },
   { name: 'Anomaly Detection', page: 'AnomalyDetection', icon: Activity },
+  { name: 'CRM', page: 'CRM', icon: Users },
+  { name: 'Inventory', page: 'Inventory', icon: Package },
+  { name: 'Projects', page: 'Projects', icon: Folder },
+  { name: 'HR', page: 'HR', icon: Users },
+  { name: 'Billing', page: 'Billing', icon: DollarSign },
+  { name: 'Marketing', page: 'Marketing', icon: Megaphone },
+  { name: 'Reports', page: 'ScheduledReports', icon: FileText },
+  { name: 'Import/Export', page: 'DataImportExport', icon: Download },
+  { name: 'Dashboards', page: 'SharedDashboards', icon: Share2 },
   { name: 'Compliance', page: 'Compliance', icon: Shield },
   { name: 'Access Control', page: 'AccessControl', icon: Users },
   { name: 'Audit Trail', page: 'Audit', icon: FileText },
