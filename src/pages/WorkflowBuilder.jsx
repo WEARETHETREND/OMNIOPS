@@ -1,185 +1,197 @@
-import React, { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft } from 'lucide-react';
+import React, { useState } from 'react';
+import { safePost } from '@/components/api/apiClient';
+import { 
+  Plus,
+  Save,
+  Play,
+  Zap,
+  Database,
+  Mail,
+  MessageSquare,
+  FileText,
+  Code
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { createPageUrl } from '@/utils';
-import { Link } from 'react-router-dom';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
-import WorkflowToolbar from '@/components/workflow-builder/WorkflowToolbar';
-import WorkflowSidebar from '@/components/workflow-builder/WorkflowSidebar';
-import WorkflowCanvas from '@/components/workflow-builder/WorkflowCanvas';
-import WorkflowProperties from '@/components/workflow-builder/WorkflowProperties';
+const nodeTypes = [
+  { id: 'trigger', label: 'Trigger', icon: Zap, color: 'emerald' },
+  { id: 'action', label: 'Action', icon: Play, color: 'blue' },
+  { id: 'condition', label: 'Condition', icon: Code, color: 'amber' },
+  { id: 'database', label: 'Database', icon: Database, color: 'violet' },
+  { id: 'email', label: 'Email', icon: Mail, color: 'rose' },
+  { id: 'notification', label: 'Notification', icon: MessageSquare, color: 'cyan' },
+  { id: 'api', label: 'API Call', icon: FileText, color: 'indigo' },
+];
 
 export default function WorkflowBuilder() {
-  const queryClient = useQueryClient();
-  
-  const [workflowName, setWorkflowName] = useState('New Workflow');
-  const [nodes, setNodes] = useState([
-    {
-      id: 'start-1',
-      type: 'trigger',
-      name: 'Start',
-      position: { x: 100, y: 200 },
-      config: { description: 'Workflow starts here' }
-    }
-  ]);
-  const [connections, setConnections] = useState([]);
-  const [selectedNodeId, setSelectedNodeId] = useState(null);
-  const [connectingFrom, setConnectingFrom] = useState(null);
-  const [history, setHistory] = useState([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
-
-  const selectedNode = nodes.find(n => n.id === selectedNodeId);
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const workflowId = urlParams.get('id');
-
-  const saveMutation = useMutation({
-    mutationFn: async (data) => {
-      if (workflowId) {
-        return base44.entities.Workflow.update(workflowId, data);
-      }
-      return base44.entities.Workflow.create(data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['workflows'] });
-      toast.success('Workflow saved successfully');
-    },
-    onError: () => {
-      toast.error('Failed to save workflow');
-    }
+  const [workflow, setWorkflow] = useState({
+    name: '',
+    description: '',
+    nodes: [],
+    connections: []
   });
+  const [selectedNode, setSelectedNode] = useState(null);
+  const [saving, setSaving] = useState(false);
 
-  const addNode = useCallback((nodeType) => {
+  const addNode = (type) => {
     const newNode = {
-      id: `${nodeType.type}-${Date.now()}`,
-      type: nodeType.type,
-      name: nodeType.name,
-      position: { x: 300 + Math.random() * 200, y: 150 + Math.random() * 200 },
+      id: `node-${Date.now()}`,
+      type: type.id,
+      label: type.label,
+      x: 100 + workflow.nodes.length * 50,
+      y: 100 + workflow.nodes.length * 30,
       config: {}
     };
-    setNodes(prev => [...prev, newNode]);
-    setSelectedNodeId(newNode.id);
-  }, []);
+    setWorkflow({ ...workflow, nodes: [...workflow.nodes, newNode] });
+    setSelectedNode(newNode);
+  };
 
-  const moveNode = useCallback((nodeId, position) => {
-    setNodes(prev => prev.map(n => 
-      n.id === nodeId ? { ...n, position } : n
-    ));
-  }, []);
-
-  const updateNode = useCallback((updatedNode) => {
-    setNodes(prev => prev.map(n => 
-      n.id === updatedNode.id ? updatedNode : n
-    ));
-  }, []);
-
-  const deleteNode = useCallback((nodeId) => {
-    setNodes(prev => prev.filter(n => n.id !== nodeId));
-    setConnections(prev => prev.filter(c => c.from !== nodeId && c.to !== nodeId));
-    setSelectedNodeId(null);
-  }, []);
-
-  const handleConnect = useCallback((fromId, toId) => {
-    if (toId === null) {
-      setConnectingFrom(fromId);
-    } else if (fromId && fromId !== toId) {
-      // Check if connection already exists
-      const exists = connections.some(c => c.from === fromId && c.to === toId);
-      if (!exists) {
-        setConnections(prev => [...prev, { from: fromId, to: toId }]);
-      }
-      setConnectingFrom(null);
+  const saveWorkflow = async () => {
+    if (!workflow.name) {
+      toast.error('Please enter a workflow name');
+      return;
     }
-  }, [connections]);
-
-  const deleteConnection = useCallback((index) => {
-    setConnections(prev => prev.filter((_, i) => i !== index));
-  }, []);
-
-  const handleSave = () => {
-    const workflowData = {
-      name: workflowName,
-      description: `Visual workflow with ${nodes.length} nodes`,
-      department: 'operations',
-      trigger_type: nodes.find(n => n.type === 'schedule') ? 'scheduled' : 
-                    nodes.find(n => n.type === 'webhook') ? 'api_triggered' : 'manual',
-      status: 'draft',
-      steps: nodes.map(node => ({
-        name: node.name,
-        action: node.type,
-        config: { ...node.config, position: node.position }
-      }))
-    };
-    saveMutation.mutate(workflowData);
-  };
-
-  const handleRun = () => {
-    toast.success('Workflow execution started');
-  };
-
-  const handleExport = () => {
-    const data = { name: workflowName, nodes, connections };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${workflowName.replace(/\s+/g, '_')}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast.success('Workflow exported');
+    setSaving(true);
+    const r = await safePost('/workflows', workflow);
+    if (!r.ok) {
+      toast.error(`Failed to save: ${r.error}`);
+    } else {
+      toast.success('Workflow saved successfully');
+    }
+    setSaving(false);
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-950 flex flex-col">
-      {/* Header */}
-      <div className="h-14 bg-slate-900 border-b border-slate-800 flex items-center px-4 gap-4">
-        <Link to={createPageUrl('Workflows')}>
-          <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        </Link>
-        <div className="flex-1">
-          <WorkflowToolbar
-            workflowName={workflowName}
-            onNameChange={setWorkflowName}
-            onSave={handleSave}
-            onRun={handleRun}
-            onExport={handleExport}
-            isSaving={saveMutation.isPending}
-            isRunning={false}
-            canUndo={historyIndex > 0}
-            canRedo={historyIndex < history.length - 1}
-            onUndo={() => {}}
-            onRedo={() => {}}
-          />
+    <div className="h-[calc(100vh-12rem)] flex gap-6">
+      {/* Sidebar - Node Palette */}
+      <div className="w-64 bg-white rounded-xl border border-slate-200/60 p-4">
+        <h3 className="font-semibold text-slate-900 mb-4">Components</h3>
+        <div className="space-y-2">
+          {nodeTypes.map(type => {
+            const Icon = type.icon;
+            return (
+              <button
+                key={type.id}
+                onClick={() => addNode(type)}
+                className={`w-full flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:border-${type.color}-500 hover:bg-${type.color}-50 transition-colors`}
+              >
+                <div className={`w-8 h-8 rounded-lg bg-${type.color}-100 flex items-center justify-center`}>
+                  <Icon className={`w-4 h-4 text-${type.color}-600`} />
+                </div>
+                <span className="text-sm font-medium text-slate-900">{type.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Main content */}
-      <div className="flex-1 flex overflow-hidden">
-        <WorkflowSidebar onAddNode={addNode} />
-        
-        <WorkflowCanvas
-          nodes={nodes}
-          connections={connections}
-          selectedNodeId={selectedNodeId}
-          connectingFrom={connectingFrom}
-          onNodeMove={moveNode}
-          onNodeSelect={setSelectedNodeId}
-          onConnect={handleConnect}
-          onDeleteConnection={deleteConnection}
-        />
-        
-        <WorkflowProperties
-          node={selectedNode}
-          onUpdate={updateNode}
-          onDelete={deleteNode}
-          onClose={() => setSelectedNodeId(null)}
-        />
+      {/* Canvas */}
+      <div className="flex-1 bg-white rounded-xl border border-slate-200/60 p-6 relative overflow-hidden">
+        <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
+          <div className="flex gap-2 flex-1 max-w-md">
+            <Input
+              placeholder="Workflow name"
+              value={workflow.name}
+              onChange={(e) => setWorkflow({ ...workflow, name: e.target.value })}
+              className="bg-white"
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button onClick={saveWorkflow} disabled={saving} className="bg-slate-900">
+              <Save className="w-4 h-4 mr-2" />
+              {saving ? 'Saving...' : 'Save'}
+            </Button>
+            <Button variant="outline">
+              <Play className="w-4 h-4 mr-2" />
+              Test Run
+            </Button>
+          </div>
+        </div>
+
+        {/* Canvas Grid */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            backgroundImage: 'radial-gradient(circle, #e2e8f0 1px, transparent 1px)',
+            backgroundSize: '20px 20px'
+          }}
+        >
+          {workflow.nodes.length === 0 ? (
+            <div className="h-full flex items-center justify-center">
+              <div className="text-center">
+                <Zap className="w-16 h-16 text-slate-200 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-slate-900 mb-2">Start Building</h3>
+                <p className="text-slate-500">Drag components from the sidebar to begin</p>
+              </div>
+            </div>
+          ) : (
+            <div className="relative h-full p-20">
+              {workflow.nodes.map((node, i) => {
+                const nodeType = nodeTypes.find(t => t.id === node.type);
+                const Icon = nodeType?.icon || Zap;
+                return (
+                  <div
+                    key={node.id}
+                    className={`absolute bg-white rounded-xl border-2 p-4 cursor-move shadow-lg ${
+                      selectedNode?.id === node.id ? 'border-blue-500' : 'border-slate-200'
+                    }`}
+                    style={{ left: node.x, top: node.y, width: 200 }}
+                    onClick={() => setSelectedNode(node)}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <Icon className="w-5 h-5 text-slate-700" />
+                      <span className="font-medium text-slate-900">{node.label}</span>
+                    </div>
+                    <p className="text-xs text-slate-500">Node {i + 1}</p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Properties Panel */}
+      <div className="w-80 bg-white rounded-xl border border-slate-200/60 p-4">
+        <h3 className="font-semibold text-slate-900 mb-4">Properties</h3>
+        {selectedNode ? (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Node Type</Label>
+              <Input value={selectedNode.label} disabled />
+            </div>
+            <div className="space-y-2">
+              <Label>Action</Label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select action" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="create">Create Record</SelectItem>
+                  <SelectItem value="update">Update Record</SelectItem>
+                  <SelectItem value="delete">Delete Record</SelectItem>
+                  <SelectItem value="send">Send</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Configuration</Label>
+              <Input placeholder="Enter config..." />
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-slate-500">Select a node to edit properties</p>
+        )}
       </div>
     </div>
   );

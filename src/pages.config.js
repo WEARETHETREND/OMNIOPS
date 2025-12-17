@@ -26,6 +26,10 @@ import Audit from './pages/Audit';
 import Copilot from './pages/Copilot';
 import NotificationsCenter from './pages/NotificationsCenter';
 import AnomalyDetection from './pages/AnomalyDetection';
+import WorkflowTemplates from './pages/WorkflowTemplates';
+import ScheduledReports from './pages/ScheduledReports';
+import DataImportExport from './pages/DataImportExport';
+import SharedDashboards from './pages/SharedDashboards';
 import __Layout from './Layout.jsx';
 
 
@@ -58,6 +62,10 @@ export const PAGES = {
     "Copilot": Copilot,
     "NotificationsCenter": NotificationsCenter,
     "AnomalyDetection": AnomalyDetection,
+    "WorkflowTemplates": WorkflowTemplates,
+    "ScheduledReports": ScheduledReports,
+    "DataImportExport": DataImportExport,
+    "SharedDashboards": SharedDashboards,
 }
 
 export const pagesConfig = {
