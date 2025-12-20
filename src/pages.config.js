@@ -36,6 +36,7 @@ import Projects from './pages/Projects';
 import HR from './pages/HR';
 import Billing from './pages/Billing';
 import Marketing from './pages/Marketing';
+import LandingPageCode from './pages/LandingPageCode';
 import __Layout from './Layout.jsx';
 
 
@@ -78,6 +79,7 @@ export const PAGES = {
     "HR": HR,
     "Billing": Billing,
     "Marketing": Marketing,
+    "LandingPageCode": LandingPageCode,
 }
 
 export const pagesConfig = {
