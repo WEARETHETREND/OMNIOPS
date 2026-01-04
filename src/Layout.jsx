@@ -122,13 +122,11 @@ export default function Layout({ children, currentPageName }) {
           {/* Logo */}
           <div className="flex items-center justify-between px-6 h-20 border-b border-slate-800">
             <Link to={createPageUrl('Dashboard')} className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center">
-                <Zap className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <span className="text-xl font-bold text-white tracking-tight">OmniOps</span>
-                <span className="block text-[10px] text-slate-500 uppercase tracking-widest">Enterprise AI</span>
-              </div>
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692cc4fe31f31eedd47e4c98/25b474da3_ChatGPTImageDec23202509_54_56PM.png" 
+                alt="OpsVanta"
+                className="h-12 w-auto"
+              />
             </Link>
             <Button
               variant="ghost"
@@ -158,17 +156,17 @@ export default function Layout({ children, currentPageName }) {
                                         className={cn(
                                           "group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
                                           isActive 
-                                            ? "bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 text-white" 
+                                            ? "bg-gradient-to-r from-[#7cb342]/20 to-[#2196f3]/20 text-white" 
                                             : "text-slate-400 hover:text-white hover:bg-slate-800/50"
                                         )}
-                                      >
+                                        >
                                         <item.icon className={cn(
                                           "w-5 h-5 transition-colors",
-                                          isActive ? "text-emerald-400" : "text-slate-500 group-hover:text-slate-300"
+                                          isActive ? "text-[#7cb342]" : "text-slate-500 group-hover:text-slate-300"
                                         )} />
                                         <span>{item.name}</span>
                                         {isActive && (
-                                          <ChevronRight className="w-4 h-4 ml-auto text-emerald-400" />
+                                          <ChevronRight className="w-4 h-4 ml-auto text-[#7cb342]" />
                                         )}
                                       </Link>
               );
@@ -184,7 +182,7 @@ export default function Layout({ children, currentPageName }) {
               <DropdownMenuTrigger asChild>
                 <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800/50 transition-colors">
                   <Avatar className="h-9 w-9 border-2 border-slate-700">
-                    <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-cyan-500 text-white text-sm font-medium">
+                    <AvatarFallback className="bg-gradient-to-br from-[#1e3a5f] to-[#7cb342] text-white text-sm font-medium">
                       {getInitials(user?.full_name)}
                     </AvatarFallback>
                   </Avatar>
