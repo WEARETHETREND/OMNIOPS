@@ -1,85 +1,87 @@
-import Dashboard from './pages/Dashboard';
-import Workflows from './pages/Workflows';
-import Analytics from './pages/Analytics';
-import Integrations from './pages/Integrations';
-import Alerts from './pages/Alerts';
-import Settings from './pages/Settings';
-import AlertDetails from './pages/AlertDetails';
-import SystemHealth from './pages/SystemHealth';
-import WorkflowBuilder from './pages/WorkflowBuilder';
-import Compliance from './pages/Compliance';
-import AuditTrail from './pages/AuditTrail';
-import AccessControl from './pages/AccessControl';
-import WhiteLabel from './pages/WhiteLabel';
-import Automations from './pages/Automations';
-import Infrastructure from './pages/Infrastructure';
-import TechStack from './pages/TechStack';
 import AICopilot from './pages/AICopilot';
-import FieldApp from './pages/FieldApp';
-import CustomerPortal from './pages/CustomerPortal';
-import FinancialIntelligence from './pages/FinancialIntelligence';
-import WorkflowAutomation from './pages/WorkflowAutomation';
-import LiveCollaboration from './pages/LiveCollaboration';
-import WorkflowDetails from './pages/WorkflowDetails';
-import Dispatches from './pages/Dispatches';
-import Audit from './pages/Audit';
-import Copilot from './pages/Copilot';
-import NotificationsCenter from './pages/NotificationsCenter';
+import AccessControl from './pages/AccessControl';
+import AlertDetails from './pages/AlertDetails';
+import Alerts from './pages/Alerts';
+import Analytics from './pages/Analytics';
 import AnomalyDetection from './pages/AnomalyDetection';
-import WorkflowTemplates from './pages/WorkflowTemplates';
-import ScheduledReports from './pages/ScheduledReports';
-import DataImportExport from './pages/DataImportExport';
-import SharedDashboards from './pages/SharedDashboards';
-import CRM from './pages/CRM';
-import Inventory from './pages/Inventory';
-import Projects from './pages/Projects';
-import HR from './pages/HR';
+import Audit from './pages/Audit';
+import AuditTrail from './pages/AuditTrail';
+import Automations from './pages/Automations';
 import Billing from './pages/Billing';
-import Marketing from './pages/Marketing';
+import CRM from './pages/CRM';
+import Compliance from './pages/Compliance';
+import Copilot from './pages/Copilot';
+import CustomerPortal from './pages/CustomerPortal';
+import Dashboard from './pages/Dashboard';
+import DataImportExport from './pages/DataImportExport';
+import Dispatches from './pages/Dispatches';
+import FieldApp from './pages/FieldApp';
+import FinancialIntelligence from './pages/FinancialIntelligence';
+import HR from './pages/HR';
+import Home from './pages/Home';
+import Infrastructure from './pages/Infrastructure';
+import Integrations from './pages/Integrations';
+import Inventory from './pages/Inventory';
 import LandingPageCode from './pages/LandingPageCode';
+import LiveCollaboration from './pages/LiveCollaboration';
+import Marketing from './pages/Marketing';
+import NotificationsCenter from './pages/NotificationsCenter';
+import Projects from './pages/Projects';
+import ScheduledReports from './pages/ScheduledReports';
+import Settings from './pages/Settings';
+import SharedDashboards from './pages/SharedDashboards';
+import SystemHealth from './pages/SystemHealth';
+import TechStack from './pages/TechStack';
+import WhiteLabel from './pages/WhiteLabel';
+import WorkflowAutomation from './pages/WorkflowAutomation';
+import WorkflowBuilder from './pages/WorkflowBuilder';
+import WorkflowDetails from './pages/WorkflowDetails';
+import WorkflowTemplates from './pages/WorkflowTemplates';
+import Workflows from './pages/Workflows';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Dashboard": Dashboard,
-    "Workflows": Workflows,
-    "Analytics": Analytics,
-    "Integrations": Integrations,
-    "Alerts": Alerts,
-    "Settings": Settings,
-    "AlertDetails": AlertDetails,
-    "SystemHealth": SystemHealth,
-    "WorkflowBuilder": WorkflowBuilder,
-    "Compliance": Compliance,
-    "AuditTrail": AuditTrail,
-    "AccessControl": AccessControl,
-    "WhiteLabel": WhiteLabel,
-    "Automations": Automations,
-    "Infrastructure": Infrastructure,
-    "TechStack": TechStack,
     "AICopilot": AICopilot,
-    "FieldApp": FieldApp,
-    "CustomerPortal": CustomerPortal,
-    "FinancialIntelligence": FinancialIntelligence,
-    "WorkflowAutomation": WorkflowAutomation,
-    "LiveCollaboration": LiveCollaboration,
-    "WorkflowDetails": WorkflowDetails,
-    "Dispatches": Dispatches,
-    "Audit": Audit,
-    "Copilot": Copilot,
-    "NotificationsCenter": NotificationsCenter,
+    "AccessControl": AccessControl,
+    "AlertDetails": AlertDetails,
+    "Alerts": Alerts,
+    "Analytics": Analytics,
     "AnomalyDetection": AnomalyDetection,
-    "WorkflowTemplates": WorkflowTemplates,
-    "ScheduledReports": ScheduledReports,
-    "DataImportExport": DataImportExport,
-    "SharedDashboards": SharedDashboards,
-    "CRM": CRM,
-    "Inventory": Inventory,
-    "Projects": Projects,
-    "HR": HR,
+    "Audit": Audit,
+    "AuditTrail": AuditTrail,
+    "Automations": Automations,
     "Billing": Billing,
-    "Marketing": Marketing,
+    "CRM": CRM,
+    "Compliance": Compliance,
+    "Copilot": Copilot,
+    "CustomerPortal": CustomerPortal,
+    "Dashboard": Dashboard,
+    "DataImportExport": DataImportExport,
+    "Dispatches": Dispatches,
+    "FieldApp": FieldApp,
+    "FinancialIntelligence": FinancialIntelligence,
+    "HR": HR,
+    "Home": Home,
+    "Infrastructure": Infrastructure,
+    "Integrations": Integrations,
+    "Inventory": Inventory,
     "LandingPageCode": LandingPageCode,
+    "LiveCollaboration": LiveCollaboration,
+    "Marketing": Marketing,
+    "NotificationsCenter": NotificationsCenter,
+    "Projects": Projects,
+    "ScheduledReports": ScheduledReports,
+    "Settings": Settings,
+    "SharedDashboards": SharedDashboards,
+    "SystemHealth": SystemHealth,
+    "TechStack": TechStack,
+    "WhiteLabel": WhiteLabel,
+    "WorkflowAutomation": WorkflowAutomation,
+    "WorkflowBuilder": WorkflowBuilder,
+    "WorkflowDetails": WorkflowDetails,
+    "WorkflowTemplates": WorkflowTemplates,
+    "Workflows": Workflows,
 }
 
 export const pagesConfig = {
