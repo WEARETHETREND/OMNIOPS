@@ -38,6 +38,7 @@ import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowDetails from './pages/WorkflowDetails';
 import WorkflowTemplates from './pages/WorkflowTemplates';
 import Workflows from './pages/Workflows';
+import Runs from './pages/Runs';
 import __Layout from './Layout.jsx';
 
 
@@ -82,6 +83,7 @@ export const PAGES = {
     "WorkflowDetails": WorkflowDetails,
     "WorkflowTemplates": WorkflowTemplates,
     "Workflows": Workflows,
+    "Runs": Runs,
 }
 
 export const pagesConfig = {
