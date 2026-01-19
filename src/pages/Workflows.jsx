@@ -29,21 +29,16 @@ export default function Workflows() {
 
   const loadWorkflows = async () => {
     setLoading(true);
-    setError('');
-    const r = await safeGet('/workflows', { status: 'all' });
-    if (!r.ok) {
-      setError(r.error);
-    } else {
-      setWorkflows(r.data.workflows || []);
+    const r = await safeGet('/api/workflows', { status: 'all' });
+    if (r.ok) {
+      setWorkflows(r.data.workflows || r.data || []);
     }
     setLoading(false);
   };
 
   const runNow = async (id, name) => {
-    const r = await safePost(`/workflows/${id}/run`, { input: {} });
-    if (!r.ok) {
-      toast.error(`Failed to run workflow: ${r.error}`);
-    } else {
+    const r = await safePost(`/api/workflows/${id}/run`, { input: {} });
+    if (r.ok && r.data.runId) {
       toast.success(`Queued run ${r.data.runId} for ${name}`);
       await loadWorkflows();
     }
@@ -169,11 +164,7 @@ export default function Workflows() {
         </div>
       </div>
 
-      {error && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-lg text-sm">
-          ⚠️ {error}
-        </div>
-      )}
+
 
       {/* Workflows Grid */}
       {loading ? (

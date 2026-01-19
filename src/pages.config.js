@@ -27,6 +27,7 @@ import LiveCollaboration from './pages/LiveCollaboration';
 import Marketing from './pages/Marketing';
 import NotificationsCenter from './pages/NotificationsCenter';
 import Projects from './pages/Projects';
+import Runs from './pages/Runs';
 import ScheduledReports from './pages/ScheduledReports';
 import Settings from './pages/Settings';
 import SharedDashboards from './pages/SharedDashboards';
@@ -38,7 +39,6 @@ import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowDetails from './pages/WorkflowDetails';
 import WorkflowTemplates from './pages/WorkflowTemplates';
 import Workflows from './pages/Workflows';
-import Runs from './pages/Runs';
 import __Layout from './Layout.jsx';
 
 
@@ -72,6 +72,7 @@ export const PAGES = {
     "Marketing": Marketing,
     "NotificationsCenter": NotificationsCenter,
     "Projects": Projects,
+    "Runs": Runs,
     "ScheduledReports": ScheduledReports,
     "Settings": Settings,
     "SharedDashboards": SharedDashboards,
@@ -83,7 +84,6 @@ export const PAGES = {
     "WorkflowDetails": WorkflowDetails,
     "WorkflowTemplates": WorkflowTemplates,
     "Workflows": Workflows,
-    "Runs": Runs,
 }
 
 export const pagesConfig = {
