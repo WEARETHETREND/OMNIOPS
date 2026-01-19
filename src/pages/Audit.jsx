@@ -17,12 +17,9 @@ export default function Audit() {
 
   const loadAudit = async () => {
     setLoading(true);
-    setError('');
-    const r = await safeGet('/audit', { limit: 200 });
-    if (!r.ok) {
-      setError(r.error);
-    } else {
-      setEvents(r.data.events || []);
+    const r = await safeGet('/api/audit');
+    if (r.ok) {
+      setEvents(r.data.logs || r.data || []);
     }
     setLoading(false);
   };
@@ -32,9 +29,11 @@ export default function Audit() {
   }, []);
 
   const filteredEvents = events.filter(e => 
-    e.actor?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    e.user_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    e.user_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     e.action?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    e.target?.toLowerCase().includes(searchQuery.toLowerCase())
+    e.entity_type?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    e.department?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -67,11 +66,7 @@ export default function Audit() {
         </Button>
       </div>
 
-      {error && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-lg">
-          ⚠️ {error}
-        </div>
-      )}
+
 
       {/* Audit Table */}
       {loading ? (
@@ -85,45 +80,56 @@ export default function Audit() {
           <table className="w-full">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                <th className="text-left py-3 px-6 text-sm font-semibold text-slate-700">Time</th>
-                <th className="text-left py-3 px-6 text-sm font-semibold text-slate-700">Actor</th>
-                <th className="text-left py-3 px-6 text-sm font-semibold text-slate-700">Tenant</th>
+                <th className="text-left py-3 px-6 text-sm font-semibold text-slate-700">User</th>
                 <th className="text-left py-3 px-6 text-sm font-semibold text-slate-700">Action</th>
-                <th className="text-left py-3 px-6 text-sm font-semibold text-slate-700">Target</th>
-                <th className="text-left py-3 px-6 text-sm font-semibold text-slate-700">IP Address</th>
-                <th className="text-left py-3 px-6 text-sm font-semibold text-slate-700">Metadata</th>
+                <th className="text-left py-3 px-6 text-sm font-semibold text-slate-700">Entity</th>
+                <th className="text-left py-3 px-6 text-sm font-semibold text-slate-700">Time</th>
+                <th className="text-left py-3 px-6 text-sm font-semibold text-slate-700">Department</th>
+                <th className="text-left py-3 px-6 text-sm font-semibold text-slate-700">Risk</th>
+                <th className="text-left py-3 px-6 text-sm font-semibold text-slate-700">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filteredEvents.map(e => (
-                <tr key={e.id} className="hover:bg-slate-50 transition-colors text-sm">
-                  <td className="py-3 px-6 text-slate-600">
-                    {new Date(e.time).toLocaleString()}
-                  </td>
+              {filteredEvents.map((e, idx) => (
+                <tr key={e.id || idx} className="hover:bg-slate-50 transition-colors text-sm">
                   <td className="py-3 px-6">
-                    <span className="text-slate-900 font-medium">{e.actor}</span>
+                    <div>
+                      <div className="text-slate-900 font-medium">{e.user_name || e.user_email}</div>
+                      {e.user_email && e.user_name && (
+                        <div className="text-xs text-slate-500">{e.user_email}</div>
+                      )}
+                      {e.ip_address && (
+                        <div className="text-xs text-slate-400 font-mono">IP: {e.ip_address}</div>
+                      )}
+                    </div>
                   </td>
-                  <td className="py-3 px-6 text-slate-600">{e.tenant || '—'}</td>
                   <td className="py-3 px-6">
                     <code className="px-2 py-1 bg-slate-100 text-slate-700 rounded text-xs font-mono">
                       {e.action}
                     </code>
                   </td>
-                  <td className="py-3 px-6 text-slate-600">{e.target || '—'}</td>
+                  <td className="py-3 px-6 text-slate-700">{e.entity_type || '—'}</td>
+                  <td className="py-3 px-6 text-slate-600 text-xs">
+                    {e.created_at ? new Date(e.created_at).toLocaleString() : '—'}
+                  </td>
+                  <td className="py-3 px-6 text-slate-600">{e.department || '—'}</td>
                   <td className="py-3 px-6">
-                    <span className="font-mono text-xs text-slate-500">{e.ip || '—'}</span>
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                      e.risk_level === 'critical' ? 'bg-rose-100 text-rose-700' :
+                      e.risk_level === 'high' ? 'bg-orange-100 text-orange-700' :
+                      e.risk_level === 'medium' ? 'bg-amber-100 text-amber-700' :
+                      'bg-slate-100 text-slate-700'
+                    }`}>
+                      {e.risk_level}
+                    </span>
                   </td>
                   <td className="py-3 px-6">
-                    {e.metadata ? (
-                      <details className="cursor-pointer">
-                        <summary className="text-blue-600 hover:text-blue-700">View</summary>
-                        <pre className="mt-2 text-xs bg-slate-50 p-2 rounded overflow-auto max-w-xs">
-                          {JSON.stringify(e.metadata, null, 2)}
-                        </pre>
-                      </details>
-                    ) : (
-                      <span className="text-slate-400">—</span>
-                    )}
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                      e.status === 'success' ? 'bg-emerald-100 text-emerald-700' :
+                      'bg-rose-100 text-rose-700'
+                    }`}>
+                      {e.status}
+                    </span>
                   </td>
                 </tr>
               ))}
