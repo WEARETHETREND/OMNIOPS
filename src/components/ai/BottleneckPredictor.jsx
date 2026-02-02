@@ -20,64 +20,74 @@ export default function BottleneckPredictor() {
         base44.entities.Workflow.list()
       ]);
 
-      const issues = [];
-
-      // Analyze dispatch workload
       const activeDispatches = dispatches.filter(d => 
         ['queued', 'en_route', 'in_progress'].includes(d.status)
       );
-      
-      const workerLoad = {};
-      activeDispatches.forEach(d => {
-        workerLoad[d.worker_name] = (workerLoad[d.worker_name] || 0) + 1;
-      });
 
-      // Identify overloaded workers
-      Object.entries(workerLoad).forEach(([worker, count]) => {
-        if (count > 5) {
-          issues.push({
-            type: 'worker_overload',
-            severity: 'high',
-            title: 'Worker Overload Detected',
-            description: `${worker} has ${count} active jobs - recommend redistribution`,
-            metric: count,
-            icon: Users
-          });
+      // Use AI to predict bottlenecks
+      const prompt = `Analyze this system data and identify 2-3 critical bottlenecks or risks:
+
+DISPATCHES (${activeDispatches.length} active):
+${JSON.stringify(activeDispatches.slice(0, 10).map(d => ({
+  job: d.job_title,
+  worker: d.worker_name,
+  priority: d.priority,
+  status: d.status,
+  created_date: d.created_date
+})), null, 2)}
+
+WORKFLOWS (${workflows.length} total):
+${JSON.stringify(workflows.map(w => ({
+  name: w.name,
+  avg_duration: w.avg_duration,
+  success_rate: w.success_rate,
+  run_count: w.run_count
+})).slice(0, 8), null, 2)}
+
+For each bottleneck, provide:
+1. title: Clear issue title
+2. description: Why this matters and impact
+3. severity: urgent|high|medium
+4. metric: A number representing scope/impact
+
+Format as JSON array with these exact fields.`;
+
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            bottlenecks: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  title: { type: 'string' },
+                  description: { type: 'string' },
+                  severity: { type: 'string' },
+                  metric: { type: 'number' }
+                }
+              }
+            }
+          }
         }
       });
 
-      // Check for time-sensitive jobs
-      const urgentOld = activeDispatches.filter(d => {
-        if (d.priority === 'urgent' && d.created_date) {
-          const hoursSinceCreation = (Date.now() - new Date(d.created_date).getTime()) / (1000 * 60 * 60);
-          return hoursSinceCreation > 2;
-        }
-        return false;
-      });
+      const iconMap = {
+        'urgent': AlertTriangle,
+        'high': AlertTriangle,
+        'medium': Clock,
+        'low': Clock
+      };
 
-      if (urgentOld.length > 0) {
-        issues.push({
-          type: 'urgent_delays',
-          severity: 'urgent',
-          title: 'Delayed Urgent Jobs',
-          description: `${urgentOld.length} urgent jobs waiting over 2 hours`,
-          metric: urgentOld.length,
-          icon: AlertTriangle
-        });
-      }
-
-      // Workflow execution time analysis
-      const slowWorkflows = workflows.filter(w => w.avg_duration > 300);
-      if (slowWorkflows.length > 0) {
-        issues.push({
-          type: 'slow_workflows',
-          severity: 'medium',
-          title: 'Slow Workflow Performance',
-          description: `${slowWorkflows.length} workflows averaging over 5 minutes`,
-          metric: slowWorkflows.length,
-          icon: Clock
-        });
-      }
+      const issues = (result.bottlenecks || []).map(b => ({
+        type: b.severity,
+        severity: b.severity || 'medium',
+        title: b.title,
+        description: b.description,
+        metric: b.metric || 0,
+        icon: iconMap[b.severity] || Clock
+      }));
 
       setPredictions(issues);
     } catch (error) {
