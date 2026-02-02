@@ -18,69 +18,84 @@ export default function ProactiveSuggestions() {
   const generateSuggestions = async () => {
     setLoading(true);
     try {
-      // Fetch data for analysis
+      // Fetch operational data
       const [workflows, dispatches, alerts] = await Promise.all([
         base44.entities.Workflow.list('-run_count', 10),
         base44.entities.Dispatch.filter({ status: { $in: ['queued', 'en_route', 'in_progress'] } }),
-        base44.entities.Alert.filter({ status: 'new' }, '-created_date', 5)
+        base44.entities.Alert.filter({ status: 'new' }, '-created_date', 10)
       ]);
 
-      const newSuggestions = [];
+      // Use AI to analyze and generate suggestions
+      const prompt = `Analyze this operational data and suggest 2-3 impactful optimizations:
 
-      // Workflow optimization suggestions
-      const lowSuccessWorkflows = workflows.filter(w => w.success_rate < 90);
-      if (lowSuccessWorkflows.length > 0) {
-        newSuggestions.push({
-          id: 'workflow-optimize',
-          type: 'optimization',
-          priority: 'high',
-          title: 'Optimize Low-Performing Workflows',
-          description: `${lowSuccessWorkflows.length} workflows have success rates below 90%. Review error logs and add retry logic.`,
-          action: 'Review Workflows',
-          icon: TrendingUp
-        });
-      }
+WORKFLOWS (${workflows.length} total):
+${JSON.stringify(workflows.slice(0, 5).map(w => ({
+  name: w.name,
+  success_rate: w.success_rate,
+  trigger: w.trigger_type,
+  avg_duration: w.avg_duration,
+  run_count: w.run_count
+})), null, 2)}
 
-      // Dispatch bottleneck predictions
-      const urgentDispatches = dispatches.filter(d => d.priority === 'urgent');
-      if (urgentDispatches.length > 5) {
-        newSuggestions.push({
-          id: 'dispatch-bottleneck',
-          type: 'warning',
-          priority: 'urgent',
-          title: 'Potential Dispatch Bottleneck',
-          description: `${urgentDispatches.length} urgent jobs queued. Consider reallocating resources or scheduling overtime.`,
-          action: 'View Dispatches',
-          icon: AlertTriangle
-        });
-      }
+ACTIVE DISPATCHES (${dispatches.length} total):
+${JSON.stringify(dispatches.slice(0, 5).map(d => ({
+  job: d.job_title,
+  status: d.status,
+  priority: d.priority,
+  worker: d.worker_name
+})), null, 2)}
 
-      // Workflow automation suggestions
-      const manualWorkflows = workflows.filter(w => w.trigger_type === 'manual');
-      if (manualWorkflows.length > 3) {
-        newSuggestions.push({
-          id: 'automate-workflows',
-          type: 'optimization',
-          priority: 'medium',
-          title: 'Automation Opportunity',
-          description: `${manualWorkflows.length} workflows are manually triggered. Consider adding scheduled or event-based triggers.`,
-          action: 'Set Up Automation',
-          icon: Zap
-        });
-      }
+RECENT ALERTS (${alerts.length} total):
+${JSON.stringify(alerts.slice(0, 3).map(a => ({
+  title: a.title,
+  severity: a.severity,
+  category: a.category
+})), null, 2)}
 
-      // Alert consolidation
-      if (alerts.length > 10) {
-        newSuggestions.push({
-          id: 'alert-consolidation',
-          type: 'info',
-          priority: 'low',
-          title: 'Alert Overload',
-          description: `${alerts.length} new alerts require attention. Consider consolidating similar alerts to reduce noise.`,
-          action: 'Review Alerts',
-          icon: Lightbulb
-        });
-      }
+For each suggestion, provide:
+1. title: Brief title
+2. description: Specific, actionable insight
+3. priority: urgent|high|medium|low
+4. icon_type: optimization|warning|info
+
+Format as JSON array with these exact fields.`;
+
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            suggestions: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  title: { type: 'string' },
+                  description: { type: 'string' },
+                  priority: { type: 'string' },
+                  icon_type: { type: 'string' }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      const iconMap = {
+        'optimization': TrendingUp,
+        'warning': AlertTriangle,
+        'info': Lightbulb
+      };
+
+      const newSuggestions = (result.suggestions || []).map((s, idx) => ({
+        id: `suggestion-${idx}`,
+        type: s.icon_type || 'info',
+        priority: s.priority || 'medium',
+        title: s.title,
+        description: s.description,
+        action: 'View Details',
+        icon: iconMap[s.icon_type] || Lightbulb
+      }));
 
       setSuggestions(newSuggestions);
     } catch (error) {
