@@ -1,295 +1,258 @@
-import React, { useState } from 'react';
-import { 
+import React, { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
   DollarSign,
-  TrendingUp,
   TrendingDown,
   AlertTriangle,
   CheckCircle,
-  PieChart,
-  BarChart3,
-  ArrowUpRight,
-  ArrowDownRight,
+  Clock,
+  Download,
   RefreshCw,
-  Calendar,
-  Target,
   Zap
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { cn } from '@/lib/utils';
-import { AreaChart, Area, BarChart, Bar, PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
-
-const revenueData = [
-  { month: 'Jan', revenue: 42000, expenses: 28000, profit: 14000 },
-  { month: 'Feb', revenue: 48000, expenses: 31000, profit: 17000 },
-  { month: 'Mar', revenue: 51000, expenses: 33000, profit: 18000 },
-  { month: 'Apr', revenue: 55000, expenses: 35000, profit: 20000 },
-  { month: 'May', revenue: 62000, expenses: 38000, profit: 24000 },
-  { month: 'Jun', revenue: 58000, expenses: 36000, profit: 22000 },
-];
-
-const cashFlowForecast = [
-  { week: 'Week 1', inflow: 28000, outflow: 22000 },
-  { week: 'Week 2', inflow: 32000, outflow: 25000 },
-  { week: 'Week 3', inflow: 35000, outflow: 28000 },
-  { week: 'Week 4', inflow: 30000, outflow: 24000 },
-];
-
-const expenseBreakdown = [
-  { name: 'Labor', value: 45, color: '#8b5cf6' },
-  { name: 'Materials', value: 25, color: '#06b6d4' },
-  { name: 'Equipment', value: 15, color: '#f59e0b' },
-  { name: 'Overhead', value: 15, color: '#64748b' },
-];
-
-const jobCostingData = [
-  { job: 'Smith Renovation', budget: 15000, actual: 13200, margin: 32, status: 'healthy' },
-  { job: 'Johnson HVAC', budget: 8500, actual: 9100, margin: -7, status: 'over' },
-  { job: 'Williams Plumbing', budget: 4200, actual: 3800, margin: 22, status: 'healthy' },
-  { job: 'Davis Electrical', budget: 6800, actual: 6500, margin: 18, status: 'healthy' },
-];
 
 export default function FinancialIntelligence() {
-  const [syncStatus, setSyncStatus] = useState('synced');
+  const [impacts, setImpacts] = useState([]);
+  const queryClient = useQueryClient();
+
+  const { data: financialData, isLoading } = useQuery({
+    queryKey: ['financialImpacts'],
+    queryFn: async () => {
+      try {
+        return await base44.entities.FinancialImpact.list('-amount_usd', 100);
+      } catch {
+        return [];
+      }
+    },
+    refetchInterval: 60000
+  });
+
+  useEffect(() => {
+    if (financialData) {
+      setImpacts(financialData);
+    }
+  }, [financialData]);
+
+  const calculateTotals = () => {
+    return {
+      total_cost: impacts.reduce((sum, i) => sum + i.amount_usd, 0),
+      hourly_rate: impacts.reduce((sum, i) => sum + i.hourly_rate, 0),
+      daily_projection: impacts.reduce((sum, i) => sum + i.daily_projection, 0),
+      critical_count: impacts.filter(i => i.severity === 'critical').length,
+      active_count: impacts.filter(i => i.status === 'active').length
+    };
+  };
+
+  const analyzeMutation = useMutation({
+    mutationFn: async () => {
+      const response = await base44.functions.invoke('calculateFinancialImpact', {});
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['financialImpacts'] });
+    }
+  });
+
+  const getSeverityColor = (severity) => {
+    switch (severity) {
+      case 'critical':
+        return 'bg-red-50 border-red-200';
+      case 'high':
+        return 'bg-orange-50 border-orange-200';
+      case 'medium':
+        return 'bg-yellow-50 border-yellow-200';
+      default:
+        return 'bg-green-50 border-green-200';
+    }
+  };
+
+  const getSeverityBadge = (severity) => {
+    const styles = {
+      critical: 'bg-red-100 text-red-800 border-red-300',
+      high: 'bg-orange-100 text-orange-800 border-orange-300',
+      medium: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+      low: 'bg-green-100 text-green-800 border-green-300'
+    };
+    return styles[severity] || styles.low;
+  };
+
+  const totals = calculateTotals();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <DollarSign className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+          <p className="text-slate-500">Loading financial data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <DollarSign className="w-7 h-7 text-emerald-600" />
-            Financial Intelligence
-          </h1>
-          <p className="text-slate-500">Real-time financial insights and forecasting</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge className={syncStatus === 'synced' ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}>
-            <CheckCircle className="w-3 h-3 mr-1" />
-            QuickBooks Synced
-          </Badge>
-          <Button variant="outline" size="sm">
-            <RefreshCw className="w-4 h-4 mr-1" />
-            Sync Now
-          </Button>
-        </div>
-      </div>
-
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Revenue MTD', value: '$58,420', change: 12, trend: 'up', icon: TrendingUp, color: 'emerald' },
-          { label: 'Net Profit', value: '$22,150', change: 8, trend: 'up', icon: DollarSign, color: 'blue' },
-          { label: 'Avg Job Margin', value: '34.2%', change: -2, trend: 'down', icon: PieChart, color: 'violet' },
-          { label: 'Cash Balance', value: '$145,800', change: 5, trend: 'up', icon: BarChart3, color: 'amber' },
-        ].map((kpi, i) => (
-          <div key={i} className="bg-white rounded-xl border border-slate-200/60 p-5">
-            <div className="flex items-start justify-between mb-3">
-              <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", `bg-${kpi.color}-100`)}>
-                <kpi.icon className={cn("w-5 h-5", `text-${kpi.color}-600`)} />
-              </div>
-              <div className={cn("flex items-center gap-1 text-sm", kpi.trend === 'up' ? 'text-emerald-600' : 'text-rose-600')}>
-                {kpi.trend === 'up' ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                {Math.abs(kpi.change)}%
-              </div>
+      {/* Financial Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="bg-gradient-to-br from-red-50 to-orange-50 border-red-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-slate-600 flex items-center gap-2">
+              <DollarSign className="w-4 h-4 text-red-600" />
+              Current Cost
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-red-600">
+              ${totals.total_cost.toFixed(2)}
             </div>
-            <p className="text-2xl font-bold text-slate-900">{kpi.value}</p>
-            <p className="text-sm text-slate-500">{kpi.label}</p>
-          </div>
-        ))}
-      </div>
+            <p className="text-xs text-slate-600 mt-1">{totals.active_count} active issues</p>
+          </CardContent>
+        </Card>
 
-      {/* Alerts */}
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-        <div className="flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-          <div>
-            <h3 className="font-medium text-amber-900">Margin Alert</h3>
-            <p className="text-sm text-amber-700">Johnson HVAC job is 7% over budget. Review labor costs and material usage.</p>
-          </div>
-          <Button size="sm" variant="outline" className="ml-auto border-amber-300 text-amber-700 hover:bg-amber-100">
-            View Job
-          </Button>
-        </div>
-      </div>
-
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="cashflow">Cash Flow</TabsTrigger>
-          <TabsTrigger value="jobcosting">Job Costing</TabsTrigger>
-          <TabsTrigger value="forecast">Forecasting</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-6 mt-0">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Revenue Chart */}
-            <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200/60 p-5">
-              <h3 className="font-semibold text-slate-900 mb-4">Revenue vs Expenses</h3>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={revenueData}>
-                    <defs>
-                      <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#10b981" stopOpacity={0.3} />
-                        <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
-                      </linearGradient>
-                      <linearGradient id="expenseGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#f43f5e" stopOpacity={0.3} />
-                        <stop offset="100%" stopColor="#f43f5e" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                    <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} />
-                    <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={(v) => `$${v/1000}k`} />
-                    <Tooltip formatter={(v) => [`$${v.toLocaleString()}`, '']} />
-                    <Area type="monotone" dataKey="revenue" stroke="#10b981" fill="url(#revenueGrad)" strokeWidth={2} />
-                    <Area type="monotone" dataKey="expenses" stroke="#f43f5e" fill="url(#expenseGrad)" strokeWidth={2} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
+        <Card className="bg-gradient-to-br from-orange-50 to-yellow-50 border-orange-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-slate-600 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-orange-600" />
+              Hourly Rate
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-orange-600">
+              ${totals.hourly_rate.toFixed(0)}/hr
             </div>
+            <p className="text-xs text-slate-600 mt-1">Ongoing cost</p>
+          </CardContent>
+        </Card>
 
-            {/* Expense Breakdown */}
-            <div className="bg-white rounded-xl border border-slate-200/60 p-5">
-              <h3 className="font-semibold text-slate-900 mb-4">Expense Breakdown</h3>
-              <div className="h-48">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RechartsPie>
-                    <Pie
-                      data={expenseBreakdown}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={50}
-                      outerRadius={70}
-                      dataKey="value"
-                    >
-                      {expenseBreakdown.map((entry, index) => (
-                        <Cell key={index} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(v) => [`${v}%`, '']} />
-                  </RechartsPie>
-                </ResponsiveContainer>
-              </div>
-              <div className="space-y-2 mt-4">
-                {expenseBreakdown.map((item, i) => (
-                  <div key={i} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                      <span className="text-slate-600">{item.name}</span>
-                    </div>
-                    <span className="font-medium text-slate-900">{item.value}%</span>
+        <Card className="bg-gradient-to-br from-yellow-50 to-amber-50 border-yellow-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-slate-600 flex items-center gap-2">
+              <TrendingDown className="w-4 h-4 text-yellow-600" />
+              Daily Projection
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-yellow-600">
+              ${totals.daily_projection.toFixed(0)}
+            </div>
+            <p className="text-xs text-slate-600 mt-1">If trend continues</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-red-50 to-pink-50 border-red-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-slate-600 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-red-600" />
+              Critical Issues
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-red-600">{totals.critical_count}</div>
+            <p className="text-xs text-slate-600 mt-1">Require immediate action</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Actions */}
+      <div className="flex gap-2">
+        <Button
+          onClick={() => analyzeMutation.mutate()}
+          disabled={analyzeMutation.isPending}
+          className="gap-2 bg-blue-600 hover:bg-blue-700"
+        >
+          <Zap className={`w-4 h-4 ${analyzeMutation.isPending ? 'animate-spin' : ''}`} />
+          Analyze Impact
+        </Button>
+        <Button variant="outline" className="gap-2">
+          <Download className="w-4 h-4" />
+          Export Report
+        </Button>
+      </div>
+
+      {/* Financial Impacts */}
+      <div className="space-y-4">
+        {impacts.length === 0 ? (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <DollarSign className="w-12 h-12 text-slate-200 mb-3" />
+              <p className="text-slate-500">No financial impacts recorded</p>
+            </CardContent>
+          </Card>
+        ) : (
+          impacts.map((impact) => (
+            <Card
+              key={impact.id}
+              className={`border-2 ${getSeverityColor(impact.severity)}`}
+            >
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <CardTitle className="text-base capitalize">
+                      {impact.entity_type} - {impact.impact_type.replace(/_/g, ' ')}
+                    </CardTitle>
+                    <CardDescription className="mt-1">
+                      {impact.description}
+                    </CardDescription>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="cashflow" className="space-y-6 mt-0">
-          <div className="bg-white rounded-xl border border-slate-200/60 p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-slate-900">30-Day Cash Flow Forecast</h3>
-              <Badge className="bg-emerald-100 text-emerald-700">
-                <Zap className="w-3 h-3 mr-1" />
-                AI Predicted
-              </Badge>
-            </div>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={cashFlowForecast}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                  <XAxis dataKey="week" stroke="#94a3b8" fontSize={12} />
-                  <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={(v) => `$${v/1000}k`} />
-                  <Tooltip formatter={(v) => [`$${v.toLocaleString()}`, '']} />
-                  <Legend />
-                  <Bar dataKey="inflow" fill="#10b981" radius={[4, 4, 0, 0]} name="Inflow" />
-                  <Bar dataKey="outflow" fill="#f43f5e" radius={[4, 4, 0, 0]} name="Outflow" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="jobcosting" className="space-y-6 mt-0">
-          <div className="bg-white rounded-xl border border-slate-200/60 overflow-hidden">
-            <div className="p-4 border-b border-slate-200">
-              <h3 className="font-semibold text-slate-900">Active Job Margins</h3>
-            </div>
-            <table className="w-full">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Job</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Budget</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Actual</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Margin</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {jobCostingData.map((job, i) => (
-                  <tr key={i} className="border-t border-slate-100 hover:bg-slate-50">
-                    <td className="px-4 py-3 font-medium text-slate-900">{job.job}</td>
-                    <td className="px-4 py-3 text-slate-600">${job.budget.toLocaleString()}</td>
-                    <td className="px-4 py-3 text-slate-600">${job.actual.toLocaleString()}</td>
-                    <td className={cn("px-4 py-3 font-medium", job.margin >= 0 ? "text-emerald-600" : "text-rose-600")}>
-                      {job.margin >= 0 ? '+' : ''}{job.margin}%
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge className={job.status === 'healthy' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}>
-                        {job.status === 'healthy' ? 'On Track' : 'Over Budget'}
-                      </Badge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="forecast" className="space-y-6 mt-0">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl p-6 text-white">
-              <div className="flex items-center gap-2 mb-4">
-                <Target className="w-6 h-6" />
-                <h3 className="font-semibold">Revenue Forecast</h3>
-              </div>
-              <p className="text-4xl font-bold mb-2">$185,000</p>
-              <p className="text-emerald-100">Projected Q1 2025</p>
-              <div className="mt-4 pt-4 border-t border-white/20">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-emerald-100">Confidence Level</span>
-                  <span className="font-medium">87%</span>
+                  <Badge
+                    variant="outline"
+                    className={getSeverityBadge(impact.severity)}
+                  >
+                    {impact.severity.charAt(0).toUpperCase() + impact.severity.slice(1)}
+                  </Badge>
                 </div>
-                <Progress value={87} className="mt-2 bg-white/20" />
-              </div>
-            </div>
+              </CardHeader>
 
-            <div className="bg-white rounded-xl border border-slate-200/60 p-6">
-              <h3 className="font-semibold text-slate-900 mb-4">AI Insights</h3>
-              <div className="space-y-3">
-                {[
-                  { text: 'Seasonal uptick expected in HVAC services (March)', type: 'opportunity' },
-                  { text: 'Labor costs trending 5% above industry average', type: 'warning' },
-                  { text: 'Material costs stabilizing after Q4 increases', type: 'info' },
-                ].map((insight, i) => (
-                  <div key={i} className={cn(
-                    "p-3 rounded-lg text-sm",
-                    insight.type === 'opportunity' && "bg-emerald-50 text-emerald-700",
-                    insight.type === 'warning' && "bg-amber-50 text-amber-700",
-                    insight.type === 'info' && "bg-blue-50 text-blue-700"
-                  )}>
-                    {insight.text}
+              <CardContent className="space-y-3">
+                {/* Financial Breakdown */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="bg-white rounded-lg p-3 border border-slate-200">
+                    <p className="text-xs text-slate-600 mb-1">Current Cost</p>
+                    <p className="text-xl font-bold text-red-600">
+                      ${impact.amount_usd.toFixed(2)}
+                    </p>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </TabsContent>
-      </Tabs>
+                  <div className="bg-white rounded-lg p-3 border border-slate-200">
+                    <p className="text-xs text-slate-600 mb-1">Hourly Rate</p>
+                    <p className="text-xl font-bold text-orange-600">
+                      ${impact.hourly_rate.toFixed(0)}/hr
+                    </p>
+                  </div>
+                  <div className="bg-white rounded-lg p-3 border border-slate-200">
+                    <p className="text-xs text-slate-600 mb-1">Daily Impact</p>
+                    <p className="text-xl font-bold text-yellow-600">
+                      ${impact.daily_projection.toFixed(0)}/day
+                    </p>
+                  </div>
+                </div>
+
+                {/* Status */}
+                <div className="flex items-center justify-between pt-2 border-t border-slate-200">
+                  <div className="flex items-center gap-2">
+                    {impact.status === 'resolved' ? (
+                      <>
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <span className="text-sm text-green-700 font-medium">Resolved</span>
+                      </>
+                    ) : (
+                      <>
+                        <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                        <span className="text-sm text-yellow-700 font-medium">Active</span>
+                      </>
+                    )}
+                  </div>
+                  <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
+                    View Details
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
     </div>
   );
 }
