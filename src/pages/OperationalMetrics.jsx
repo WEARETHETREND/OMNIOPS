@@ -3,9 +3,9 @@ import { base44 } from '@/api/base44Client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
-import WorkflowPerformance from '@/components/metrics/WorkflowPerformance';
-import ResourceUtilization from '@/components/metrics/ResourceUtilization';
-import FinancialMetrics from '@/components/metrics/FinancialMetrics';
+import WorkflowPerformance from '@/components/metrics/WorkflowPerformance.jsx';
+import ResourceUtilization from '@/components/metrics/ResourceUtilization.jsx';
+import FinancialMetrics from '@/components/metrics/FinancialMetrics.jsx';
 
 export default function OperationalMetrics() {
   const [workflows, setWorkflows] = useState([]);
