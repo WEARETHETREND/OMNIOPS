@@ -104,6 +104,7 @@ import FieldServicesHub from './pages/FieldServicesHub';
 import ROIOutcomes from './pages/ROIOutcomes';
 import ProductRoadmap from './pages/ProductRoadmap';
 import FieldWorkerApp from './pages/FieldWorkerApp';
+import CustomerSuccess from './pages/CustomerSuccess';
 import __Layout from './Layout.jsx';
 
 
@@ -165,6 +166,7 @@ export const PAGES = {
     "ROIOutcomes": ROIOutcomes,
     "ProductRoadmap": ProductRoadmap,
     "FieldWorkerApp": FieldWorkerApp,
+    "CustomerSuccess": CustomerSuccess,
 }
 
 export const pagesConfig = {
