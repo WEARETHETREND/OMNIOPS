@@ -14,7 +14,7 @@ import {
   AlertCircle,
   Clock
 } from 'lucide-react';
-import { createPageUrl } from './utils';
+import { createPageUrl } from '../utils';
 
 export default function BillingManagement() {
   const [user, setUser] = useState(null);
