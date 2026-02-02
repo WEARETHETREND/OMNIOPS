@@ -101,6 +101,7 @@ import WorkflowTemplates from './pages/WorkflowTemplates';
 import Workflows from './pages/Workflows';
 import OperationalMetrics from './pages/OperationalMetrics';
 import FieldServicesHub from './pages/FieldServicesHub';
+import ROIOutcomes from './pages/ROIOutcomes';
 import __Layout from './Layout.jsx';
 
 
@@ -159,6 +160,7 @@ export const PAGES = {
     "Workflows": Workflows,
     "OperationalMetrics": OperationalMetrics,
     "FieldServicesHub": FieldServicesHub,
+    "ROIOutcomes": ROIOutcomes,
 }
 
 export const pagesConfig = {
