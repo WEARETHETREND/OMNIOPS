@@ -8,15 +8,30 @@ import {
   Workflow,
   AlertTriangle,
   DollarSign,
-  Play
+  Play,
+  Download,
+  CheckCircle,
+  Settings,
+  TrendingUp
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export default function Copilot() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [pendingAction, setPendingAction] = useState(null);
 
   const sendMessage = async () => {
     if (!input.trim() || loading) return;
@@ -36,14 +51,25 @@ export default function Copilot() {
       ]);
 
       // Build context for AI
-      const contextPrompt = `You are an AI assistant for OpsVanta operations platform. Here's the current system state:
+      const contextPrompt = `You are an AI assistant for OpsVanta operations platform with action execution capabilities. 
 
+CURRENT SYSTEM STATE:
 WORKFLOWS: ${JSON.stringify(workflows.slice(0, 5))}
 RECENT RUNS: ${JSON.stringify(runs.slice(0, 10))}
 ALERTS: ${JSON.stringify(alerts)}
 FINANCIAL: ${JSON.stringify(financial)}
 
+AVAILABLE ACTIONS (you can suggest these):
+- request_export: Request tenant data export for compliance
+- request_deletion: Request tenant data deletion for compliance
+- approve_request: Approve a compliance request (requires request_id)
+- scale_operation: Scale workers for an operation (requires operation_id and scale_factor)
+- run_workflow: Execute a workflow (requires workflow_id)
+
 User question: ${input}
+
+If the user wants to perform an action, respond with text AND include a JSON block at the end with format:
+ACTIONS: [{"type": "action_type", "params": {...}, "label": "Button Label", "description": "What this will do"}]
 
 Provide a helpful, concise response based on this data.`;
 
@@ -54,9 +80,26 @@ Provide a helpful, concise response based on this data.`;
         prompt: contextPrompt
       });
 
+      const reply = aiResponse.ok ? (aiResponse.data.reply || 'No response') : 'Unable to connect to AI service.';
+      
+      // Parse actions from AI response
+      let actions = [];
+      let cleanContent = reply;
+      
+      const actionsMatch = reply.match(/ACTIONS:\s*(\[.*?\])/s);
+      if (actionsMatch) {
+        try {
+          actions = JSON.parse(actionsMatch[1]);
+          cleanContent = reply.replace(/ACTIONS:\s*\[.*?\]/s, '').trim();
+        } catch (e) {
+          console.error('Failed to parse actions:', e);
+        }
+      }
+      
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: aiResponse.ok ? (aiResponse.data.reply || 'No response') : 'Unable to connect to AI service.'
+        content: cleanContent,
+        actions: actions
       }]);
     } catch (error) {
       setMessages(prev => [...prev, { 
@@ -104,11 +147,67 @@ Provide a helpful, concise response based on this data.`;
     }
   };
 
-  const executeAction = async (action) => {
-    if (action.type === 'run_workflow' && action.workflow_id) {
-      const res = await safePost(`/api/workflows/${action.workflow_id}/run`, {});
-      const msg = res.ok ? `✅ Workflow started successfully` : `❌ Failed to start workflow`;
+  const confirmAction = (action) => {
+    setPendingAction(action);
+  };
+
+  const executeAction = async () => {
+    if (!pendingAction) return;
+    
+    const action = pendingAction;
+    setPendingAction(null);
+    
+    setMessages(prev => [...prev, { role: 'assistant', content: `⏳ Executing: ${action.label}...` }]);
+    
+    try {
+      let result;
+      
+      switch (action.type) {
+        case 'request_export':
+          result = await safePost('/api/compliance/request', {
+            tenant_id: action.params.tenant_id,
+            request_type: 'export'
+          });
+          break;
+          
+        case 'request_deletion':
+          result = await safePost('/api/compliance/request', {
+            tenant_id: action.params.tenant_id,
+            request_type: 'deletion'
+          });
+          break;
+          
+        case 'approve_request':
+          result = await safePost(`/api/compliance/requests/${action.params.request_id}/approve`, {
+            notes: action.params.notes || 'Approved via AI Copilot'
+          });
+          break;
+          
+        case 'scale_operation':
+          result = await safePost('/api/operations/scale', {
+            operation_id: action.params.operation_id,
+            scale_factor: action.params.scale_factor
+          });
+          break;
+          
+        case 'run_workflow':
+          result = await safePost(`/api/workflows/${action.params.workflow_id}/run`, {});
+          break;
+          
+        default:
+          result = { ok: false, error: 'Unknown action type' };
+      }
+      
+      const msg = result.ok 
+        ? `✅ Success: ${action.label} completed` 
+        : `❌ Failed: ${action.label} - ${result.error || 'Unknown error'}`;
+      
       setMessages(prev => [...prev, { role: 'assistant', content: msg }]);
+    } catch (error) {
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: `❌ Error executing ${action.label}: ${error.message}` 
+      }]);
     }
   };
 
@@ -161,19 +260,26 @@ Provide a helpful, concise response based on this data.`;
               
               {/* Action Buttons */}
               {msg.actions && msg.actions.length > 0 && (
-                <div className="flex gap-2 ml-11">
-                  {msg.actions.map((action, idx) => (
-                    <Button
-                      key={idx}
-                      size="sm"
-                      variant="outline"
-                      onClick={() => executeAction(action)}
-                      className="text-xs"
-                    >
-                      <Play className="w-3 h-3 mr-1" />
-                      {action.label || 'Execute'}
-                    </Button>
-                  ))}
+                <div className="flex flex-wrap gap-2 ml-11">
+                  {msg.actions.map((action, idx) => {
+                    const Icon = action.type === 'request_export' ? Download :
+                                action.type === 'approve_request' ? CheckCircle :
+                                action.type === 'scale_operation' ? TrendingUp :
+                                action.type === 'run_workflow' ? Play : Settings;
+                    
+                    return (
+                      <Button
+                        key={idx}
+                        size="sm"
+                        variant="outline"
+                        onClick={() => confirmAction(action)}
+                        className="text-xs hover:bg-emerald-50 hover:border-emerald-300"
+                      >
+                        <Icon className="w-3 h-3 mr-1" />
+                        {action.label || 'Execute'}
+                      </Button>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -215,6 +321,35 @@ Provide a helpful, concise response based on this data.`;
           </Button>
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      <AlertDialog open={!!pendingAction} onOpenChange={(open) => !open && setPendingAction(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Action</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingAction?.description || 'Are you sure you want to execute this action?'}
+              <div className="mt-3 p-3 bg-slate-50 rounded-lg">
+                <p className="text-sm font-medium text-slate-900">{pendingAction?.label}</p>
+                {pendingAction?.params && (
+                  <pre className="mt-2 text-xs text-slate-600">
+                    {JSON.stringify(pendingAction.params, null, 2)}
+                  </pre>
+                )}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={executeAction}
+              className="bg-emerald-600 hover:bg-emerald-700"
+            >
+              Execute
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
