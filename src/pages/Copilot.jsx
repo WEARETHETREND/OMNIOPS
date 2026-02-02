@@ -170,6 +170,15 @@ Provide a helpful, concise response based on this data.`;
     }
   };
 
+  const getWorkflowOptimizations = async () => {
+    try {
+      const response = await base44.functions.invoke('analyzeWorkflowOptimizations', {});
+      return response.data || { optimizations: [] };
+    } catch {
+      return { optimizations: [] };
+    }
+  };
+
   const confirmAction = (action) => {
     setPendingAction(action);
   };
