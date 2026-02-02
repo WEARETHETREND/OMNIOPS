@@ -66,6 +66,8 @@ const navigation = [
   { name: 'Inventory', page: 'Inventory', icon: Package },
   { name: 'Projects', page: 'Projects', icon: Folder },
   { name: 'HR', page: 'HR', icon: Users },
+  { name: 'Field Services Hub', page: 'FieldServicesHub', icon: MapPin },
+  { name: 'ROI & Outcomes', page: 'ROIOutcomes', icon: TrendingUp },
   { name: 'Operational Metrics', page: 'OperationalMetrics', icon: BarChart3 },
   { name: 'Financial Intelligence', page: 'FinancialIntelligence', icon: DollarSign },
   { name: 'System Health', page: 'SystemHealth', icon: Server },
