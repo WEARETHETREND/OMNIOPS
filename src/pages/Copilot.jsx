@@ -43,13 +43,14 @@ export default function Copilot() {
 
     try {
       // Gather context from backend
-      const [workflows, runs, alerts, financial, failures, impacts] = await Promise.all([
+      const [workflows, runs, alerts, financial, failures, impacts, optimizations] = await Promise.all([
         getWorkflows(),
         getRecentRuns(),
         getAlerts(),
         getFinancial(),
         getFailureAnalyses(),
-        getFinancialImpacts()
+        getFinancialImpacts(),
+        getWorkflowOptimizations()
       ]);
 
       // Build context for AI
