@@ -89,6 +89,8 @@ import WorkflowDetails from './pages/WorkflowDetails';
 import WorkflowTemplates from './pages/WorkflowTemplates';
 import Workflows from './pages/Workflows';
 import FinancialDashboard from './pages/FinancialDashboard';
+import Pricing from './pages/Pricing';
+import Revenue from './pages/Revenue';
 import __Layout from './Layout.jsx';
 
 
@@ -135,6 +137,8 @@ export const PAGES = {
     "WorkflowTemplates": WorkflowTemplates,
     "Workflows": Workflows,
     "FinancialDashboard": FinancialDashboard,
+    "Pricing": Pricing,
+    "Revenue": Revenue,
 }
 
 export const pagesConfig = {

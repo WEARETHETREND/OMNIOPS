@@ -63,6 +63,8 @@ const navigation = [
   { name: 'Projects', page: 'Projects', icon: Folder },
   { name: 'HR', page: 'HR', icon: Users },
   { name: 'Billing', page: 'Billing', icon: DollarSign },
+  { name: 'Pricing', page: 'Pricing', icon: DollarSign },
+  { name: 'Revenue', page: 'Revenue', icon: DollarSign },
   { name: 'Marketing', page: 'Marketing', icon: Megaphone },
   { name: 'Financial Ops', page: 'FinancialDashboard', icon: DollarSign },
   { name: 'Reports', page: 'ScheduledReports', icon: FileText },
