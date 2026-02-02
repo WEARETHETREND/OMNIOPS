@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { safeGet } from '@/components/api/apiClient';
 import { 
   Activity, 
   Zap, 
@@ -11,105 +12,137 @@ import {
   AlertTriangle,
   CheckCircle,
   TrendingUp,
-  Clock
+  Clock,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { PieChart, Pie, Cell } from 'recharts';
-
-const activityData = [
-  { name: 'Mon', value: 245 },
-  { name: 'Tue', value: 312 },
-  { name: 'Wed', value: 289 },
-  { name: 'Thu', value: 356 },
-  { name: 'Fri', value: 423 },
-  { name: 'Sat', value: 198 },
-  { name: 'Sun', value: 167 },
-];
-
-const deptData = [
-  { name: 'HR', value: 145, color: '#10b981' },
-  { name: 'Finance', value: 223, color: '#3b82f6' },
-  { name: 'IT', value: 189, color: '#8b5cf6' },
-  { name: 'Operations', value: 267, color: '#f59e0b' },
-  { name: 'Sales', value: 198, color: '#ec4899' },
-];
-
-const workflows = [
-  { id: 1, name: 'Employee Onboarding', status: 'active', successRate: 98, avgDuration: 45 },
-  { id: 2, name: 'Invoice Processing', status: 'active', successRate: 95, avgDuration: 23 },
-  { id: 3, name: 'Inventory Alerts', status: 'active', successRate: 100, avgDuration: 12 },
-  { id: 4, name: 'Customer Support', status: 'active', successRate: 92, avgDuration: 67 },
-];
-
-const alerts = [
-  { id: 1, title: 'High API latency detected', service: 'Payment Gateway', severity: 'high', createdAt: new Date() },
-  { id: 2, title: 'Low inventory warning', service: 'Warehouse System', severity: 'medium', createdAt: new Date() },
-  { id: 3, title: 'Scheduled maintenance', service: 'Database', severity: 'low', createdAt: new Date() },
-];
 
 export default function Dashboard() {
+  const [loading, setLoading] = useState(true);
+  const [financial, setFinancial] = useState(null);
+  const [workflows, setWorkflows] = useState([]);
+  const [alerts, setAlerts] = useState([]);
+  const [insights, setInsights] = useState(null);
+
+  useEffect(() => {
+    loadDashboard();
+  }, []);
+
+  const loadDashboard = async () => {
+    setLoading(true);
+    
+    const [finRes, wfRes, alertRes, insightRes] = await Promise.all([
+      safeGet('/api/money/now'),
+      safeGet('/api/workflows'),
+      safeGet('/api/alerts'),
+      safeGet('/api/insights')
+    ]);
+
+    if (finRes.ok) setFinancial(finRes.data);
+    if (wfRes.ok) setWorkflows((wfRes.data.workflows || wfRes.data || []).slice(0, 4));
+    if (alertRes.ok) setAlerts((alertRes.data.alerts || alertRes.data || []).slice(0, 3));
+    if (insightRes.ok) setInsights(insightRes.data);
+
+    setLoading(false);
+  };
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <Skeleton className="h-20 w-full" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          {[1,2,3,4].map(i => <Skeleton key={i} className="h-32" />)}
+        </div>
+        <Skeleton className="h-96 w-full" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       {/* Welcome Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900" data-tour="dashboard">Welcome back!</h1>
+          <h1 className="text-2xl font-bold text-slate-900">Welcome back!</h1>
           <p className="text-slate-500 mt-1">Here's what's happening with your operations today.</p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm">
-            <CheckCircle className="w-4 h-4" />
-            All systems operational
+        <Button onClick={loadDashboard} variant="outline" size="sm">
+          <Activity className="w-4 h-4 mr-2" />
+          Refresh
+        </Button>
+      </div>
+
+      {/* Financial Stats */}
+      {financial && (
+        <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl p-6 text-white">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div>
+              <p className="text-slate-400 text-sm mb-1">Current Burn Rate</p>
+              <p className="text-3xl font-bold">${financial.current_burn_rate?.toFixed(2)}<span className="text-lg text-slate-400">/hr</span></p>
+            </div>
+            <div>
+              <p className="text-slate-400 text-sm mb-1">24h Projection</p>
+              <p className="text-3xl font-bold">${financial.projected_daily_burn?.toFixed(0)}</p>
+            </div>
+            <div>
+              <p className="text-slate-400 text-sm mb-1">Today's Net P&L</p>
+              <p className={`text-3xl font-bold ${financial.today?.net >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                ${Math.abs(financial.today?.net || 0).toFixed(0)}
+              </p>
+            </div>
+            <div>
+              <p className="text-slate-400 text-sm mb-1">Active Issues</p>
+              <p className="text-3xl font-bold">{financial.active_issues || 0}</p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatCard
           title="Active Workflows"
-          value="24"
+          value={workflows.length.toString()}
           icon={WorkflowIcon}
           gradient="from-emerald-500 to-teal-600"
         />
         <StatCard
           title="Alerts"
-          value="3"
+          value={alerts.length.toString()}
           icon={AlertTriangle}
           gradient="from-amber-500 to-orange-600"
         />
         <StatCard
-          title="Operations Today"
-          value="1,247"
-          icon={Activity}
+          title="Success Rate"
+          value={insights?.success_rate ? `${insights.success_rate.toFixed(1)}%` : 'N/A'}
+          icon={CheckCircle}
           gradient="from-violet-500 to-purple-600"
         />
         <StatCard
-          title="Cost Savings"
-          value="$42.5K"
-          unit="/mo"
-          icon={DollarSign}
+          title="Total Runs"
+          value={insights?.total_runs?.toString() || '0'}
+          icon={Activity}
           gradient="from-blue-500 to-cyan-600"
         />
       </div>
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200/60 p-6">
+      {/* Activity Chart */}
+      {insights?.trending && (
+        <div className="bg-white rounded-xl border border-slate-200/60 p-6">
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-slate-900">Operations Activity</h3>
-            <p className="text-sm text-slate-500">Total automated operations this week</p>
+            <p className="text-sm text-slate-500">Workflow executions over time</p>
           </div>
           <ResponsiveContainer width="100%" height={280}>
-            <AreaChart data={activityData}>
+            <AreaChart data={insights.trending}>
               <defs>
                 <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
                   <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
+              <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
               <YAxis stroke="#94a3b8" fontSize={12} />
               <Tooltip 
                 contentStyle={{ 
@@ -121,7 +154,7 @@ export default function Dashboard() {
               />
               <Area 
                 type="monotone" 
-                dataKey="value" 
+                dataKey="count" 
                 stroke="#10b981" 
                 strokeWidth={2}
                 fill="url(#colorValue)" 
@@ -129,57 +162,14 @@ export default function Dashboard() {
             </AreaChart>
           </ResponsiveContainer>
         </div>
-
-        <div className="bg-white rounded-xl border border-slate-200/60 p-6">
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-slate-900">By Department</h3>
-            <p className="text-sm text-slate-500">Workflow distribution</p>
-          </div>
-          <ResponsiveContainer width="100%" height={200}>
-            <PieChart>
-              <Pie
-                data={deptData}
-                cx="50%"
-                cy="50%"
-                innerRadius={60}
-                outerRadius={80}
-                paddingAngle={3}
-                dataKey="value"
-              >
-                {deptData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: '#1e293b', 
-                  border: 'none', 
-                  borderRadius: '8px',
-                  color: '#fff'
-                }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="mt-4 space-y-2">
-            {deptData.map((dept) => (
-              <div key={dept.name} className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: dept.color }} />
-                  <span className="text-slate-700">{dept.name}</span>
-                </div>
-                <span className="font-medium text-slate-900">{dept.value}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* Active Workflows */}
       <div>
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-lg font-semibold text-slate-900">Active Workflows</h2>
-            <p className="text-sm text-slate-500">{workflows.length} running</p>
+            <p className="text-sm text-slate-500">{workflows.length} workflows</p>
           </div>
           <Link to={createPageUrl('Workflows')}>
             <Button variant="ghost" className="text-slate-600">
@@ -187,21 +177,27 @@ export default function Dashboard() {
             </Button>
           </Link>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {workflows.map(wf => (
-            <div key={wf.id} className="bg-white rounded-xl border border-slate-200/60 p-4 hover:shadow-lg transition-all cursor-pointer">
-              <div className="flex items-start justify-between mb-2">
-                <h3 className="font-semibold text-slate-900">{wf.name}</h3>
-                <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+        {workflows.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {workflows.map(wf => (
+              <div key={wf.workflow_id} className="bg-white rounded-xl border border-slate-200/60 p-4 hover:shadow-lg transition-all cursor-pointer">
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="font-semibold text-slate-900 line-clamp-2">{wf.name}</h3>
+                  <div className={`w-2 h-2 rounded-full ${wf.enabled ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
+                </div>
+                <p className="text-sm text-slate-500 mb-3 line-clamp-2">{wf.description || 'No description'}</p>
+                <div className="flex items-center gap-3 text-xs text-slate-400">
+                  <span className="capitalize">{wf.workflow_type || 'workflow'}</span>
+                </div>
               </div>
-              <p className="text-sm text-slate-500 mb-3">{wf.status}</p>
-              <div className="flex items-center gap-4 text-xs text-slate-400">
-                <span>{wf.successRate}% success</span>
-                <span>{wf.avgDuration}s avg</span>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white rounded-xl border border-slate-200/60 p-12 text-center">
+            <WorkflowIcon className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+            <p className="text-slate-500">No workflows configured yet</p>
+          </div>
+        )}
       </div>
 
       {/* Recent Alerts */}
@@ -209,7 +205,7 @@ export default function Dashboard() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-lg font-semibold text-slate-900">Recent Alerts</h2>
-            <p className="text-sm text-slate-500">{alerts.length} active</p>
+            <p className="text-sm text-slate-500">{alerts.length} alerts</p>
           </div>
           <Link to={createPageUrl('Alerts')}>
             <Button variant="ghost" className="text-slate-600">
@@ -217,25 +213,32 @@ export default function Dashboard() {
             </Button>
           </Link>
         </div>
-        <div className="space-y-3">
-          {alerts.map(alert => (
-            <div key={alert.id} className="bg-white rounded-lg border border-slate-200/60 p-4">
-              <div className="flex items-start gap-3">
-                <AlertTriangle className={`w-5 h-5 flex-shrink-0 ${
-                  alert.severity === 'high' ? 'text-rose-500' : 
-                  alert.severity === 'medium' ? 'text-amber-500' : 'text-blue-500'
-                }`} />
-                <div className="flex-1">
-                  <h4 className="font-medium text-slate-900">{alert.title}</h4>
-                  <p className="text-sm text-slate-500 mt-1">{alert.service}</p>
+        {alerts.length > 0 ? (
+          <div className="space-y-3">
+            {alerts.map(alert => (
+              <div key={alert.alert_id} className="bg-white rounded-lg border border-slate-200/60 p-4">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className={`w-5 h-5 flex-shrink-0 ${
+                    alert.level === 'critical' ? 'text-rose-500' : 
+                    alert.level === 'warning' ? 'text-amber-500' : 'text-blue-500'
+                  }`} />
+                  <div className="flex-1">
+                    <h4 className="font-medium text-slate-900">{alert.message}</h4>
+                    <p className="text-sm text-slate-500 mt-1">Run: {alert.run_id || 'N/A'}</p>
+                  </div>
+                  <span className="text-xs text-slate-400">
+                    {alert.created_at ? new Date(alert.created_at).toLocaleTimeString() : ''}
+                  </span>
                 </div>
-                <span className="text-xs text-slate-400">
-                  {alert.createdAt.toLocaleTimeString()}
-                </span>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white rounded-xl border border-slate-200/60 p-12 text-center">
+            <CheckCircle className="w-12 h-12 text-emerald-300 mx-auto mb-3" />
+            <p className="text-slate-500">No active alerts</p>
+          </div>
+        )}
       </div>
     </div>
   );
