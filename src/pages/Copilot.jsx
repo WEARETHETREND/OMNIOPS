@@ -216,6 +216,20 @@ Provide a helpful, concise response based on this data.`;
         case 'run_workflow':
           result = await safePost(`/api/workflows/${action.params.workflow_id}/run`, {});
           break;
+
+        case 'analyze_failures':
+          result = await base44.functions.invoke('analyzeFailures', {
+            failure_ids: action.params.failure_ids
+          });
+          break;
+
+        case 'calculate_impact':
+          result = await base44.functions.invoke('calculateFinancialImpact', {});
+          break;
+
+        case 'recover_failures':
+          result = await base44.functions.invoke('autoRecoverFailures', {});
+          break;
           
         default:
           result = { ok: false, error: 'Unknown action type' };
