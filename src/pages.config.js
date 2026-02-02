@@ -94,6 +94,8 @@ import Workflows from './pages/Workflows';
 import LandingPage from './pages/LandingPage';
 import Contracts from './pages/Contracts';
 import DispatchMap from './pages/DispatchMap';
+import Onboarding from './pages/Onboarding';
+import BillingManagement from './pages/BillingManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -145,6 +147,8 @@ export const PAGES = {
     "LandingPage": LandingPage,
     "Contracts": Contracts,
     "DispatchMap": DispatchMap,
+    "Onboarding": Onboarding,
+    "BillingManagement": BillingManagement,
 }
 
 export const pagesConfig = {
