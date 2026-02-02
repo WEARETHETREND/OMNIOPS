@@ -1,4 +1,4 @@
-// API client for custom OmniOps Node.js backend
+// API client for OmniOps Node.js backend
 import axios from "axios";
 
 const API_BASE =
@@ -14,7 +14,7 @@ function getTenantId() {
 }
 
 export const api = axios.create({
-  baseURL: API_BASE,
+  baseURL: `${API_BASE}/v1`,
   timeout: 20000,
 });
 
