@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
-import { safePost } from '@/components/api/apiClient';
+import { safePost, safeGet } from '@/components/api/apiClient';
 import { 
   Send,
   Bot,
-  User
+  User,
+  Workflow,
+  AlertTriangle,
+  DollarSign,
+  Play
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,8 +25,15 @@ export default function Copilot() {
     setInput('');
     setLoading(true);
 
+    // Enhanced AI with real backend data
     const r = await safePost('/ai/chat', { 
-      messages: [...messages, userMessage] 
+      message: input,
+      context: {
+        workflows: await getWorkflows(),
+        runs: await getRecentRuns(),
+        alerts: await getAlerts(),
+        financial: await getFinancial()
+      }
     });
 
     setLoading(false);
@@ -30,13 +41,45 @@ export default function Copilot() {
     if (!r.ok) {
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: `Error: ${r.error}` 
+        content: `Error: ${r.error || 'Unable to connect to AI'}` 
       }]);
     } else {
+      const reply = r.data.reply || r.data.message || r.data.response || 'No response';
+      const actions = r.data.actions || [];
+      
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: r.data.reply || 'No response' 
+        content: reply,
+        actions: actions
       }]);
+    }
+  };
+
+  const getWorkflows = async () => {
+    const res = await safeGet('/api/workflows');
+    return res.ok ? (res.data.workflows || res.data || []).slice(0, 10) : [];
+  };
+
+  const getRecentRuns = async () => {
+    const res = await safeGet('/api/runs', { limit: 20 });
+    return res.ok ? (res.data.runs || res.data || []).slice(0, 20) : [];
+  };
+
+  const getAlerts = async () => {
+    const res = await safeGet('/api/alerts', { status: 'active' });
+    return res.ok ? (res.data.alerts || res.data || []).slice(0, 10) : [];
+  };
+
+  const getFinancial = async () => {
+    const res = await safeGet('/api/money/now');
+    return res.ok ? res.data : null;
+  };
+
+  const executeAction = async (action) => {
+    if (action.type === 'run_workflow' && action.workflow_id) {
+      const res = await safePost(`/api/workflows/${action.workflow_id}/run`, {});
+      const msg = res.ok ? `✅ Workflow started successfully` : `❌ Failed to start workflow`;
+      setMessages(prev => [...prev, { role: 'assistant', content: msg }]);
     }
   };
 
@@ -66,22 +109,42 @@ export default function Copilot() {
           </div>
         ) : (
           messages.map((msg, i) => (
-            <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              {msg.role === 'assistant' && (
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
-                  <Bot className="w-5 h-5 text-white" />
+            <div key={i} className="space-y-3">
+              <div className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                {msg.role === 'assistant' && (
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
+                    <Bot className="w-5 h-5 text-white" />
+                  </div>
+                )}
+                <div className={`max-w-2xl rounded-2xl px-4 py-3 ${
+                  msg.role === 'user' 
+                    ? 'bg-slate-900 text-white' 
+                    : 'bg-slate-50 text-slate-900'
+                }`}>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                 </div>
-              )}
-              <div className={`max-w-2xl rounded-2xl px-4 py-3 ${
-                msg.role === 'user' 
-                  ? 'bg-slate-900 text-white' 
-                  : 'bg-slate-50 text-slate-900'
-              }`}>
-                <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                {msg.role === 'user' && (
+                  <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center flex-shrink-0">
+                    <User className="w-5 h-5 text-slate-600" />
+                  </div>
+                )}
               </div>
-              {msg.role === 'user' && (
-                <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center flex-shrink-0">
-                  <User className="w-5 h-5 text-slate-600" />
+              
+              {/* Action Buttons */}
+              {msg.actions && msg.actions.length > 0 && (
+                <div className="flex gap-2 ml-11">
+                  {msg.actions.map((action, idx) => (
+                    <Button
+                      key={idx}
+                      size="sm"
+                      variant="outline"
+                      onClick={() => executeAction(action)}
+                      className="text-xs"
+                    >
+                      <Play className="w-3 h-3 mr-1" />
+                      {action.label || 'Execute'}
+                    </Button>
+                  ))}
                 </div>
               )}
             </div>
