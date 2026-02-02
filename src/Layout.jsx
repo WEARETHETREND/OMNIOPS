@@ -85,6 +85,7 @@ const navigation = [
   { name: 'Audit Trail', page: 'Audit', icon: FileText },
   { name: 'Notifications', page: 'NotificationsCenter', icon: Bell },
   { name: 'White Label', page: 'WhiteLabel', icon: Palette },
+  { name: 'Product Roadmap', page: 'ProductRoadmap', icon: TrendingUp },
   { name: 'Tech Stack', page: 'TechStack', icon: Server },
   { name: 'Integrations', page: 'IntegrationMarketplace', icon: Package },
   { name: 'Settings', page: 'Settings', icon: Settings },
