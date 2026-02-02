@@ -353,9 +353,13 @@ Provide a helpful, concise response based on this data.`;
                   {msg.actions.map((action, idx) => {
                     const iconMap = {
                       'request_export': Download,
+                      'request_compliance_export': Download,
+                      'request_compliance_deletion': Trash2,
                       'approve_request': CheckCircle,
                       'scale_operation': TrendingUp,
+                      'trigger_scaling': TrendingUp,
                       'run_workflow': Play,
+                      'suggest_optimization': Zap,
                       'analyze_failures': AlertTriangle,
                       'calculate_impact': DollarSign,
                       'recover_failures': Zap
