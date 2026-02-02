@@ -252,6 +252,36 @@ Provide a helpful, concise response based on this data.`;
         case 'recover_failures':
           result = await base44.functions.invoke('autoRecoverFailures', {});
           break;
+
+        case 'suggest_optimization':
+          result = {
+            ok: true,
+            message: `Optimization tracked: ${action.params.recommendation}`
+          };
+          break;
+
+        case 'trigger_scaling':
+          result = await base44.functions.invoke('analyzeWorkflowOptimizations', {
+            action: 'scale',
+            scale_factor: action.params.scale_factor
+          });
+          break;
+
+        case 'request_compliance_export':
+          result = await base44.functions.invoke('auditLog', {
+            action: 'export',
+            data_category: 'personal_data',
+            purpose: 'User-initiated GDPR data export'
+          });
+          break;
+
+        case 'request_compliance_deletion':
+          result = await base44.functions.invoke('auditLog', {
+            action: 'delete',
+            data_category: 'personal_data',
+            purpose: 'User-initiated GDPR data deletion'
+          });
+          break;
           
         default:
           result = { ok: false, error: 'Unknown action type' };
