@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { safeGet } from '@/components/api/apiClient';
+import { mockFinancial, mockWorkflows, mockAlerts, mockInsights } from '@/components/api/mockData';
 import { 
   Activity, 
   Zap, 
@@ -33,17 +34,26 @@ export default function Dashboard() {
   const loadDashboard = async () => {
     setLoading(true);
     
-    const [finRes, wfRes, alertRes, insightRes] = await Promise.all([
-      safeGet('/api/money/now'),
-      safeGet('/api/workflows'),
-      safeGet('/api/alerts'),
-      safeGet('/api/insights')
-    ]);
+    try {
+      const [finRes, wfRes, alertRes, insightRes] = await Promise.all([
+        safeGet('/api/money/now'),
+        safeGet('/api/workflows'),
+        safeGet('/api/alerts'),
+        safeGet('/api/insights')
+      ]);
 
-    if (finRes.ok) setFinancial(finRes.data);
-    if (wfRes.ok) setWorkflows((wfRes.data.workflows || wfRes.data || []).slice(0, 4));
-    if (alertRes.ok) setAlerts((alertRes.data.alerts || alertRes.data || []).slice(0, 3));
-    if (insightRes.ok) setInsights(insightRes.data);
+      // Use backend data if available, otherwise fallback to mock data
+      setFinancial(finRes.ok ? finRes.data : mockFinancial);
+      setWorkflows((wfRes.ok ? (wfRes.data.workflows || wfRes.data || []) : mockWorkflows).slice(0, 4));
+      setAlerts((alertRes.ok ? (alertRes.data.alerts || alertRes.data || []) : mockAlerts).slice(0, 3));
+      setInsights(insightRes.ok ? insightRes.data : mockInsights);
+    } catch (error) {
+      // Fallback to mock data if API fails
+      setFinancial(mockFinancial);
+      setWorkflows(mockWorkflows.slice(0, 4));
+      setAlerts(mockAlerts.slice(0, 3));
+      setInsights(mockInsights);
+    }
 
     setLoading(false);
   };
