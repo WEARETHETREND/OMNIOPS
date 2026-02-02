@@ -64,15 +64,27 @@ FINANCIAL: ${JSON.stringify(financial)}
 ACTIVE FAILURES: ${JSON.stringify(failures.slice(0, 5))}
 FINANCIAL IMPACTS: ${JSON.stringify(impacts.slice(0, 5))}
 
+OPTIMIZATION OPPORTUNITIES:
+${JSON.stringify(optimizations.optimizations ? optimizations.optimizations.slice(0, 5) : [])}
+Summary: ${optimizations.summary ? JSON.stringify(optimizations.summary) : 'No optimizations identified'}
+
 AVAILABLE ACTIONS (you can suggest these):
+- suggest_optimization: Suggest a specific workflow optimization based on data
+- trigger_scaling: Trigger resource scaling when exhaustion is detected (requires scale_factor)
+- request_compliance_export: Request GDPR data export for compliance
+- request_compliance_deletion: Request GDPR data deletion for compliance
 - analyze_failures: Analyze recent failures with AI root cause detection
 - calculate_impact: Calculate current financial impact of issues
 - recover_failures: Attempt automated failure recovery
-- request_export: Request tenant data export for compliance
-- request_deletion: Request tenant data deletion for compliance
-- approve_request: Approve a compliance request (requires request_id)
 - scale_operation: Scale workers for an operation (requires operation_id and scale_factor)
 - run_workflow: Execute a workflow (requires workflow_id)
+
+PROACTIVE SUGGESTIONS:
+Based on the optimization analysis above, proactively suggest relevant optimizations if:
+- Success rates are below 85% - suggest reliability improvements
+- Execution times exceed 5 minutes - suggest performance optimizations
+- CPU/Memory usage exceeds thresholds - suggest scaling actions
+- Financial impact is high - suggest cost reduction strategies
 
 User question: ${input}
 
