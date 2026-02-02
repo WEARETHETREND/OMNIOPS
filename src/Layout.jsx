@@ -59,6 +59,7 @@ const navigation = [
   { name: 'Templates', page: 'WorkflowTemplates', icon: Zap },
   { name: 'Dispatches', page: 'Dispatches', icon: Activity },
   { name: 'CRM', page: 'CRM', icon: Users },
+  { name: 'Contracts', page: 'Contracts', icon: FileText },
   { name: 'Inventory', page: 'Inventory', icon: Package },
   { name: 'Projects', page: 'Projects', icon: Folder },
   { name: 'HR', page: 'HR', icon: Users },

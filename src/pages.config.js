@@ -92,6 +92,7 @@ import WorkflowDetails from './pages/WorkflowDetails';
 import WorkflowTemplates from './pages/WorkflowTemplates';
 import Workflows from './pages/Workflows';
 import LandingPage from './pages/LandingPage';
+import Contracts from './pages/Contracts';
 import __Layout from './Layout.jsx';
 
 
@@ -141,6 +142,7 @@ export const PAGES = {
     "WorkflowTemplates": WorkflowTemplates,
     "Workflows": Workflows,
     "LandingPage": LandingPage,
+    "Contracts": Contracts,
 }
 
 export const pagesConfig = {
