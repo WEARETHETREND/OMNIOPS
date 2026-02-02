@@ -69,23 +69,39 @@ Provide a helpful, concise response based on this data.`;
   };
 
   const getWorkflows = async () => {
-    const res = await safeGet('/api/workflows');
-    return res.ok ? (res.data.workflows || res.data || []).slice(0, 10) : [];
+    try {
+      return await base44.entities.Workflow.list('-updated_date', 10);
+    } catch {
+      return [];
+    }
   };
 
   const getRecentRuns = async () => {
-    const res = await safeGet('/api/runs', { limit: 20 });
-    return res.ok ? (res.data.runs || res.data || []).slice(0, 20) : [];
+    try {
+      return await base44.entities.Metric.filter({ category: 'performance' }, '-updated_date', 20);
+    } catch {
+      return [];
+    }
   };
 
   const getAlerts = async () => {
-    const res = await safeGet('/api/alerts', { status: 'active' });
-    return res.ok ? (res.data.alerts || res.data || []).slice(0, 10) : [];
+    try {
+      return await base44.entities.Alert.filter({ status: 'new' }, '-created_date', 10);
+    } catch {
+      return [];
+    }
   };
 
   const getFinancial = async () => {
-    const res = await safeGet('/api/money/now');
-    return res.ok ? res.data : null;
+    try {
+      const metrics = await base44.entities.Metric.filter({ category: 'cost' }, '-updated_date', 5);
+      return {
+        burn_rate: metrics.find(m => m.name === 'Burn Rate')?.value || 0,
+        total_cost: metrics.find(m => m.name === 'Total Cost')?.value || 0
+      };
+    } catch {
+      return null;
+    }
   };
 
   const executeAction = async (action) => {
