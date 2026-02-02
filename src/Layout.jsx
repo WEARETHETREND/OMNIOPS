@@ -64,6 +64,7 @@ const navigation = [
   { name: 'HR', page: 'HR', icon: Users },
   { name: 'Billing', page: 'Billing', icon: DollarSign },
   { name: 'Marketing', page: 'Marketing', icon: Megaphone },
+  { name: 'Financial Ops', page: 'FinancialDashboard', icon: DollarSign },
   { name: 'Reports', page: 'ScheduledReports', icon: FileText },
   { name: 'Import/Export', page: 'DataImportExport', icon: Download },
   { name: 'Dashboards', page: 'SharedDashboards', icon: Share2 },

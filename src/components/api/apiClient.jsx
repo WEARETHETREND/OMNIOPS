@@ -2,15 +2,15 @@
 import axios from "axios";
 
 const API_BASE =
-  (typeof window !== "undefined" && window.__OMNIOPS_API_BASE__) ||
+  (typeof window !== "undefined" && window.__OPSVANTA_API_BASE__) ||
   "http://localhost:4000";
 
 function getToken() {
-  return localStorage.getItem("omniops_token") || "";
+  return localStorage.getItem("opsvanta_token") || "";
 }
 
-function getTenantKey() {
-  return localStorage.getItem("omniops_tenant_key") || "demo_tenant_key";
+function getTenantId() {
+  return localStorage.getItem("opsvanta_tenant_id") || "";
 }
 
 export const api = axios.create({
@@ -20,11 +20,11 @@ export const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = getToken();
-  const tenantKey = getTenantKey();
+  const tenantId = getTenantId();
 
   config.headers = config.headers || {};
   if (token) config.headers.Authorization = `Bearer ${token}`;
-  if (tenantKey) config.headers["x-tenant-key"] = tenantKey;
+  if (tenantId) config.headers["x-tenant-id"] = tenantId;
 
   return config;
 });
