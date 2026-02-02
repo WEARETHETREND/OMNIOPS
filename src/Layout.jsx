@@ -80,6 +80,7 @@ const navigation = [
   { name: 'Notifications', page: 'NotificationsCenter', icon: Bell },
   { name: 'White Label', page: 'WhiteLabel', icon: Palette },
   { name: 'Tech Stack', page: 'TechStack', icon: Server },
+  { name: 'Integrations', page: 'IntegrationMarketplace', icon: Package },
   { name: 'Settings', page: 'Settings', icon: Settings },
 ];
 
