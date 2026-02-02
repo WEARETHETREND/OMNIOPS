@@ -94,33 +94,55 @@ export default function Pricing() {
   const handleSelectPlan = async (plan) => {
     setLoading(plan.name);
 
-    if (plan.name === 'Free') {
-      // Create free subscription
-      await base44.entities.Subscription.create({
-        plan: 'free',
-        status: 'active',
-        price_monthly: 0,
-        workflows_limit: plan.limits.workflows,
-        runs_limit_monthly: plan.limits.runs,
-        users_limit: plan.limits.users,
-        features: {
-          ai_copilot: false,
-          advanced_analytics: false,
-          white_label: false,
-          priority_support: false,
-          custom_integrations: false,
-          audit_logs: false
+    try {
+      if (plan.name === 'Free') {
+        // Create free subscription
+        await base44.entities.Subscription.create({
+          plan: 'free',
+          status: 'active',
+          price_monthly: 0,
+          workflows_limit: plan.limits.workflows,
+          runs_limit_monthly: plan.limits.runs,
+          users_limit: plan.limits.users,
+          features: {
+            ai_copilot: false,
+            advanced_analytics: false,
+            white_label: false,
+            priority_support: false,
+            custom_integrations: false,
+            audit_logs: false
+          }
+        });
+        base44.analytics.track({ eventName: 'plan_selected', properties: { plan: 'free' } });
+        alert('Free plan activated! Redirecting to dashboard...');
+        window.location.href = '/dashboard';
+      } else if (plan.name === 'Enterprise') {
+        // Redirect to contact form
+        window.location.href = 'mailto:sales@opsvanta.com?subject=Enterprise Plan Inquiry';
+      } else {
+        // Check if running in iframe (preview mode)
+        if (window.self !== window.top) {
+          alert('⚠️ Checkout only works in published apps. Please publish your app to test payments.');
+          setLoading(null);
+          return;
         }
-      });
-      base44.analytics.track({ eventName: 'plan_selected', properties: { plan: 'free' } });
-    } else if (plan.name === 'Enterprise') {
-      // Redirect to contact form
-      window.location.href = 'mailto:sales@opsvanta.com?subject=Enterprise Plan Inquiry';
-    } else {
-      // Start Stripe checkout for paid plans
-      base44.analytics.track({ eventName: 'plan_selected', properties: { plan: plan.name.toLowerCase() } });
-      // TODO: Integrate Stripe checkout
-      alert(`Starting ${plan.name} trial - Stripe integration coming soon!`);
+
+        // Start Stripe checkout for paid plans
+        base44.analytics.track({ eventName: 'checkout_started', properties: { plan: plan.name.toLowerCase() } });
+        
+        const response = await base44.functions.invoke('createCheckout', {
+          plan: plan.name.toLowerCase()
+        });
+
+        if (response.data.url) {
+          window.location.href = response.data.url;
+        } else {
+          throw new Error('Failed to create checkout session');
+        }
+      }
+    } catch (error) {
+      console.error('Plan selection error:', error);
+      alert(`Error: ${error.message || 'Failed to process request'}`);
     }
 
     setLoading(null);
