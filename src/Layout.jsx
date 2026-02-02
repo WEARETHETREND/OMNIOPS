@@ -66,6 +66,8 @@ const navigation = [
   { name: 'Inventory', page: 'Inventory', icon: Package },
   { name: 'Projects', page: 'Projects', icon: Folder },
   { name: 'HR', page: 'HR', icon: Users },
+  { name: 'Financial Intelligence', page: 'FinancialIntelligence', icon: DollarSign },
+  { name: 'System Health', page: 'SystemHealth', icon: Server },
   { name: 'Billing', page: 'BillingManagement', icon: DollarSign },
   { name: 'Pricing', page: 'Pricing', icon: DollarSign },
   { name: 'Revenue', page: 'Revenue', icon: DollarSign },
