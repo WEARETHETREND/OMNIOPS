@@ -154,6 +154,22 @@ Provide a helpful, concise response based on this data.`;
     }
   };
 
+  const getFailureAnalyses = async () => {
+    try {
+      return await base44.entities.FailureAnalysis.filter({ recovery_status: 'pending' }, '-created_date', 10);
+    } catch {
+      return [];
+    }
+  };
+
+  const getFinancialImpacts = async () => {
+    try {
+      return await base44.entities.FinancialImpact.filter({ status: 'active' }, '-amount_usd', 10);
+    } catch {
+      return [];
+    }
+  };
+
   const confirmAction = (action) => {
     setPendingAction(action);
   };
