@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { safePost } from '@/components/api/apiClient';
+import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { 
@@ -72,14 +72,26 @@ export default function WorkflowTemplates() {
   );
 
   const useTemplate = async (template) => {
-    const r = await safePost('/workflows/from-template', { template_id: template.id });
-    if (!r.ok) {
-      toast.error(`Failed: ${r.error}`);
-    } else {
-      toast.success('Template applied! Opening builder...');
+    try {
+      // Create a workflow from the template
+      const newWorkflow = await base44.entities.Workflow.create({
+        name: template.name,
+        description: template.description,
+        department: template.category.toLowerCase(),
+        trigger_type: 'manual',
+        status: 'draft',
+        priority: 'medium',
+        run_count: 0,
+        success_rate: 0,
+        steps: []
+      });
+      
+      toast.success('Workflow created from template!');
       setTimeout(() => {
         window.location.href = createPageUrl('WorkflowBuilder');
       }, 1000);
+    } catch (error) {
+      toast.error('Failed to create workflow from template');
     }
   };
 
