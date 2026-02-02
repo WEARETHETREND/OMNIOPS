@@ -103,6 +103,7 @@ import OperationalMetrics from './pages/OperationalMetrics';
 import FieldServicesHub from './pages/FieldServicesHub';
 import ROIOutcomes from './pages/ROIOutcomes';
 import ProductRoadmap from './pages/ProductRoadmap';
+import FieldWorkerApp from './pages/FieldWorkerApp';
 import __Layout from './Layout.jsx';
 
 
@@ -163,6 +164,7 @@ export const PAGES = {
     "FieldServicesHub": FieldServicesHub,
     "ROIOutcomes": ROIOutcomes,
     "ProductRoadmap": ProductRoadmap,
+    "FieldWorkerApp": FieldWorkerApp,
 }
 
 export const pagesConfig = {
