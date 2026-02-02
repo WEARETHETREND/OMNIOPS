@@ -62,9 +62,9 @@ export default function WorkflowBuilder() {
       return;
     }
     setSaving(true);
-    const r = await safePost('/workflows', workflow);
+    const r = await safePost('/api/workflows', workflow);
     if (!r.ok) {
-      toast.error(`Failed to save: ${r.error}`);
+      toast.error('Failed to save workflow');
     } else {
       toast.success('Workflow saved successfully');
     }
