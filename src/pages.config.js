@@ -93,6 +93,7 @@ import WorkflowTemplates from './pages/WorkflowTemplates';
 import Workflows from './pages/Workflows';
 import LandingPage from './pages/LandingPage';
 import Contracts from './pages/Contracts';
+import DispatchMap from './pages/DispatchMap';
 import __Layout from './Layout.jsx';
 
 
@@ -143,6 +144,7 @@ export const PAGES = {
     "Workflows": Workflows,
     "LandingPage": LandingPage,
     "Contracts": Contracts,
+    "DispatchMap": DispatchMap,
 }
 
 export const pagesConfig = {

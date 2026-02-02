@@ -75,12 +75,12 @@ Provide a helpful, concise response based on this data.`;
 
       const user = await base44.auth.me().catch(() => ({ email: 'guest' }));
       
-      const aiResponse = await safePost('/api/ai/chat', {
-        user: user.email,
+      // Use Base44 InvokeLLM instead of external API
+      const aiResponse = await base44.integrations.Core.InvokeLLM({
         prompt: contextPrompt
       });
 
-      const reply = aiResponse.ok ? (aiResponse.data.reply || 'No response') : 'Unable to connect to AI service.';
+      const reply = aiResponse || 'Unable to generate response.';
       
       // Parse actions from AI response
       let actions = [];

@@ -28,7 +28,8 @@ import {
   DollarSign,
   Megaphone,
   Download,
-  Share2
+  Share2,
+  MapPin
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -58,6 +59,7 @@ const navigation = [
   { name: 'Workflow Builder', page: 'WorkflowBuilder', icon: Workflow },
   { name: 'Templates', page: 'WorkflowTemplates', icon: Zap },
   { name: 'Dispatches', page: 'Dispatches', icon: Activity },
+  { name: 'Dispatch Map', page: 'DispatchMap', icon: MapPin },
   { name: 'CRM', page: 'CRM', icon: Users },
   { name: 'Contracts', page: 'Contracts', icon: FileText },
   { name: 'Inventory', page: 'Inventory', icon: Package },
