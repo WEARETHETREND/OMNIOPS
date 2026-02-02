@@ -73,11 +73,21 @@ export default function WorkflowTemplates() {
 
   const useTemplate = async (template) => {
     try {
+      // Map category to valid department enum values
+      const departmentMap = {
+        'HR': 'hr',
+        'Finance': 'finance',
+        'Support': 'customer_service',
+        'Sales': 'sales',
+        'Operations': 'operations',
+        'Projects': 'operations'
+      };
+
       // Create a workflow from the template
       const newWorkflow = await base44.entities.Workflow.create({
         name: template.name,
         description: template.description,
-        department: template.category.toLowerCase(),
+        department: departmentMap[template.category] || 'operations',
         trigger_type: 'manual',
         status: 'draft',
         priority: 'medium',
@@ -88,10 +98,11 @@ export default function WorkflowTemplates() {
       
       toast.success('Workflow created from template!');
       setTimeout(() => {
-        window.location.href = createPageUrl('WorkflowBuilder');
+        window.location.href = createPageUrl('WorkflowBuilder') + '?id=' + newWorkflow.id;
       }, 1000);
     } catch (error) {
-      toast.error('Failed to create workflow from template');
+      console.error('Template error:', error);
+      toast.error('Failed to create workflow: ' + (error.message || 'Unknown error'));
     }
   };
 
