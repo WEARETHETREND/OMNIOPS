@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { safeGet, safePost } from '@/components/api/apiClient';
+import { base44 } from '@/api/base44Client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   Plus, 
   Search, 
@@ -19,34 +20,47 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function Workflows() {
-  const [workflows, setWorkflows] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [viewMode, setViewMode] = useState('grid');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    department: 'operations',
+    trigger_type: 'manual',
+    status: 'draft',
+    priority: 'medium'
+  });
 
-  const loadWorkflows = async () => {
-    setLoading(true);
-    const r = await safeGet('/api/workflows', { status: 'all' });
-    if (r.ok) {
-      setWorkflows(r.data.workflows || r.data || []);
-    }
-    setLoading(false);
-  };
+  const queryClient = useQueryClient();
 
-  const runNow = async (id, name) => {
-    const r = await safePost(`/api/workflows/${id}/run`, { input: {} });
-    if (r.ok && r.data.runId) {
-      toast.success(`Queued run ${r.data.runId} for ${name}`);
-      await loadWorkflows();
-    }
-  };
+  const { data: workflows = [], isLoading } = useQuery({
+    queryKey: ['workflows'],
+    queryFn: () => base44.entities.Workflow.list(),
+  });
 
-  useEffect(() => {
-    loadWorkflows();
-  }, []);
+  const createMutation = useMutation({
+    mutationFn: (data) => base44.entities.Workflow.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['workflows']);
+      setShowCreateDialog(false);
+      setFormData({
+        name: '',
+        description: '',
+        department: 'operations',
+        trigger_type: 'manual',
+        status: 'draft',
+        priority: 'medium'
+      });
+      toast.success('Workflow created successfully');
+    },
+  });
 
   const filteredWorkflows = workflows.filter(w => 
     w.name?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -59,6 +73,16 @@ export default function Workflows() {
     drafts: workflows.filter(w => w.status === 'draft').length,
   };
 
+  const handleCreate = () => {
+    const payload = {
+      ...formData,
+      run_count: 0,
+      success_rate: 0,
+      steps: []
+    };
+    createMutation.mutate(payload);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -68,11 +92,13 @@ export default function Workflows() {
           <p className="text-sm text-slate-500">Wednesday, December 4, 2025</p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm">
-            <Grid className="w-4 h-4 mr-2" />
-            Visual Builder
-          </Button>
-          <Button size="sm" className="bg-slate-900 hover:bg-slate-800">
+          <Link to={createPageUrl('WorkflowBuilder')}>
+            <Button variant="outline" size="sm">
+              <Grid className="w-4 h-4 mr-2" />
+              Visual Builder
+            </Button>
+          </Link>
+          <Button onClick={() => setShowCreateDialog(true)} size="sm" className="bg-slate-900 hover:bg-slate-800">
             <Plus className="w-4 h-4 mr-2" />
             Quick Create
           </Button>
@@ -167,7 +193,7 @@ export default function Workflows() {
 
 
       {/* Workflows Grid */}
-      {loading ? (
+      {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {Array(8).fill(0).map((_, i) => (
             <Skeleton key={i} className="h-64 rounded-xl" />
@@ -176,23 +202,137 @@ export default function Workflows() {
       ) : filteredWorkflows.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {filteredWorkflows.map(w => (
-            <WorkflowCard key={w.id} workflow={w} onRun={runNow} />
+            <WorkflowCard key={w.id} workflow={w} />
           ))}
         </div>
       ) : (
         <div className="text-center py-16 bg-white rounded-xl border border-slate-200/60">
           <Zap className="w-12 h-12 text-slate-200 mx-auto mb-3" />
           <h3 className="text-base font-semibold text-slate-900 mb-1">No workflows found</h3>
-          <p className="text-sm text-slate-500">
-            {searchQuery ? 'Try adjusting your search' : 'No workflows available'}
+          <p className="text-sm text-slate-500 mb-4">
+            {searchQuery ? 'Try adjusting your search' : 'Create your first workflow'}
           </p>
+          {!searchQuery && (
+            <Button onClick={() => setShowCreateDialog(true)} size="sm" className="bg-slate-900">
+              <Plus className="w-4 h-4 mr-2" />
+              Create Workflow
+            </Button>
+          )}
         </div>
       )}
+
+      {/* Create Dialog */}
+      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create Workflow</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Workflow Name *</Label>
+              <Input 
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                placeholder="Invoice Processing"
+              />
+            </div>
+            
+            <div>
+              <Label>Description</Label>
+              <Textarea 
+                value={formData.description}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                placeholder="What does this workflow do?"
+                rows={3}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Department *</Label>
+                <Select value={formData.department} onValueChange={(v) => setFormData({...formData, department: v})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="hr">HR</SelectItem>
+                    <SelectItem value="finance">Finance</SelectItem>
+                    <SelectItem value="it">IT</SelectItem>
+                    <SelectItem value="logistics">Logistics</SelectItem>
+                    <SelectItem value="customer_service">Customer Service</SelectItem>
+                    <SelectItem value="sales">Sales</SelectItem>
+                    <SelectItem value="marketing">Marketing</SelectItem>
+                    <SelectItem value="operations">Operations</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Trigger Type *</Label>
+                <Select value={formData.trigger_type} onValueChange={(v) => setFormData({...formData, trigger_type: v})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="manual">Manual</SelectItem>
+                    <SelectItem value="scheduled">Scheduled</SelectItem>
+                    <SelectItem value="event_based">Event Based</SelectItem>
+                    <SelectItem value="api_triggered">API Triggered</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Priority</Label>
+                <Select value={formData.priority} onValueChange={(v) => setFormData({...formData, priority: v})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="critical">Critical</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Status</Label>
+                <Select value={formData.status} onValueChange={(v) => setFormData({...formData, status: v})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="paused">Paused</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleCreate} 
+              disabled={!formData.name || !formData.department || !formData.trigger_type || createMutation.isPending}
+              className="bg-slate-900"
+            >
+              {createMutation.isPending ? 'Creating...' : 'Create Workflow'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
 
-function WorkflowCard({ workflow, onRun }) {
+function WorkflowCard({ workflow }) {
   const trendData = [
     { value: 12 },
     { value: 19 },
@@ -276,15 +416,16 @@ function WorkflowCard({ workflow, onRun }) {
 
       {/* Actions */}
       <div className="flex items-center gap-2">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="flex-1 text-xs"
-          onClick={() => onRun(workflow.id, workflow.name)}
-        >
-          <Play className="w-3 h-3 mr-1" />
-          Run Now
-        </Button>
+        <Link to={createPageUrl('WorkflowBuilder')} className="flex-1">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full text-xs"
+          >
+            <Play className="w-3 h-3 mr-1" />
+            Configure
+          </Button>
+        </Link>
         <Button variant="ghost" size="sm" className="px-2">
           <MoreVertical className="w-4 h-4" />
         </Button>
