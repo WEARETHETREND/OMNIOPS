@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { safePost, safeGet } from '@/components/api/apiClient';
+import { safeGet } from '@/components/api/apiClient';
+import { base44 } from '@/api/base44Client';
 import { 
   Send,
   Bot,
@@ -25,34 +26,43 @@ export default function Copilot() {
     setInput('');
     setLoading(true);
 
-    // Enhanced AI with real backend data
-    const r = await safePost('/ai/chat', { 
-      message: input,
-      context: {
-        workflows: await getWorkflows(),
-        runs: await getRecentRuns(),
-        alerts: await getAlerts(),
-        financial: await getFinancial()
-      }
-    });
+    try {
+      // Gather context from backend
+      const [workflows, runs, alerts, financial] = await Promise.all([
+        getWorkflows(),
+        getRecentRuns(),
+        getAlerts(),
+        getFinancial()
+      ]);
 
-    setLoading(false);
+      // Build context for AI
+      const contextPrompt = `You are an AI assistant for OpsVanta operations platform. Here's the current system state:
 
-    if (!r.ok) {
+WORKFLOWS: ${JSON.stringify(workflows.slice(0, 5))}
+RECENT RUNS: ${JSON.stringify(runs.slice(0, 10))}
+ALERTS: ${JSON.stringify(alerts)}
+FINANCIAL: ${JSON.stringify(financial)}
+
+User question: ${input}
+
+Provide a helpful, concise response based on this data.`;
+
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: contextPrompt
+      });
+
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: `Error: ${r.error || 'Unable to connect to AI'}` 
+        content: response
       }]);
-    } else {
-      const reply = r.data.reply || r.data.message || r.data.response || 'No response';
-      const actions = r.data.actions || [];
-      
+    } catch (error) {
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: reply,
-        actions: actions
+        content: 'Sorry, I encountered an error processing your request.' 
       }]);
     }
+
+    setLoading(false);
   };
 
   const getWorkflows = async () => {
