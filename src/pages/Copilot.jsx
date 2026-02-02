@@ -43,11 +43,13 @@ export default function Copilot() {
 
     try {
       // Gather context from backend
-      const [workflows, runs, alerts, financial] = await Promise.all([
+      const [workflows, runs, alerts, financial, failures, impacts] = await Promise.all([
         getWorkflows(),
         getRecentRuns(),
         getAlerts(),
-        getFinancial()
+        getFinancial(),
+        getFailureAnalyses(),
+        getFinancialImpacts()
       ]);
 
       // Build context for AI
@@ -58,8 +60,13 @@ WORKFLOWS: ${JSON.stringify(workflows.slice(0, 5))}
 RECENT RUNS: ${JSON.stringify(runs.slice(0, 10))}
 ALERTS: ${JSON.stringify(alerts)}
 FINANCIAL: ${JSON.stringify(financial)}
+ACTIVE FAILURES: ${JSON.stringify(failures.slice(0, 5))}
+FINANCIAL IMPACTS: ${JSON.stringify(impacts.slice(0, 5))}
 
 AVAILABLE ACTIONS (you can suggest these):
+- analyze_failures: Analyze recent failures with AI root cause detection
+- calculate_impact: Calculate current financial impact of issues
+- recover_failures: Attempt automated failure recovery
 - request_export: Request tenant data export for compliance
 - request_deletion: Request tenant data deletion for compliance
 - approve_request: Approve a compliance request (requires request_id)
