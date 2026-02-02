@@ -299,10 +299,16 @@ Provide a helpful, concise response based on this data.`;
               {msg.actions && msg.actions.length > 0 && (
                 <div className="flex flex-wrap gap-2 ml-11">
                   {msg.actions.map((action, idx) => {
-                    const Icon = action.type === 'request_export' ? Download :
-                                action.type === 'approve_request' ? CheckCircle :
-                                action.type === 'scale_operation' ? TrendingUp :
-                                action.type === 'run_workflow' ? Play : Settings;
+                    const iconMap = {
+                      'request_export': Download,
+                      'approve_request': CheckCircle,
+                      'scale_operation': TrendingUp,
+                      'run_workflow': Play,
+                      'analyze_failures': AlertTriangle,
+                      'calculate_impact': DollarSign,
+                      'recover_failures': Zap
+                    };
+                    const Icon = iconMap[action.type] || Settings;
                     
                     return (
                       <Button
