@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { safeGet } from '@/components/api/apiClient';
+import { safeGet, safePost } from '@/components/api/apiClient';
 import { base44 } from '@/api/base44Client';
 import { 
   Send,
@@ -47,13 +47,16 @@ User question: ${input}
 
 Provide a helpful, concise response based on this data.`;
 
-      const response = await base44.integrations.Core.InvokeLLM({
+      const user = await base44.auth.me().catch(() => ({ email: 'guest' }));
+      
+      const aiResponse = await safePost('/api/ai/chat', {
+        user: user.email,
         prompt: contextPrompt
       });
 
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: response
+        content: aiResponse.ok ? (aiResponse.data.reply || 'No response') : 'Unable to connect to AI service.'
       }]);
     } catch (error) {
       setMessages(prev => [...prev, { 
