@@ -65,6 +65,7 @@ import Dashboard from './pages/Dashboard';
 import DataImportExport from './pages/DataImportExport';
 import Dispatches from './pages/Dispatches';
 import FieldApp from './pages/FieldApp';
+import FinancialDashboard from './pages/FinancialDashboard';
 import FinancialIntelligence from './pages/FinancialIntelligence';
 import HR from './pages/HR';
 import Home from './pages/Home';
@@ -75,7 +76,9 @@ import LandingPageCode from './pages/LandingPageCode';
 import LiveCollaboration from './pages/LiveCollaboration';
 import Marketing from './pages/Marketing';
 import NotificationsCenter from './pages/NotificationsCenter';
+import Pricing from './pages/Pricing';
 import Projects from './pages/Projects';
+import Revenue from './pages/Revenue';
 import Runs from './pages/Runs';
 import ScheduledReports from './pages/ScheduledReports';
 import Settings from './pages/Settings';
@@ -88,9 +91,7 @@ import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowDetails from './pages/WorkflowDetails';
 import WorkflowTemplates from './pages/WorkflowTemplates';
 import Workflows from './pages/Workflows';
-import FinancialDashboard from './pages/FinancialDashboard';
-import Pricing from './pages/Pricing';
-import Revenue from './pages/Revenue';
+import LandingPage from './pages/LandingPage';
 import __Layout from './Layout.jsx';
 
 
@@ -113,6 +114,7 @@ export const PAGES = {
     "DataImportExport": DataImportExport,
     "Dispatches": Dispatches,
     "FieldApp": FieldApp,
+    "FinancialDashboard": FinancialDashboard,
     "FinancialIntelligence": FinancialIntelligence,
     "HR": HR,
     "Home": Home,
@@ -123,7 +125,9 @@ export const PAGES = {
     "LiveCollaboration": LiveCollaboration,
     "Marketing": Marketing,
     "NotificationsCenter": NotificationsCenter,
+    "Pricing": Pricing,
     "Projects": Projects,
+    "Revenue": Revenue,
     "Runs": Runs,
     "ScheduledReports": ScheduledReports,
     "Settings": Settings,
@@ -136,9 +140,7 @@ export const PAGES = {
     "WorkflowDetails": WorkflowDetails,
     "WorkflowTemplates": WorkflowTemplates,
     "Workflows": Workflows,
-    "FinancialDashboard": FinancialDashboard,
-    "Pricing": Pricing,
-    "Revenue": Revenue,
+    "LandingPage": LandingPage,
 }
 
 export const pagesConfig = {
