@@ -63,12 +63,15 @@ import Compliance from './pages/Compliance';
 import Contracts from './pages/Contracts';
 import Copilot from './pages/Copilot';
 import CustomerPortal from './pages/CustomerPortal';
+import CustomerSuccess from './pages/CustomerSuccess';
 import Dashboard from './pages/Dashboard';
 import DataImportExport from './pages/DataImportExport';
 import DispatchMap from './pages/DispatchMap';
 import Dispatches from './pages/Dispatches';
 import FieldApp from './pages/FieldApp';
+import FieldServicesHub from './pages/FieldServicesHub';
 import FieldWorker from './pages/FieldWorker';
+import FieldWorkerApp from './pages/FieldWorkerApp';
 import FinancialDashboard from './pages/FinancialDashboard';
 import FinancialIntelligence from './pages/FinancialIntelligence';
 import HR from './pages/HR';
@@ -84,28 +87,24 @@ import LiveCollaboration from './pages/LiveCollaboration';
 import Marketing from './pages/Marketing';
 import NotificationsCenter from './pages/NotificationsCenter';
 import Onboarding from './pages/Onboarding';
+import OperationalMetrics from './pages/OperationalMetrics';
 import Pricing from './pages/Pricing';
+import ProductRoadmap from './pages/ProductRoadmap';
 import Projects from './pages/Projects';
+import ROIOutcomes from './pages/ROIOutcomes';
 import Revenue from './pages/Revenue';
 import Runs from './pages/Runs';
 import ScheduledReports from './pages/ScheduledReports';
 import Settings from './pages/Settings';
 import SharedDashboards from './pages/SharedDashboards';
 import SystemHealth from './pages/SystemHealth';
-import TechStack from './pages/TechStack';
 import WhiteLabel from './pages/WhiteLabel';
 import WorkflowAutomation from './pages/WorkflowAutomation';
 import WorkflowBuilder from './pages/WorkflowBuilder';
 import WorkflowDetails from './pages/WorkflowDetails';
+import WorkflowRulesBuilder from './pages/WorkflowRulesBuilder';
 import WorkflowTemplates from './pages/WorkflowTemplates';
 import Workflows from './pages/Workflows';
-import OperationalMetrics from './pages/OperationalMetrics';
-import FieldServicesHub from './pages/FieldServicesHub';
-import ROIOutcomes from './pages/ROIOutcomes';
-import ProductRoadmap from './pages/ProductRoadmap';
-import FieldWorkerApp from './pages/FieldWorkerApp';
-import CustomerSuccess from './pages/CustomerSuccess';
-import WorkflowRulesBuilder from './pages/WorkflowRulesBuilder';
 import __Layout from './Layout.jsx';
 
 
@@ -126,12 +125,15 @@ export const PAGES = {
     "Contracts": Contracts,
     "Copilot": Copilot,
     "CustomerPortal": CustomerPortal,
+    "CustomerSuccess": CustomerSuccess,
     "Dashboard": Dashboard,
     "DataImportExport": DataImportExport,
     "DispatchMap": DispatchMap,
     "Dispatches": Dispatches,
     "FieldApp": FieldApp,
+    "FieldServicesHub": FieldServicesHub,
     "FieldWorker": FieldWorker,
+    "FieldWorkerApp": FieldWorkerApp,
     "FinancialDashboard": FinancialDashboard,
     "FinancialIntelligence": FinancialIntelligence,
     "HR": HR,
@@ -147,28 +149,24 @@ export const PAGES = {
     "Marketing": Marketing,
     "NotificationsCenter": NotificationsCenter,
     "Onboarding": Onboarding,
+    "OperationalMetrics": OperationalMetrics,
     "Pricing": Pricing,
+    "ProductRoadmap": ProductRoadmap,
     "Projects": Projects,
+    "ROIOutcomes": ROIOutcomes,
     "Revenue": Revenue,
     "Runs": Runs,
     "ScheduledReports": ScheduledReports,
     "Settings": Settings,
     "SharedDashboards": SharedDashboards,
     "SystemHealth": SystemHealth,
-    "TechStack": TechStack,
     "WhiteLabel": WhiteLabel,
     "WorkflowAutomation": WorkflowAutomation,
     "WorkflowBuilder": WorkflowBuilder,
     "WorkflowDetails": WorkflowDetails,
+    "WorkflowRulesBuilder": WorkflowRulesBuilder,
     "WorkflowTemplates": WorkflowTemplates,
     "Workflows": Workflows,
-    "OperationalMetrics": OperationalMetrics,
-    "FieldServicesHub": FieldServicesHub,
-    "ROIOutcomes": ROIOutcomes,
-    "ProductRoadmap": ProductRoadmap,
-    "FieldWorkerApp": FieldWorkerApp,
-    "CustomerSuccess": CustomerSuccess,
-    "WorkflowRulesBuilder": WorkflowRulesBuilder,
 }
 
 export const pagesConfig = {
