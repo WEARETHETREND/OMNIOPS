@@ -105,9 +105,6 @@ import WorkflowDetails from './pages/WorkflowDetails';
 import WorkflowRulesBuilder from './pages/WorkflowRulesBuilder';
 import WorkflowTemplates from './pages/WorkflowTemplates';
 import Workflows from './pages/Workflows';
-import ContractHunter from './pages/ContractHunter';
-import ContractList from './pages/ContractList';
-import WorkerList from './pages/WorkerList';
 import __Layout from './Layout.jsx';
 
 
@@ -170,9 +167,6 @@ export const PAGES = {
     "WorkflowRulesBuilder": WorkflowRulesBuilder,
     "WorkflowTemplates": WorkflowTemplates,
     "Workflows": Workflows,
-    "ContractHunter": ContractHunter,
-    "ContractList": ContractList,
-    "WorkerList": WorkerList,
 }
 
 export const pagesConfig = {

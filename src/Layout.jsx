@@ -54,9 +54,6 @@ import Breadcrumbs from '@/components/ui/Breadcrumbs';
 
 const navigation = [
   { name: 'Command Center', page: 'Dashboard', icon: LayoutDashboard },
-  { name: 'Contract Hunter', page: 'ContractHunter', icon: FileText },
-  { name: 'Contracts', page: 'ContractList', icon: FileText },
-  { name: 'Workers', page: 'WorkerList', icon: Users },
   { name: 'AI Copilot', page: 'Copilot', icon: Bot },
   { name: 'Workflows', page: 'Workflows', icon: Workflow },
   { name: 'Runs', page: 'Runs', icon: Activity },
