@@ -96,6 +96,7 @@ import Contracts from './pages/Contracts';
 import DispatchMap from './pages/DispatchMap';
 import Onboarding from './pages/Onboarding';
 import BillingManagement from './pages/BillingManagement';
+import FieldWorker from './pages/FieldWorker';
 import __Layout from './Layout.jsx';
 
 
@@ -149,6 +150,7 @@ export const PAGES = {
     "DispatchMap": DispatchMap,
     "Onboarding": Onboarding,
     "BillingManagement": BillingManagement,
+    "FieldWorker": FieldWorker,
 }
 
 export const pagesConfig = {

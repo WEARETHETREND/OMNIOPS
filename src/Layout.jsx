@@ -60,6 +60,7 @@ const navigation = [
   { name: 'Templates', page: 'WorkflowTemplates', icon: Zap },
   { name: 'Dispatches', page: 'Dispatches', icon: Activity },
   { name: 'Dispatch Map', page: 'DispatchMap', icon: MapPin },
+  { name: 'Field Worker', page: 'FieldWorker', icon: MapPin },
   { name: 'CRM', page: 'CRM', icon: Users },
   { name: 'Contracts', page: 'Contracts', icon: FileText },
   { name: 'Inventory', page: 'Inventory', icon: Package },
