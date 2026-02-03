@@ -405,4 +405,4 @@ class RevenueStreams {
   }
 }
 
-module.exports = RevenueStreams;
+export default RevenueStreams;

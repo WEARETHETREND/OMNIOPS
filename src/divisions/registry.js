@@ -5,7 +5,7 @@
  * all division instances.
  */
 
-const BaseDivision = require('../core/BaseDivision');
+import BaseDivision from '../core/BaseDivision.js';
 
 class DivisionRegistry {
   constructor() {
@@ -214,7 +214,7 @@ class DivisionRegistry {
 const registry = new DivisionRegistry();
 
 // Auto-register all divisions
-function initializeDivisions() {
+async function initializeDivisions() {
   const divisions = [
     { id: 'govcon', name: 'Government Contracts', description: 'Federal, state, and local government contract opportunities' },
     { id: 'cre', name: 'Commercial Real Estate', description: 'Office, retail, industrial, and multi-family properties' },
@@ -228,21 +228,19 @@ function initializeDivisions() {
     { id: 'energy', name: 'Solar/Energy', description: 'Solar panels, energy efficiency, and renewable energy' }
   ];
 
-  divisions.forEach(config => {
+  for (const config of divisions) {
     try {
-      const DivisionClass = require(`./${config.id}/index.js`);
+      const module = await import(`./${config.id}/index.js`);
+      const DivisionClass = module.default;
       registry.registerDivision(config.id, DivisionClass);
       registry.createDivision(config.id, config);
     } catch (error) {
       console.warn(`Failed to load division ${config.id}:`, error.message);
     }
-  });
+  }
 
   console.log(`Initialized ${registry.count()} divisions`);
 }
 
-module.exports = {
-  registry,
-  DivisionRegistry,
-  initializeDivisions
-};
+export { registry, DivisionRegistry, initializeDivisions };
+export default registry;
