@@ -451,16 +451,16 @@ export default function Home() {
               <h4 className="font-semibold text-white mb-4">Product</h4>
               <ul className="space-y-2 text-sm">
                 <li><Link to={createPageUrl('Dashboard')} className="hover:text-cyan-400 transition-colors">Platform</Link></li>
-                <li><a href="#" className="hover:text-cyan-400 transition-colors">Templates</a></li>
-                <li><a href="#" className="hover:text-cyan-400 transition-colors">Integrations</a></li>
+                <li><Link to={createPageUrl('WorkflowTemplates')} className="hover:text-cyan-400 transition-colors">Templates</Link></li>
+                <li><Link to={createPageUrl('IntegrationMarketplace')} className="hover:text-cyan-400 transition-colors">Integrations</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold text-white mb-4">Company</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-cyan-400 transition-colors">About</a></li>
-                <li><a href="#" className="hover:text-cyan-400 transition-colors">Careers</a></li>
-                <li><a href="#" className="hover:text-cyan-400 transition-colors">Contact</a></li>
+                <li><Link to={createPageUrl('ProductRoadmap')} className="hover:text-cyan-400 transition-colors">About</Link></li>
+                <li><a href="mailto:careers@opsvanta.com" className="hover:text-cyan-400 transition-colors">Careers</a></li>
+                <li><a href="#demo" className="hover:text-cyan-400 transition-colors">Contact</a></li>
               </ul>
             </div>
             <div>
