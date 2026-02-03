@@ -89,10 +89,12 @@ export default function Home() {
       {/* Hero Section */}
       <section className="pt-20 pb-16 px-6">
         <div className="max-w-6xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-full text-sm font-medium mb-6 border border-cyan-500/30">
-            <Zap className="w-4 h-4" />
-            <span className="font-semibold">Omni</span><span className="font-semibold text-orange-400">Ops</span> - Intelligent Decision Control
-          </div>
+          {/* Large Logo */}
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692cc4fe31f31eedd47e4c98/3091574e2_Screenshot2025-12-19125112.png" 
+            alt="OmniOps"
+            className="h-24 w-auto mx-auto mb-8"
+          />
           
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
             Enterprise-Grade<br />
@@ -104,7 +106,7 @@ export default function Home() {
             Govern, optimize, and elevate decisions across every layer of your enterprise.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <a href="#demo">
               <Button size="lg" className="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white text-lg px-8 h-14 shadow-lg shadow-cyan-500/30">
                 Request Enterprise Demo
@@ -112,24 +114,15 @@ export default function Home() {
               </Button>
             </a>
             <a href="#roi-calculator">
-              <Button size="lg" variant="outline" className="text-lg px-8 h-14 border-2">
+              <Button size="lg" variant="outline" className="text-lg px-8 h-14 border-2 border-slate-600 text-white hover:bg-slate-800">
                 Calculate ROI
               </Button>
             </a>
           </div>
 
-          {/* Demo Placeholder */}
-          <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900">
-            <div className="aspect-video flex items-center justify-center">
-              <div className="text-center">
-                <div className="relative inline-block">
-                  <div className="absolute inset-0 bg-cyan-500/30 blur-2xl animate-pulse"></div>
-                  <Play className="w-24 h-24 text-cyan-400 mx-auto mb-4 relative z-10 drop-shadow-lg" />
-                </div>
-                <p className="text-white font-semibold text-lg">Watch Platform Overview</p>
-                <p className="text-slate-400 text-sm mt-1">See how OmniOps transforms operations at scale</p>
-              </div>
-            </div>
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-full text-sm font-medium border border-cyan-500/30">
+            <Zap className="w-4 h-4" />
+            <span className="font-semibold">Omni</span><span className="font-semibold text-orange-400">Ops</span> - Intelligent Decision Control
           </div>
         </div>
       </section>
