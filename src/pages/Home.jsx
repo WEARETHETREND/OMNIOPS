@@ -89,8 +89,8 @@ export default function Home() {
           <img 
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692cc4fe31f31eedd47e4c98/3091574e2_Screenshot2025-12-19125112.png" 
             alt="OmniOps"
-            className="h-64 w-auto mx-auto mb-8 border-0 outline-none"
-            style={{ imageRendering: 'crisp-edges' }}
+            className="h-64 w-auto mx-auto mb-8"
+            style={{ border: 'none', outline: 'none', boxShadow: 'none' }}
           />
           
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
