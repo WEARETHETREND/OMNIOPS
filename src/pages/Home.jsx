@@ -62,7 +62,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-cyan-950 to-slate-900">
+    <div className="min-h-screen bg-black">
       {/* Navigation */}
       <nav className="border-b border-cyan-500/30 bg-black/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -86,12 +86,17 @@ export default function Home() {
       <section className="pt-20 pb-16 px-6">
         <div className="max-w-6xl mx-auto text-center">
           {/* Large Logo */}
-          <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692cc4fe31f31eedd47e4c98/3091574e2_Screenshot2025-12-19125112.png" 
-            alt="OmniOps"
-            className="h-64 w-auto mx-auto mb-8"
-            style={{ border: 'none', outline: 'none', boxShadow: 'none' }}
-          />
+          <div className="relative mx-auto mb-8 w-fit">
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692cc4fe31f31eedd47e4c98/3091574e2_Screenshot2025-12-19125112.png" 
+              alt="OmniOps"
+              className="h-64 w-auto relative z-10"
+              style={{ 
+                filter: 'drop-shadow(0 0 40px rgba(6, 182, 212, 0.3))',
+                mixBlendMode: 'screen'
+              }}
+            />
+          </div>
           
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
             Enterprise-Grade<br />
@@ -125,7 +130,7 @@ export default function Home() {
       </section>
 
       {/* Pain Points */}
-      <section className="py-16 px-6 bg-gradient-to-br from-slate-950 via-cyan-950 to-slate-950">
+      <section className="py-16 px-6 bg-black">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-12 text-white">
             From Chaos to Control
@@ -199,7 +204,7 @@ export default function Home() {
       </section>
 
       {/* ROI Calculator */}
-      <section id="roi-calculator" className="py-16 px-6 bg-gradient-to-br from-cyan-950 via-slate-900 to-orange-950">
+      <section id="roi-calculator" className="py-16 px-6 bg-black">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
             <h2 className="text-4xl font-bold text-white mb-4">
@@ -268,7 +273,7 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="py-16 px-6 bg-gradient-to-br from-slate-950 via-orange-950 to-slate-950">
+      <section className="py-16 px-6 bg-black">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-12 text-white">
             Deploy in Days, Not Months
@@ -309,7 +314,7 @@ export default function Home() {
       </section>
 
       {/* Features */}
-      <section className="py-16 px-6 bg-gradient-to-br from-cyan-950 via-slate-900 to-cyan-950">
+      <section className="py-16 px-6 bg-black">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-12 text-white">
             Enterprise Platform Capabilities
@@ -335,7 +340,7 @@ export default function Home() {
       </section>
 
       {/* Contact Form */}
-      <section id="demo" className="py-20 px-6 bg-gradient-to-br from-cyan-950 via-slate-900 to-orange-950 text-white">
+      <section id="demo" className="py-20 px-6 bg-black text-white">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
             <h2 className="text-4xl font-bold mb-4">
@@ -422,7 +427,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gradient-to-br from-slate-950 via-cyan-950 to-slate-950 text-slate-400 py-12 px-6 border-t-2 border-cyan-500/30">
+      <footer className="bg-black text-slate-400 py-12 px-6 border-t-2 border-cyan-500/30">
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
