@@ -62,16 +62,16 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-cyan-950 to-slate-900">
       {/* Navigation */}
-      <nav className="border-b border-slate-800 bg-black/80 backdrop-blur-xl sticky top-0 z-50">
+      <nav className="border-b border-cyan-500/30 bg-black/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to={createPageUrl('Home')} className="text-xl font-bold">
             <span className="text-cyan-400">Omni</span><span className="text-orange-400">Ops</span>
           </Link>
           <div className="flex items-center gap-4">
             <Link to={createPageUrl('Dashboard')}>
-              <Button variant="ghost" className="text-slate-300 hover:text-white hover:bg-slate-800">Dashboard</Button>
+              <Button variant="ghost" className="text-cyan-300 hover:text-white hover:bg-cyan-900/30 border border-cyan-500/20">Dashboard</Button>
             </Link>
             <a href="#demo">
               <Button className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg shadow-orange-500/20">
@@ -117,15 +117,15 @@ export default function Home() {
             </a>
           </div>
 
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-full text-sm font-medium border border-cyan-500/30">
-            <Zap className="w-4 h-4" />
-            <span className="font-semibold">Omni</span><span className="font-semibold text-orange-400">Ops</span> - Intelligent Decision Control
+          <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500/30 to-orange-500/30 text-white rounded-full text-sm font-medium border-2 border-cyan-400/50 shadow-xl shadow-cyan-500/20">
+            <Zap className="w-5 h-5 text-orange-400" />
+            <span className="font-semibold text-cyan-400">Omni</span><span className="font-semibold text-orange-400">Ops</span> - Intelligent Decision Control
           </div>
         </div>
       </section>
 
       {/* Pain Points */}
-      <section className="py-16 px-6 bg-slate-950">
+      <section className="py-16 px-6 bg-gradient-to-br from-slate-950 via-cyan-950 to-slate-950">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-12 text-white">
             From Chaos to Control
@@ -199,7 +199,7 @@ export default function Home() {
       </section>
 
       {/* ROI Calculator */}
-      <section id="roi-calculator" className="py-16 px-6 bg-slate-900">
+      <section id="roi-calculator" className="py-16 px-6 bg-gradient-to-br from-cyan-950 via-slate-900 to-orange-950">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
             <h2 className="text-4xl font-bold text-white mb-4">
@@ -210,7 +210,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-cyan-500/20 to-orange-500/20 p-8 rounded-2xl border-2 border-cyan-500/30">
+          <div className="bg-gradient-to-br from-cyan-500/30 to-orange-500/30 p-8 rounded-2xl border-2 border-cyan-400/50 shadow-2xl shadow-cyan-500/30">
             <div className="grid md:grid-cols-2 gap-8 mb-8">
               <div>
                 <label className="block text-sm font-semibold text-white mb-2">
@@ -236,7 +236,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="bg-slate-800 rounded-xl p-8 border-2 border-slate-700">
+            <div className="bg-gradient-to-br from-slate-900 to-cyan-950 rounded-xl p-8 border-2 border-cyan-500/40 shadow-xl shadow-cyan-500/20">
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="text-center">
                   <div className="text-5xl font-bold text-cyan-400 mb-2">
@@ -268,7 +268,7 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="py-16 px-6 bg-slate-950">
+      <section className="py-16 px-6 bg-gradient-to-br from-slate-950 via-orange-950 to-slate-950">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-12 text-white">
             Deploy in Days, Not Months
@@ -309,7 +309,7 @@ export default function Home() {
       </section>
 
       {/* Features */}
-      <section className="py-16 px-6 bg-slate-900">
+      <section className="py-16 px-6 bg-gradient-to-br from-cyan-950 via-slate-900 to-cyan-950">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-12 text-white">
             Enterprise Platform Capabilities
@@ -324,7 +324,7 @@ export default function Home() {
               { icon: CheckCircle2, title: 'Pre-built Templates', desc: '100+ enterprise workflows across departments and industries' },
               { icon: Zap, title: 'Unlimited Integration', desc: 'Connect any system with universal API and data transformation layer' },
             ].map((feature, i) => (
-              <div key={i} className="bg-slate-800 p-6 rounded-xl border-2 border-slate-700 hover:shadow-xl hover:border-cyan-500/30 transition-all group">
+              <div key={i} className="bg-gradient-to-br from-slate-900 to-cyan-950 p-6 rounded-xl border-2 border-cyan-500/30 hover:shadow-2xl hover:shadow-cyan-500/30 hover:border-cyan-400 transition-all group">
                 <feature.icon className="w-12 h-12 text-cyan-400 mb-4 group-hover:text-orange-400 transition-colors drop-shadow-md" />
                 <h3 className="font-bold text-white mb-2">{feature.title}</h3>
                 <p className="text-slate-300 text-sm">{feature.desc}</p>
@@ -335,7 +335,7 @@ export default function Home() {
       </section>
 
       {/* Contact Form */}
-      <section id="demo" className="py-20 px-6 bg-gradient-to-br from-black via-slate-900 to-slate-800 text-white">
+      <section id="demo" className="py-20 px-6 bg-gradient-to-br from-cyan-950 via-slate-900 to-orange-950 text-white">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
             <h2 className="text-4xl font-bold mb-4">
@@ -346,7 +346,7 @@ export default function Home() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="bg-white/5 backdrop-blur-xl p-8 rounded-2xl border border-cyan-500/30 shadow-2xl">
+          <form onSubmit={handleSubmit} className="bg-gradient-to-br from-cyan-950/50 to-orange-950/50 backdrop-blur-xl p-8 rounded-2xl border-2 border-cyan-400/40 shadow-2xl shadow-cyan-500/30">
             <div className="grid md:grid-cols-2 gap-6 mb-6">
               <div>
                 <label className="block text-sm font-semibold mb-2">Name *</label>
@@ -422,7 +422,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-black text-slate-400 py-12 px-6 border-t border-slate-800">
+      <footer className="bg-gradient-to-br from-slate-950 via-cyan-950 to-slate-950 text-slate-400 py-12 px-6 border-t-2 border-cyan-500/30">
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
