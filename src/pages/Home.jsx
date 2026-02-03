@@ -132,7 +132,7 @@ export default function Home() {
           </h2>
           
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-slate-800 p-6 rounded-xl border-2 border-slate-700 hover:border-cyan-500/30 transition-all">
+            <div className="bg-gradient-to-br from-slate-900 to-cyan-950 p-6 rounded-xl border-2 border-cyan-500/30 hover:border-cyan-400 hover:shadow-2xl hover:shadow-cyan-500/20 transition-all">
               <div className="flex items-start gap-4 mb-4">
                 <div className="p-2 bg-red-100 rounded-lg">
                   <XCircle className="w-6 h-6 text-red-600" />
@@ -153,7 +153,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="bg-slate-800 p-6 rounded-xl border-2 border-slate-700 hover:border-cyan-500/30 transition-all">
+            <div className="bg-gradient-to-br from-slate-900 to-cyan-950 p-6 rounded-xl border-2 border-cyan-500/30 hover:border-cyan-400 hover:shadow-2xl hover:shadow-cyan-500/20 transition-all">
               <div className="flex items-start gap-4 mb-4">
                 <div className="p-2 bg-red-100 rounded-lg">
                   <XCircle className="w-6 h-6 text-red-600" />
@@ -174,7 +174,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="bg-slate-800 p-6 rounded-xl border-2 border-slate-700 hover:border-cyan-500/30 transition-all">
+            <div className="bg-gradient-to-br from-slate-900 to-cyan-950 p-6 rounded-xl border-2 border-cyan-500/30 hover:border-cyan-400 hover:shadow-2xl hover:shadow-cyan-500/20 transition-all">
               <div className="flex items-start gap-4 mb-4">
                 <div className="p-2 bg-red-100 rounded-lg">
                   <XCircle className="w-6 h-6 text-red-600" />
