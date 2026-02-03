@@ -97,7 +97,7 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="text-slate-400 text-sm mb-1">Today's Net P&L</p>
-              <p className={`text-3xl font-bold ${financial.today?.net >= 0 ? 'text-[#7cb342]' : 'text-rose-400'}`}>
+              <p className={`text-3xl font-bold ${financial.today?.net >= 0 ? 'text-cyan-400' : 'text-orange-400'}`}>
                 ${Math.abs(financial.today?.net || 0).toFixed(0)}
               </p>
             </div>
@@ -115,25 +115,25 @@ export default function Dashboard() {
           title="Active Workflows"
           value={workflows.length.toString()}
           icon={WorkflowIcon}
-          gradient="from-[#7cb342] to-[#689f38]"
+          gradient="from-cyan-500 to-cyan-600"
         />
         <StatCard
           title="Alerts"
           value={alerts.length.toString()}
           icon={AlertTriangle}
-          gradient="from-amber-500 to-orange-600"
+          gradient="from-orange-500 to-orange-600"
         />
         <StatCard
           title="Success Rate"
           value={insights?.success_rate ? `${insights.success_rate.toFixed(1)}%` : 'N/A'}
           icon={CheckCircle}
-          gradient="from-[#2196f3] to-[#1976d2]"
+          gradient="from-cyan-400 to-blue-500"
         />
         <StatCard
           title="Total Runs"
           value={insights?.total_runs?.toString() || '0'}
           icon={Activity}
-          gradient="from-[#7cb342] to-[#2196f3]"
+          gradient="from-cyan-500 to-orange-500"
         />
       </div>
 
@@ -148,26 +148,26 @@ export default function Dashboard() {
             <AreaChart data={insights.trending}>
               <defs>
                 <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#7cb342" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#7cb342" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.4}/>
+                  <stop offset="95%" stopColor="#06b6d4" stopOpacity={0}/>
                 </linearGradient>
               </defs>
               <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
               <YAxis stroke="#94a3b8" fontSize={12} />
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: '#1e293b', 
-                  border: 'none', 
+                  backgroundColor: '#000000', 
+                  border: '1px solid #06b6d4',
                   borderRadius: '12px',
                   color: '#fff',
-                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                  boxShadow: '0 0 20px rgba(6, 182, 212, 0.3)'
                 }}
               />
               <Area 
                 type="monotone" 
                 dataKey="count" 
-                stroke="#7cb342" 
-                strokeWidth={2}
+                stroke="#06b6d4" 
+                strokeWidth={3}
                 fill="url(#colorValue)" 
               />
             </AreaChart>
@@ -194,7 +194,7 @@ export default function Dashboard() {
               <div key={wf.workflow_id} className="bg-white rounded-xl border border-slate-200/60 p-4 hover:shadow-lg transition-all cursor-pointer">
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="font-semibold text-slate-900 line-clamp-2">{wf.name}</h3>
-                  <div className={`w-2 h-2 rounded-full ${wf.enabled ? 'bg-[#7cb342]' : 'bg-slate-300'}`}></div>
+                  <div className={`w-2 h-2 rounded-full shadow-lg ${wf.enabled ? 'bg-cyan-400 shadow-cyan-500/50' : 'bg-slate-300'}`}></div>
                 </div>
                 <p className="text-sm text-slate-500 mb-3 line-clamp-2">{wf.description || 'No description'}</p>
                 <div className="flex items-center gap-3 text-xs text-slate-400">
@@ -246,7 +246,7 @@ export default function Dashboard() {
           </div>
         ) : (
           <div className="bg-white rounded-xl border border-slate-200/60 p-12 text-center">
-            <CheckCircle className="w-12 h-12 text-[#7cb342]/30 mx-auto mb-3" />
+            <CheckCircle className="w-12 h-12 text-cyan-400/30 mx-auto mb-3" />
             <p className="text-slate-500">No active alerts</p>
           </div>
         )}

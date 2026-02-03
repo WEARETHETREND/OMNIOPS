@@ -153,7 +153,7 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Sidebar */}
       <aside className={cn(
-        "fixed top-0 left-0 z-50 h-full w-72 bg-slate-900 transform transition-transform duration-300 ease-out lg:translate-x-0",
+        "fixed top-0 left-0 z-50 h-full w-72 bg-black border-r border-slate-800 transform transition-transform duration-300 ease-out lg:translate-x-0",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="flex flex-col h-full">
@@ -199,17 +199,17 @@ export default function Layout({ children, currentPageName }) {
                                         className={cn(
                                           "group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
                                           isActive 
-                                            ? "bg-gradient-to-r from-[#7cb342]/20 to-[#2196f3]/20 text-white" 
-                                            : "text-slate-400 hover:text-white hover:bg-slate-800/50"
+                                            ? "bg-gradient-to-r from-cyan-500/20 to-orange-500/20 text-white border border-cyan-500/30" 
+                                            : "text-slate-400 hover:text-white hover:bg-slate-900/50"
                                         )}
                                         >
                                         <item.icon className={cn(
                                           "w-5 h-5 transition-colors",
-                                          isActive ? "text-[#7cb342]" : "text-slate-500 group-hover:text-slate-300"
+                                          isActive ? "text-cyan-400" : "text-slate-500 group-hover:text-cyan-500"
                                         )} />
                                         <span>{item.name}</span>
                                         {isActive && (
-                                          <ChevronRight className="w-4 h-4 ml-auto text-[#7cb342]" />
+                                          <ChevronRight className="w-4 h-4 ml-auto text-orange-500" />
                                         )}
                                       </Link>
               );
@@ -224,8 +224,8 @@ export default function Layout({ children, currentPageName }) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800/50 transition-colors">
-                  <Avatar className="h-9 w-9 border-2 border-slate-700">
-                    <AvatarFallback className="bg-gradient-to-br from-[#1e3a5f] to-[#7cb342] text-white text-sm font-medium">
+                  <Avatar className="h-9 w-9 border-2 border-cyan-500/30">
+                    <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-orange-500 text-white text-sm font-medium">
                       {getInitials(user?.full_name)}
                     </AvatarFallback>
                   </Avatar>

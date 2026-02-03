@@ -81,7 +81,7 @@ export default function LandingPage() {
               <Button variant="ghost">Pricing</Button>
             </Link>
             <a href="#demo">
-              <Button className="bg-[#7cb342] hover:bg-[#689f38]">
+              <Button className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg shadow-orange-500/20">
                 Get Demo
               </Button>
             </a>
@@ -92,7 +92,7 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="pt-20 pb-16 px-6">
         <div className="max-w-6xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#7cb342]/10 text-[#7cb342] rounded-full text-sm font-medium mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 text-cyan-600 rounded-full text-sm font-medium mb-6 border border-cyan-500/20">
             <Zap className="w-4 h-4" />
             Trusted by 100+ Operations Teams
           </div>
@@ -108,7 +108,7 @@ export default function LandingPage() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <a href="#demo">
-              <Button size="lg" className="bg-[#7cb342] hover:bg-[#689f38] text-lg px-8 h-14">
+              <Button size="lg" className="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white text-lg px-8 h-14 shadow-lg shadow-cyan-500/30">
                 Start Free Trial
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
@@ -124,7 +124,10 @@ export default function LandingPage() {
           <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100">
             <div className="aspect-video flex items-center justify-center">
               <div className="text-center">
-                <Play className="w-20 h-20 text-[#7cb342] mx-auto mb-4" />
+                <div className="relative inline-block">
+                  <div className="absolute inset-0 bg-cyan-500/20 blur-xl animate-pulse"></div>
+                  <Play className="w-20 h-20 text-cyan-500 mx-auto mb-4 relative z-10" />
+                </div>
                 <p className="text-slate-600 font-medium">Watch 2-Minute Demo</p>
               </div>
             </div>
@@ -218,7 +221,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-[#7cb342]/10 to-[#2196f3]/10 p-8 rounded-2xl border border-slate-200">
+          <div className="bg-gradient-to-br from-cyan-500/10 to-orange-500/10 p-8 rounded-2xl border border-cyan-500/20">
             <div className="grid md:grid-cols-2 gap-8 mb-8">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -247,13 +250,13 @@ export default function LandingPage() {
             <div className="bg-white rounded-xl p-6 border border-slate-200">
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="text-center">
-                  <div className="text-4xl font-bold text-[#7cb342] mb-2">
+                  <div className="text-4xl font-bold text-cyan-500 mb-2">
                     ${monthlySavings.toLocaleString()}
                   </div>
                   <div className="text-slate-600">Saved Per Month</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-4xl font-bold text-[#2196f3] mb-2">
+                  <div className="text-4xl font-bold text-orange-500 mb-2">
                     ${yearlySavings.toLocaleString()}
                   </div>
                   <div className="text-slate-600">Saved Per Year</div>
@@ -264,7 +267,7 @@ export default function LandingPage() {
                   That's {Math.round(hoursPerWeek * 4)} hours saved per month at ${avgHourlyRate}/hour
                 </p>
                 <a href="#demo">
-                  <Button size="lg" className="bg-[#7cb342] hover:bg-[#689f38]">
+                  <Button size="lg" className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg shadow-orange-500/30">
                     Start Saving Now
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
@@ -284,7 +287,7 @@ export default function LandingPage() {
           
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-[#7cb342] to-[#689f38] rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-cyan-500/30">
                 <Workflow className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-semibold mb-3 text-slate-900">1. Choose a Template</h3>
@@ -294,7 +297,7 @@ export default function LandingPage() {
             </div>
 
             <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-[#2196f3] to-[#1976d2] rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
                 <Bot className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-semibold mb-3 text-slate-900">2. Customize with AI</h3>
@@ -304,7 +307,7 @@ export default function LandingPage() {
             </div>
 
             <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-[#7cb342] to-[#689f38] rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-cyan-500/30">
                 <Clock className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-semibold mb-3 text-slate-900">3. Save 20+ Hours/Week</h3>
@@ -332,8 +335,8 @@ export default function LandingPage() {
               { icon: CheckCircle2, title: '50+ Templates', desc: 'Pre-built workflows for every department' },
               { icon: Zap, title: 'Unlimited Integrations', desc: 'Connect any tool or database' },
             ].map((feature, i) => (
-              <div key={i} className="bg-white p-6 rounded-xl border border-slate-200 hover:shadow-lg transition-all">
-                <feature.icon className="w-10 h-10 text-[#7cb342] mb-4" />
+              <div key={i} className="bg-white p-6 rounded-xl border border-slate-200 hover:shadow-lg hover:border-cyan-500/20 transition-all group">
+                <feature.icon className="w-10 h-10 text-cyan-500 mb-4 group-hover:text-orange-500 transition-colors" />
                 <h3 className="font-semibold text-slate-900 mb-2">{feature.title}</h3>
                 <p className="text-slate-600 text-sm">{feature.desc}</p>
               </div>
@@ -416,7 +419,7 @@ export default function LandingPage() {
               type="submit" 
               size="lg" 
               disabled={loading}
-              className="w-full bg-[#7cb342] hover:bg-[#689f38] text-lg h-14"
+              className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-lg h-14 shadow-lg shadow-orange-500/30"
             >
               {loading ? 'Sending...' : 'Get Free Audit'}
               <Calendar className="w-5 h-5 ml-2" />
