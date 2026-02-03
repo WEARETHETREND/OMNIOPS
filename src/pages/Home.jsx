@@ -66,17 +66,17 @@ export default function Home() {
       {/* Navigation */}
       <nav className="border-b border-slate-200/60 bg-white/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to={createPageUrl('Home')} className="flex items-center gap-3 relative">
+          <Link to={createPageUrl('Home')} className="flex items-center gap-2">
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692cc4fe31f31eedd47e4c98/1fc38aba0_Screenshot2025-12-19124649.png" 
               alt="OmniOps Orb"
-              className="h-10 w-10 absolute left-0"
+              className="h-10 w-10"
               style={{ animation: 'hypnotic-pulse 3.5s ease-in-out infinite' }}
             />
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692cc4fe31f31eedd47e4c98/3091574e2_Screenshot2025-12-19125112.png" 
               alt="OmniOps"
-              className="h-10 w-auto relative z-10 ml-12"
+              className="h-10 w-auto"
             />
           </Link>
           <div className="flex items-center gap-4">
