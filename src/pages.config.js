@@ -105,6 +105,9 @@ import WorkflowDetails from './pages/WorkflowDetails';
 import WorkflowRulesBuilder from './pages/WorkflowRulesBuilder';
 import WorkflowTemplates from './pages/WorkflowTemplates';
 import Workflows from './pages/Workflows';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
+import CookiePolicy from './pages/CookiePolicy';
 import __Layout from './Layout.jsx';
 
 
@@ -167,6 +170,9 @@ export const PAGES = {
     "WorkflowRulesBuilder": WorkflowRulesBuilder,
     "WorkflowTemplates": WorkflowTemplates,
     "Workflows": Workflows,
+    "PrivacyPolicy": PrivacyPolicy,
+    "TermsOfService": TermsOfService,
+    "CookiePolicy": CookiePolicy,
 }
 
 export const pagesConfig = {

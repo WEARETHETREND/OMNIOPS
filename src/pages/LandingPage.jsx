@@ -474,11 +474,14 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
-            <div>© 2026 OpsVanta. All rights reserved.</div>
+            <div className="text-center md:text-left">
+              <div>OmniOps is a product of OpsVanta LLC</div>
+              <div className="text-xs text-slate-500 mt-1">© 2026 OpsVanta LLC. All rights reserved.</div>
+            </div>
             <div className="flex gap-6">
-              <a href="#" className="hover:text-white">Privacy Policy</a>
-              <a href="#" className="hover:text-white">Terms of Service</a>
-              <a href="#" className="hover:text-white">Security</a>
+              <Link to={createPageUrl('PrivacyPolicy')} className="hover:text-white">Privacy Policy</Link>
+              <Link to={createPageUrl('TermsOfService')} className="hover:text-white">Terms of Service</Link>
+              <Link to={createPageUrl('CookiePolicy')} className="hover:text-white">Cookie Policy</Link>
             </div>
           </div>
         </div>
