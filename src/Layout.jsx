@@ -106,24 +106,14 @@ export default function Layout({ children, currentPageName }) {
     style.textContent = `
       @keyframes hypnotic-pulse {
         0%, 100% { 
-          transform: scale(1);
-          filter: brightness(1) drop-shadow(0 0 0px rgba(123, 179, 66, 0));
-        }
-        25% { 
-          transform: scale(1.15);
-          filter: brightness(1.3) drop-shadow(0 0 20px rgba(123, 179, 66, 0.8));
+          filter: brightness(1) drop-shadow(0 0 5px rgba(123, 179, 66, 0.3));
         }
         50% { 
-          transform: scale(1.05);
-          filter: brightness(1.1) drop-shadow(0 0 15px rgba(33, 150, 243, 0.6));
-        }
-        75% { 
-          transform: scale(1.2);
-          filter: brightness(1.4) drop-shadow(0 0 25px rgba(123, 179, 66, 1));
+          filter: brightness(1.2) drop-shadow(0 0 15px rgba(123, 179, 66, 0.9)) drop-shadow(0 0 30px rgba(33, 150, 243, 0.6));
         }
       }
       .hypnotic-orb {
-        animation: hypnotic-pulse 2s ease-in-out infinite;
+        animation: hypnotic-pulse 3.5s ease-in-out infinite;
       }
     `;
     document.head.appendChild(style);
