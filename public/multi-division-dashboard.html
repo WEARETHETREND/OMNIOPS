@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OMNIOPS Multi-Division Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .division-btn {
+            transition: all 0.3s ease;
+        }
+        .division-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .division-btn.active {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <h1 class="text-4xl font-bold">OMNIOPS Multi-Division Dashboard</h1>
+            <p class="text-blue-100 mt-2">Unified Business Intelligence Platform</p>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- Division Selector -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Division Selector</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <button onclick="selectDivision('govcon')" class="division-btn bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg" data-division="govcon">
+                    GovCon
+                </button>
+                <button onclick="selectDivision('cre')" class="division-btn bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg" data-division="cre">
+                    CRE
+                </button>
+                <button onclick="selectDivision('grants')" class="division-btn bg-purple-500 hover:bg-purple-600 text-white font-semibold py-3 px-4 rounded-lg" data-division="grants">
+                    Grants
+                </button>
+                <button onclick="selectDivision('franchise')" class="division-btn bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-4 rounded-lg" data-division="franchise">
+                    Franchise
+                </button>
+                <button onclick="selectDivision('equipment')" class="division-btn bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-lg" data-division="equipment">
+                    Equipment
+                </button>
+                <button onclick="selectDivision('supply-chain')" class="division-btn bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg" data-division="supply-chain">
+                    Supply Chain
+                </button>
+                <button onclick="selectDivision('recruiting')" class="division-btn bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 px-4 rounded-lg" data-division="recruiting">
+                    Recruiting
+                </button>
+                <button onclick="selectDivision('insurance')" class="division-btn bg-cyan-500 hover:bg-cyan-600 text-white font-semibold py-3 px-4 rounded-lg" data-division="insurance">
+                    Insurance
+                </button>
+                <button onclick="selectDivision('loans')" class="division-btn bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-lg" data-division="loans">
+                    Loans
+                </button>
+                <button onclick="selectDivision('energy')" class="division-btn bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-4 rounded-lg" data-division="energy">
+                    Energy
+                </button>
+                <button onclick="selectDivision('all')" class="division-btn active bg-gray-800 hover:bg-gray-900 text-white font-semibold py-3 px-4 rounded-lg col-span-2 md:col-span-3 lg:col-span-6" data-division="all">
+                    All Divisions
+                </button>
+            </div>
+        </div>
+
+        <!-- Revenue Aggregation -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Revenue Overview</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg p-6 stat-card">
+                    <p class="text-blue-100 text-sm font-medium">Current Month</p>
+                    <p class="text-3xl font-bold mt-2" id="current-month-revenue">$0</p>
+                </div>
+                <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg p-6 stat-card">
+                    <p class="text-green-100 text-sm font-medium">Year to Date</p>
+                    <p class="text-3xl font-bold mt-2" id="ytd-revenue">$0</p>
+                </div>
+                <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-lg p-6 stat-card">
+                    <p class="text-purple-100 text-sm font-medium">MoM Growth</p>
+                    <p class="text-3xl font-bold mt-2" id="mom-growth">0%</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold mb-3 text-gray-700">Revenue Trend</h3>
+                    <canvas id="revenueTrendChart" height="200"></canvas>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-3 text-gray-700">Revenue by Division</h3>
+                    <div id="division-revenue-breakdown" class="space-y-2">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Quick Actions</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button onclick="findLeads()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-lg transition duration-300 flex items-center justify-center gap-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    Find Leads
+                </button>
+                <button onclick="findOpportunities()" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-6 rounded-lg transition duration-300 flex items-center justify-center gap-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Find Opportunities
+                </button>
+                <button onclick="createDeal()" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-4 px-6 rounded-lg transition duration-300 flex items-center justify-center gap-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Create Deal
+                </button>
+            </div>
+        </div>
+
+        <!-- Universal Search -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Universal Search</h2>
+            <form id="search-form" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Search Criteria</label>
+                        <input type="text" id="search-criteria" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter search terms...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Industry Filter</label>
+                        <select id="industry-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">All Industries</option>
+                            <option value="technology">Technology</option>
+                            <option value="healthcare">Healthcare</option>
+                            <option value="finance">Finance</option>
+                            <option value="manufacturing">Manufacturing</option>
+                            <option value="retail">Retail</option>
+                            <option value="construction">Construction</option>
+                            <option value="education">Education</option>
+                            <option value="government">Government</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                        <input type="text" id="location-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="City, State, or ZIP">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Min Budget</label>
+                            <input type="number" id="budget-min" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="$0">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Max Budget</label>
+                            <input type="number" id="budget-max" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="$1,000,000">
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    Search All Divisions
+                </button>
+            </form>
+        </div>
+
+        <!-- Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6 stat-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Total Leads</p>
+                        <p class="text-3xl font-bold text-gray-800 mt-2" id="total-leads">0</p>
+                    </div>
+                    <div class="bg-blue-100 rounded-full p-3">
+                        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6 stat-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Total Opportunities</p>
+                        <p class="text-3xl font-bold text-gray-800 mt-2" id="total-opportunities">0</p>
+                    </div>
+                    <div class="bg-green-100 rounded-full p-3">
+                        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6 stat-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Active Deals</p>
+                        <p class="text-3xl font-bold text-gray-800 mt-2" id="active-deals">0</p>
+                    </div>
+                    <div class="bg-purple-100 rounded-full p-3">
+                        <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6 stat-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Total Commission</p>
+                        <p class="text-3xl font-bold text-gray-800 mt-2" id="total-commission">$0</p>
+                    </div>
+                    <div class="bg-yellow-100 rounded-full p-3">
+                        <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Matches Table -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-semibold text-gray-800">Recent Matches</h2>
+                <button onclick="refreshMatches()" class="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lead Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Opportunity</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recommendation</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="matches-table-body" class="bg-white divide-y divide-gray-200">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div id="loading-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-8 flex flex-col items-center">
+            <div class="loading"></div>
+            <p class="mt-4 text-gray-700 font-medium" id="loading-text">Loading...</p>
+        </div>
+    </div>
+
+    <script>
+        let currentDivision = 'all';
+        let revenueTrendChart = null;
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDashboard();
+            setupEventListeners();
+        });
+
+        function initializeDashboard() {
+            selectDivision('all');
+            loadStatistics();
+            loadRecentMatches();
+        }
+
+        function setupEventListeners() {
+            document.getElementById('search-form').addEventListener('submit', handleSearch);
+        }
+
+        function selectDivision(division) {
+            currentDivision = division;
+            
+            // Update button states
+            document.querySelectorAll('.division-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.division === division) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Load division-specific data
+            loadRevenueData(division);
+            loadStatistics(division);
+            loadRecentMatches(division);
+        }
+
+        async function loadRevenueData(division = 'all') {
+            showLoading('Loading revenue data...');
+            try {
+                const response = await fetch(`/api/divisions/${division}/revenue`);
+                if (!response.ok) throw new Error('Failed to load revenue data');
+                
+                const data = await response.json();
+                
+                // Update revenue cards
+                document.getElementById('current-month-revenue').textContent = formatCurrency(data.currentMonth || 0);
+                document.getElementById('ytd-revenue').textContent = formatCurrency(data.yearToDate || 0);
+                document.getElementById('mom-growth').textContent = formatPercentage(data.monthOverMonth || 0);
+                
+                // Update revenue breakdown
+                updateRevenueBreakdown(data.byDivision || {});
+                
+                // Update chart
+                updateRevenueChart(data.trend || []);
+            } catch (error) {
+                console.error('Error loading revenue data:', error);
+                showError('Failed to load revenue data');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function updateRevenueBreakdown(byDivision) {
+            const container = document.getElementById('division-revenue-breakdown');
+            const divisions = [
+                { key: 'govcon', name: 'GovCon', color: 'bg-blue-500' },
+                { key: 'cre', name: 'CRE', color: 'bg-green-500' },
+                { key: 'grants', name: 'Grants', color: 'bg-purple-500' },
+                { key: 'franchise', name: 'Franchise', color: 'bg-yellow-500' },
+                { key: 'equipment', name: 'Equipment', color: 'bg-red-500' },
+                { key: 'supply-chain', name: 'Supply Chain', color: 'bg-indigo-500' },
+                { key: 'recruiting', name: 'Recruiting', color: 'bg-pink-500' },
+                { key: 'insurance', name: 'Insurance', color: 'bg-cyan-500' },
+                { key: 'loans', name: 'Loans', color: 'bg-orange-500' },
+                { key: 'energy', name: 'Energy', color: 'bg-teal-500' }
+            ];
+
+            const total = Object.values(byDivision).reduce((sum, val) => sum + (val || 0), 0);
+            
+            container.innerHTML = divisions.map(div => {
+                const value = byDivision[div.key] || 0;
+                const percentage = total > 0 ? (value / total * 100).toFixed(1) : 0;
+                return `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="w-3 h-3 ${div.color} rounded-full"></div>
+                            <span class="font-medium text-gray-700">${div.name}</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-semibold text-gray-800">${formatCurrency(value)}</div>
+                            <div class="text-xs text-gray-500">${percentage}%</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateRevenueChart(trendData) {
+            const ctx = document.getElementById('revenueTrendChart').getContext('2d');
+            
+            if (revenueTrendChart) {
+                revenueTrendChart.destroy();
+            }
+
+            const labels = trendData.map(d => d.month || d.label);
+            const values = trendData.map(d => d.revenue || d.value || 0);
+
+            revenueTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels.length > 0 ? labels : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Revenue',
+                        data: values.length > 0 ? values : [45000, 52000, 48000, 61000, 58000, 67000],
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: context => formatCurrency(context.parsed.y)
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: value => '$' + (value / 1000) + 'K'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function loadStatistics(division = 'all') {
+            try {
+                const response = await fetch(`/api/divisions/${division}/stats`);
+                if (!response.ok) throw new Error('Failed to load statistics');
+                
+                const data = await response.json();
+                
+                document.getElementById('total-leads').textContent = formatNumber(data.totalLeads || 0);
+                document.getElementById('total-opportunities').textContent = formatNumber(data.totalOpportunities || 0);
+                document.getElementById('active-deals').textContent = formatNumber(data.activeDeals || 0);
+                document.getElementById('total-commission').textContent = formatCurrency(data.totalCommission || 0);
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+            }
+        }
+
+        async function loadRecentMatches(division = 'all') {
+            try {
+                const response = await fetch(`/api/divisions/${division}/matches/recent`);
+                if (!response.ok) throw new Error('Failed to load matches');
+                
+                const data = await response.json();
+                updateMatchesTable(data.matches || []);
+            } catch (error) {
+                console.error('Error loading recent matches:', error);
+                document.getElementById('matches-table-body').innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">No matches found</td>
+                    </tr>
+                `;
+            }
+        }
+
+        function updateMatchesTable(matches) {
+            const tbody = document.getElementById('matches-table-body');
+            
+            if (matches.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">No matches found</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = matches.map(match => `
+                <tr class="hover:bg-gray-50 transition duration-150">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${escapeHtml(match.leadName || match.lead?.name || 'N/A')}</div>
+                        <div class="text-sm text-gray-500">${escapeHtml(match.leadCompany || match.lead?.company || '')}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900">${escapeHtml(match.opportunityName || match.opportunity?.name || 'N/A')}</div>
+                        <div class="text-sm text-gray-500">${escapeHtml(match.opportunityType || match.opportunity?.type || '')}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="text-sm font-semibold text-gray-900">${(match.score || 0).toFixed(1)}</div>
+                            <div class="ml-2 w-16 bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-600 h-2 rounded-full" style="width: ${(match.score || 0)}%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900">${escapeHtml(match.recommendation || match.action || 'Review')}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(match.status)}">
+                            ${escapeHtml(match.status || 'pending')}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="viewMatchDetails('${match.id || match._id}')" class="text-blue-600 hover:text-blue-900">View</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function handleSearch(event) {
+            event.preventDefault();
+            
+            const searchData = {
+                criteria: document.getElementById('search-criteria').value,
+                industry: document.getElementById('industry-filter').value,
+                location: document.getElementById('location-filter').value,
+                budgetMin: parseFloat(document.getElementById('budget-min').value) || undefined,
+                budgetMax: parseFloat(document.getElementById('budget-max').value) || undefined,
+                division: currentDivision
+            };
+
+            showLoading('Searching across divisions...');
+            
+            try {
+                const response = await fetch('/api/divisions/universal-search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(searchData)
+                });
+
+                if (!response.ok) throw new Error('Search failed');
+                
+                const results = await response.json();
+                updateMatchesTable(results.matches || results.results || []);
+                showSuccess(`Found ${(results.matches || results.results || []).length} matches`);
+            } catch (error) {
+                console.error('Search error:', error);
+                showError('Search failed. Please try again.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function findLeads() {
+            showLoading('Finding leads...');
+            try {
+                const response = await fetch(`/api/divisions/${currentDivision}/leads/find`, {
+                    method: 'POST'
+                });
+                if (!response.ok) throw new Error('Failed to find leads');
+                
+                const data = await response.json();
+                showSuccess(`Found ${data.count || 0} leads`);
+                loadRecentMatches(currentDivision);
+            } catch (error) {
+                console.error('Error finding leads:', error);
+                showError('Failed to find leads');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function findOpportunities() {
+            showLoading('Finding opportunities...');
+            try {
+                const response = await fetch(`/api/divisions/${currentDivision}/opportunities/find`, {
+                    method: 'POST'
+                });
+                if (!response.ok) throw new Error('Failed to find opportunities');
+                
+                const data = await response.json();
+                showSuccess(`Found ${data.count || 0} opportunities`);
+                loadRecentMatches(currentDivision);
+            } catch (error) {
+                console.error('Error finding opportunities:', error);
+                showError('Failed to find opportunities');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function createDeal() {
+            showLoading('Creating deal...');
+            try {
+                const response = await fetch(`/api/divisions/${currentDivision}/deals`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ division: currentDivision })
+                });
+                if (!response.ok) throw new Error('Failed to create deal');
+                
+                const data = await response.json();
+                showSuccess('Deal created successfully');
+                loadStatistics(currentDivision);
+            } catch (error) {
+                console.error('Error creating deal:', error);
+                showError('Failed to create deal');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function refreshMatches() {
+            loadRecentMatches(currentDivision);
+            showSuccess('Matches refreshed');
+        }
+
+        function viewMatchDetails(matchId) {
+            alert(`Viewing details for match: ${matchId}\n\nThis would open a detailed view modal or navigate to a details page.`);
+        }
+
+        // Utility Functions
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(value);
+        }
+
+        function formatNumber(value) {
+            return new Intl.NumberFormat('en-US').format(value);
+        }
+
+        function formatPercentage(value) {
+            const sign = value >= 0 ? '+' : '';
+            return sign + value.toFixed(1) + '%';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                pending: 'bg-yellow-100 text-yellow-800',
+                active: 'bg-green-100 text-green-800',
+                closed: 'bg-gray-100 text-gray-800',
+                won: 'bg-blue-100 text-blue-800',
+                lost: 'bg-red-100 text-red-800'
+            };
+            return colors[status?.toLowerCase()] || colors.pending;
+        }
+
+        function showLoading(text = 'Loading...') {
+            document.getElementById('loading-text').textContent = text;
+            document.getElementById('loading-modal').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-modal').classList.add('hidden');
+        }
+
+        function showSuccess(message) {
+            alert('✓ ' + message);
+        }
+
+        function showError(message) {
+            alert('✗ ' + message);
+        }
+    </script>
+</body>
+</html>
