@@ -143,7 +143,7 @@ export default function Layout({ children, currentPageName }) {
               <img 
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692cc4fe31f31eedd47e4c98/5bcfc8fec_image.png" 
                 alt="OmniOps"
-                className="h-12 w-auto"
+                className="h-12 w-auto animate-pulse"
               />
             </Link>
             <Button
