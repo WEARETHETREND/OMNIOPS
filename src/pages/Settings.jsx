@@ -92,7 +92,7 @@ export default function Settings() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center gap-6">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center text-white text-2xl font-bold">
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#7cb342] to-[#2196f3] flex items-center justify-center text-white text-2xl font-bold shadow-lg">
                   {formData.full_name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'U'}
                 </div>
                 <div>
@@ -189,14 +189,14 @@ export default function Settings() {
               <CardDescription>Manage your account security preferences</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+              <div className="p-4 bg-[#7cb342]/10 rounded-xl border border-[#7cb342]/20">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-lg bg-[#7cb342] flex items-center justify-center shadow-lg">
                     <Check className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className="font-medium text-emerald-800">Account Secured</p>
-                    <p className="text-sm text-emerald-600">Your account is protected with enterprise-grade security</p>
+                    <p className="font-medium text-[#689f38]">Account Secured</p>
+                    <p className="text-sm text-[#7cb342]/80">Your account is protected with enterprise-grade security</p>
                   </div>
                 </div>
               </div>
@@ -263,8 +263,8 @@ export default function Settings() {
                 <Label>Accent Color</Label>
                 <div className="flex gap-3">
                   {[
-                    { name: 'Emerald', color: 'bg-emerald-500' },
-                    { name: 'Blue', color: 'bg-blue-500' },
+                    { name: 'Lime', color: 'bg-[#7cb342]' },
+                    { name: 'Blue', color: 'bg-[#2196f3]' },
                     { name: 'Violet', color: 'bg-violet-500' },
                     { name: 'Rose', color: 'bg-rose-500' },
                     { name: 'Amber', color: 'bg-amber-500' }
@@ -272,9 +272,9 @@ export default function Settings() {
                     <button
                       key={accent.name}
                       className={cn(
-                        "w-10 h-10 rounded-lg transition-transform hover:scale-110",
+                        "w-10 h-10 rounded-lg transition-transform hover:scale-110 shadow-md",
                         accent.color,
-                        accent.name === 'Emerald' && 'ring-2 ring-offset-2 ring-slate-900'
+                        accent.name === 'Lime' && 'ring-2 ring-offset-2 ring-[#7cb342]'
                       )}
                       title={accent.name}
                     />
@@ -393,7 +393,7 @@ export default function Settings() {
           <Button 
             onClick={handleSave} 
             disabled={saving}
-            className="bg-slate-900 hover:bg-slate-800"
+            className="bg-[#7cb342] hover:bg-[#689f38]"
           >
             {saving ? (
               <>

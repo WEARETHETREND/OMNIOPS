@@ -97,7 +97,7 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="text-slate-400 text-sm mb-1">Today's Net P&L</p>
-              <p className={`text-3xl font-bold ${financial.today?.net >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+              <p className={`text-3xl font-bold ${financial.today?.net >= 0 ? 'text-[#7cb342]' : 'text-rose-400'}`}>
                 ${Math.abs(financial.today?.net || 0).toFixed(0)}
               </p>
             </div>
@@ -115,7 +115,7 @@ export default function Dashboard() {
           title="Active Workflows"
           value={workflows.length.toString()}
           icon={WorkflowIcon}
-          gradient="from-emerald-500 to-teal-600"
+          gradient="from-[#7cb342] to-[#689f38]"
         />
         <StatCard
           title="Alerts"
@@ -127,13 +127,13 @@ export default function Dashboard() {
           title="Success Rate"
           value={insights?.success_rate ? `${insights.success_rate.toFixed(1)}%` : 'N/A'}
           icon={CheckCircle}
-          gradient="from-violet-500 to-purple-600"
+          gradient="from-[#2196f3] to-[#1976d2]"
         />
         <StatCard
           title="Total Runs"
           value={insights?.total_runs?.toString() || '0'}
           icon={Activity}
-          gradient="from-blue-500 to-cyan-600"
+          gradient="from-[#7cb342] to-[#2196f3]"
         />
       </div>
 
@@ -148,8 +148,8 @@ export default function Dashboard() {
             <AreaChart data={insights.trending}>
               <defs>
                 <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#7cb342" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#7cb342" stopOpacity={0}/>
                 </linearGradient>
               </defs>
               <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
@@ -158,14 +158,15 @@ export default function Dashboard() {
                 contentStyle={{ 
                   backgroundColor: '#1e293b', 
                   border: 'none', 
-                  borderRadius: '8px',
-                  color: '#fff'
+                  borderRadius: '12px',
+                  color: '#fff',
+                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
                 }}
               />
               <Area 
                 type="monotone" 
                 dataKey="count" 
-                stroke="#10b981" 
+                stroke="#7cb342" 
                 strokeWidth={2}
                 fill="url(#colorValue)" 
               />
@@ -193,7 +194,7 @@ export default function Dashboard() {
               <div key={wf.workflow_id} className="bg-white rounded-xl border border-slate-200/60 p-4 hover:shadow-lg transition-all cursor-pointer">
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="font-semibold text-slate-900 line-clamp-2">{wf.name}</h3>
-                  <div className={`w-2 h-2 rounded-full ${wf.enabled ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
+                  <div className={`w-2 h-2 rounded-full ${wf.enabled ? 'bg-[#7cb342]' : 'bg-slate-300'}`}></div>
                 </div>
                 <p className="text-sm text-slate-500 mb-3 line-clamp-2">{wf.description || 'No description'}</p>
                 <div className="flex items-center gap-3 text-xs text-slate-400">
@@ -245,7 +246,7 @@ export default function Dashboard() {
           </div>
         ) : (
           <div className="bg-white rounded-xl border border-slate-200/60 p-12 text-center">
-            <CheckCircle className="w-12 h-12 text-emerald-300 mx-auto mb-3" />
+            <CheckCircle className="w-12 h-12 text-[#7cb342]/30 mx-auto mb-3" />
             <p className="text-slate-500">No active alerts</p>
           </div>
         )}
