@@ -100,6 +100,36 @@ export default function Layout({ children, currentPageName }) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [user, setUser] = useState(null);
 
+  // Hypnotic orb pulse animation
+  React.useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes hypnotic-pulse {
+        0%, 100% { 
+          transform: scale(1);
+          filter: brightness(1) drop-shadow(0 0 0px rgba(123, 179, 66, 0));
+        }
+        25% { 
+          transform: scale(1.15);
+          filter: brightness(1.3) drop-shadow(0 0 20px rgba(123, 179, 66, 0.8));
+        }
+        50% { 
+          transform: scale(1.05);
+          filter: brightness(1.1) drop-shadow(0 0 15px rgba(33, 150, 243, 0.6));
+        }
+        75% { 
+          transform: scale(1.2);
+          filter: brightness(1.4) drop-shadow(0 0 25px rgba(123, 179, 66, 1));
+        }
+      }
+      .hypnotic-orb {
+        animation: hypnotic-pulse 2s ease-in-out infinite;
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
+
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
@@ -143,7 +173,7 @@ export default function Layout({ children, currentPageName }) {
               <img 
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692cc4fe31f31eedd47e4c98/3091574e2_Screenshot2025-12-19125112.png" 
                 alt="OmniOps"
-                className="h-12 w-auto animate-pulse"
+                className="h-12 w-auto hypnotic-orb"
               />
             </Link>
             <Button
