@@ -66,13 +66,19 @@ export default function Home() {
       {/* Navigation */}
       <nav className="border-b border-slate-200/60 bg-white/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <Link to={createPageUrl('Home')} className="flex items-center gap-3 relative">
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692cc4fe31f31eedd47e4c98/1fc38aba0_Screenshot2025-12-19124649.png" 
+              alt="OmniOps Orb"
+              className="h-10 w-10 absolute left-0"
+              style={{ animation: 'hypnotic-pulse 3.5s ease-in-out infinite' }}
+            />
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692cc4fe31f31eedd47e4c98/3091574e2_Screenshot2025-12-19125112.png" 
               alt="OmniOps"
-              className="h-12 w-auto"
+              className="h-10 w-auto relative z-10 ml-12"
             />
-          </div>
+          </Link>
           <div className="flex items-center gap-4">
             <Link to={createPageUrl('Dashboard')}>
               <Button variant="ghost">Dashboard</Button>
@@ -436,11 +442,16 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center gap-2 mb-4 relative">
+                <img 
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692cc4fe31f31eedd47e4c98/1fc38aba0_Screenshot2025-12-19124649.png" 
+                  alt="OmniOps Orb"
+                  className="h-8 w-8 brightness-0 invert opacity-80"
+                />
                 <img 
                   src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692cc4fe31f31eedd47e4c98/3091574e2_Screenshot2025-12-19125112.png" 
                   alt="OmniOps"
-                  className="h-10 w-auto brightness-0 invert"
+                  className="h-8 w-auto brightness-0 invert"
                 />
               </div>
               <p className="text-sm text-slate-500">
