@@ -66,12 +66,8 @@ export default function Home() {
       {/* Navigation */}
       <nav className="border-b border-slate-800 bg-black/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to={createPageUrl('Home')}>
-            <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692cc4fe31f31eedd47e4c98/3091574e2_Screenshot2025-12-19125112.png" 
-              alt="OmniOps"
-              className="h-16 w-auto"
-            />
+          <Link to={createPageUrl('Home')} className="text-xl font-bold">
+            <span className="text-cyan-400">Omni</span><span className="text-orange-400">Ops</span>
           </Link>
           <div className="flex items-center gap-4">
             <Link to={createPageUrl('Dashboard')}>
@@ -93,7 +89,7 @@ export default function Home() {
           <img 
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692cc4fe31f31eedd47e4c98/3091574e2_Screenshot2025-12-19125112.png" 
             alt="OmniOps"
-            className="h-24 w-auto mx-auto mb-8"
+            className="h-40 w-auto mx-auto mb-8"
           />
           
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
