@@ -132,4 +132,4 @@ class BaseDivision {
   }
 }
 
-module.exports = BaseDivision;
+export default BaseDivision;
