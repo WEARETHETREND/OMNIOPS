@@ -141,7 +141,7 @@ export default function Layout({ children, currentPageName }) {
           <div className="flex items-center justify-between px-6 h-20 border-b border-slate-800">
             <Link to={createPageUrl('Dashboard')} className="flex items-center gap-3">
               <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692cc4fe31f31eedd47e4c98/b6c2ffbe3_image.png" 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692cc4fe31f31eedd47e4c98/3091574e2_Screenshot2025-12-19125112.png" 
                 alt="OmniOps"
                 className="h-12 w-auto animate-pulse"
               />
