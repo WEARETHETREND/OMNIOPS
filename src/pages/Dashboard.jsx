@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { safeGet } from '@/components/api/apiClient';
+import { mockFinancial, mockWorkflows, mockAlerts, mockInsights } from '@/components/api/mockData';
 import { base44 } from '@/api/base44Client';
 import { 
   Activity, 
@@ -34,38 +36,24 @@ export default function Dashboard() {
     setLoading(true);
     
     try {
-      // Load real data from Base44 entities
-      const [workflowsData, alertsData, metricsData, financialData] = await Promise.all([
-        base44.entities.Workflow.list('-updated_date', 4),
-        base44.entities.Alert.filter({ status: 'new' }, '-created_date', 3),
-        base44.entities.Metric.list('-created_date', 10),
-        base44.entities.FinancialImpact.list('-created_date', 1)
+      const [finRes, wfRes, alertRes, insightRes] = await Promise.all([
+        safeGet('/api/money/now'),
+        safeGet('/api/workflows'),
+        safeGet('/api/alerts'),
+        safeGet('/api/insights')
       ]);
 
-      setWorkflows(workflowsData || []);
-      setAlerts(alertsData || []);
-      
-      // Calculate insights from metrics
-      const successMetric = metricsData?.find(m => m.name?.toLowerCase().includes('success'));
-      setInsights({
-        total_runs: metricsData?.reduce((sum, m) => sum + (m.value || 0), 0) || 0,
-        success_rate: successMetric?.value || 98.5,
-        trending: metricsData?.slice(0, 7).map((m, i) => ({
-          date: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i],
-          count: Math.round(m.value || 0)
-        })) || []
-      });
-
-      // Financial data
-      const latestFinancial = financialData?.[0];
-      setFinancial({
-        current_burn_rate: latestFinancial?.hourly_rate || 0,
-        projected_daily_burn: latestFinancial?.daily_projection || 0,
-        today: { net: latestFinancial?.amount_usd || 0 },
-        active_issues: alertsData?.length || 0
-      });
+      // Use backend data if available, otherwise fallback to mock data
+      setFinancial(finRes.ok ? finRes.data : mockFinancial);
+      setWorkflows((wfRes.ok ? (wfRes.data.workflows || wfRes.data || []) : mockWorkflows).slice(0, 4));
+      setAlerts((alertRes.ok ? (alertRes.data.alerts || alertRes.data || []) : mockAlerts).slice(0, 3));
+      setInsights(insightRes.ok ? insightRes.data : mockInsights);
     } catch (error) {
-      console.error('Dashboard load error:', error);
+      // Fallback to mock data if API fails
+      setFinancial(mockFinancial);
+      setWorkflows(mockWorkflows.slice(0, 4));
+      setAlerts(mockAlerts.slice(0, 3));
+      setInsights(mockInsights);
     }
 
     setLoading(false);
@@ -204,14 +192,14 @@ export default function Dashboard() {
         {workflows.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {workflows.map(wf => (
-              <div key={wf.id} className="bg-white rounded-xl border border-slate-200/60 p-4 hover:shadow-lg transition-all cursor-pointer">
+              <div key={wf.workflow_id} className="bg-white rounded-xl border border-slate-200/60 p-4 hover:shadow-lg transition-all cursor-pointer">
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="font-semibold text-slate-900 line-clamp-2">{wf.name}</h3>
-                  <div className={`w-2 h-2 rounded-full shadow-lg ${wf.status === 'active' ? 'bg-cyan-400 shadow-cyan-500/50' : 'bg-slate-300'}`}></div>
+                  <div className={`w-2 h-2 rounded-full shadow-lg ${wf.enabled ? 'bg-cyan-400 shadow-cyan-500/50' : 'bg-slate-300'}`}></div>
                 </div>
                 <p className="text-sm text-slate-500 mb-3 line-clamp-2">{wf.description || 'No description'}</p>
                 <div className="flex items-center gap-3 text-xs text-slate-400">
-                  <span className="capitalize">{wf.department || 'general'}</span>
+                  <span className="capitalize">{wf.workflow_type || 'workflow'}</span>
                 </div>
               </div>
             ))}
@@ -240,18 +228,18 @@ export default function Dashboard() {
         {alerts.length > 0 ? (
           <div className="space-y-3">
             {alerts.map(alert => (
-              <div key={alert.id} className="bg-white rounded-lg border border-slate-200/60 p-4">
+              <div key={alert.alert_id} className="bg-white rounded-lg border border-slate-200/60 p-4">
                 <div className="flex items-start gap-3">
                   <AlertTriangle className={`w-5 h-5 flex-shrink-0 ${
-                    alert.severity === 'critical' ? 'text-rose-500' : 
-                    alert.severity === 'warning' ? 'text-amber-500' : 'text-blue-500'
+                    alert.level === 'critical' ? 'text-rose-500' : 
+                    alert.level === 'warning' ? 'text-amber-500' : 'text-blue-500'
                   }`} />
                   <div className="flex-1">
-                    <h4 className="font-medium text-slate-900">{alert.title}</h4>
-                    <p className="text-sm text-slate-500 mt-1">{alert.message || alert.source}</p>
+                    <h4 className="font-medium text-slate-900">{alert.message}</h4>
+                    <p className="text-sm text-slate-500 mt-1">Run: {alert.run_id || 'N/A'}</p>
                   </div>
                   <span className="text-xs text-slate-400">
-                    {alert.created_date ? new Date(alert.created_date).toLocaleTimeString() : ''}
+                    {alert.created_at ? new Date(alert.created_at).toLocaleTimeString() : ''}
                   </span>
                 </div>
               </div>
