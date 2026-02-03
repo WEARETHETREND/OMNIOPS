@@ -10,11 +10,8 @@ Deno.serve(async (req) => {
     }
 
     // Get active failures and issues
-    const [alerts, failedWorkflows, queuedDispatches] = await Promise.all([
-      base44.entities.Alert.filter({ severity: 'error', status: 'new' }, '-created_date', 50),
-      base44.entities.Workflow.filter({ status: 'active' }),
-      base44.entities.Dispatch.filter({ status: 'queued' })
-    ]);
+    const alerts = await base44.asServiceRole.entities.Alert.filter({ severity: 'error' }, '-created_date', 50).catch(() => []);
+    const queuedDispatches = await base44.asServiceRole.entities.Dispatch.filter({ status: 'queued' }).catch(() => []);
 
     // Calculate costs
     const impacts = [];
