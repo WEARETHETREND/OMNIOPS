@@ -49,8 +49,10 @@ Deno.serve(async (req) => {
       impacts.push(impact);
     });
 
-    // Create financial impact records
-    await base44.asServiceRole.entities.FinancialImpact.bulkCreate(impacts);
+    // Create financial impact records (only if there are impacts)
+    if (impacts.length > 0) {
+      await base44.asServiceRole.entities.FinancialImpact.bulkCreate(impacts);
+    }
 
     // Calculate totals
     const totalCost = impacts.reduce((sum, i) => sum + i.amount_usd, 0);

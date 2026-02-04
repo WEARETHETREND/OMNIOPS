@@ -13,7 +13,7 @@ export default function Breadcrumbs({ items = [] }) {
         <Home className="w-4 h-4" />
       </Link>
       {items.map((item, i) => (
-        <React.Fragment key={i}>
+        <div key={i} className="flex items-center gap-1">
           <ChevronRight className="w-4 h-4 text-slate-300" />
           {item.href ? (
             <Link 
@@ -25,7 +25,7 @@ export default function Breadcrumbs({ items = [] }) {
           ) : (
             <span className="text-slate-900 font-medium">{item.label}</span>
           )}
-        </React.Fragment>
+        </div>
       ))}
     </nav>
   );
