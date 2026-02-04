@@ -5,16 +5,21 @@ import {
   Search,
   TrendingDown,
   TrendingUp,
-  AlertTriangle
+  AlertTriangle,
+  QrCode
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
+import QRScanner from '@/components/inventory/QRScanner';
+import QuickUpdateModal from '@/components/inventory/QuickUpdateModal';
 
 export default function Inventory() {
   const [items, setItems] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [showScanner, setShowScanner] = useState(false);
+  const [scannedCode, setScannedCode] = useState(null);
 
   const loadItems = async () => {
     setLoading(true);
@@ -45,9 +50,19 @@ export default function Inventory() {
           <h1 className="text-2xl font-bold text-slate-900">Inventory</h1>
           <p className="text-slate-500 mt-1">Stock management and tracking</p>
         </div>
-        <Button className="bg-slate-900">
-          Add Item
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => setShowScanner(true)}
+            variant="outline"
+            className="gap-2"
+          >
+            <QrCode className="w-4 h-4" />
+            Scan QR
+          </Button>
+          <Button className="bg-slate-900">
+            Add Item
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -143,6 +158,27 @@ export default function Inventory() {
           <h3 className="text-lg font-semibold text-slate-900 mb-2">No items found</h3>
           <p className="text-slate-500">Add inventory items to get started</p>
         </div>
+      )}
+
+      {/* QR Scanner Modal */}
+      {showScanner && (
+        <QRScanner 
+          onScan={(code) => setScannedCode(code)}
+          onClose={() => {
+            setShowScanner(false);
+            setScannedCode(null);
+          }}
+        />
+      )}
+
+      {/* Quick Update Modal */}
+      {scannedCode && (
+        <QuickUpdateModal
+          qrCode={scannedCode}
+          items={items}
+          onClose={() => setScannedCode(null)}
+          onUpdate={loadItems}
+        />
       )}
     </div>
   );
