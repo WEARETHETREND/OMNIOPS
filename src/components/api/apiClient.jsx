@@ -34,7 +34,6 @@ export async function safeGet(path, params) {
     const res = await api.get(path, { params });
     return { ok: true, data: res.data };
   } catch (e) {
-    console.error(`GET ${path} failed:`, e.message);
     return { ok: false, status: e.response?.status || 0, error: e.message };
   }
 }
@@ -44,7 +43,6 @@ export async function safePost(path, body) {
     const res = await api.post(path, body ?? {});
     return { ok: true, data: res.data };
   } catch (e) {
-    console.error(`POST ${path} failed:`, e.message);
     return { ok: false, status: e.response?.status || 0, error: e.message };
   }
 }
