@@ -85,30 +85,9 @@ export default function Pricing() {
     setLoading(plan.name);
 
     try {
-      if (plan.name === 'Free') {
-        // Create free subscription
-        await base44.entities.Subscription.create({
-          plan: 'free',
-          status: 'active',
-          price_monthly: 0,
-          workflows_limit: plan.limits.workflows,
-          runs_limit_monthly: plan.limits.runs,
-          users_limit: plan.limits.users,
-          features: {
-            ai_copilot: false,
-            advanced_analytics: false,
-            white_label: false,
-            priority_support: false,
-            custom_integrations: false,
-            audit_logs: false
-          }
-        });
-        base44.analytics.track({ eventName: 'plan_selected', properties: { plan: 'free' } });
-        alert('Free plan activated! Redirecting to dashboard...');
-        window.location.href = '/dashboard';
-      } else if (plan.name === 'Enterprise') {
+      if (plan.name === 'Enterprise Plus') {
         // Redirect to contact form
-        window.location.href = 'mailto:sales@opsvanta.com?subject=Enterprise Plan Inquiry';
+        window.location.href = 'mailto:sales@opsvanta.com?subject=Enterprise Plus Plan Inquiry';
       } else {
         // Check if running in iframe (preview mode)
         if (window.self !== window.top) {
@@ -256,7 +235,7 @@ export default function Pricing() {
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4">Calculate your ROI</h2>
           <p className="text-slate-300 mb-8">
-            OpsVanta customers save an average of 20 hours per week on manual tasks
+            OmniOps customers save an average of 20 hours per week on manual tasks
           </p>
           <div className="grid md:grid-cols-3 gap-8">
             <div>
