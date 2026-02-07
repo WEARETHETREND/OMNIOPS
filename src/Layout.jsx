@@ -1,17 +1,9 @@
-// Assuming this is the content before modification
-
 import React from 'react';
 
-const Layout = () => {
+export default function Layout({ children }) {
   return (
-    <div>
-      <nav>
-        { /* Navigation items */ }
-        {/* Removed Classic Dashboard from navigation here */}
-      </nav>
-      {/* Other components */}
+    <div className="min-h-screen bg-slate-50">
+      {children}
     </div>
   );
-};
-
-export default Layout;
+}
