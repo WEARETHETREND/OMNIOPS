@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { safeGet } from '@/components/api/apiClient';
 import { 
   DollarSign, 
