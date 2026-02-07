@@ -1,9 +1,17 @@
-// Import necessary dependencies
-//...
+// Assuming this is the content before modification
 
-const layoutItems = [
-    { name: 'Dashboard', page: 'Dashboard', icon: LayoutDashboard },
-    // other items...
-];
+import React from 'react';
 
-export default layoutItems;
+const Layout = () => {
+  return (
+    <div>
+      <nav>
+        { /* Navigation items */ }
+        {/* Removed Classic Dashboard from navigation here */}
+      </nav>
+      {/* Other components */}
+    </div>
+  );
+};
+
+export default Layout;
