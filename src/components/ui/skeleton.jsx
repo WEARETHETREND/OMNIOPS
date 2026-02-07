@@ -1,4 +1,4 @@
-import React from "react"
+import * as React from "react"
 import { cn } from "@/lib/utils"
 
 function Skeleton({
@@ -6,9 +6,9 @@ function Skeleton({
   ...props
 }) {
   return (
-    (<div
+    <div
       className={cn("animate-pulse rounded-md bg-primary/10", className)}
-      {...props} />)
+      {...props} />
   );
 }
 
