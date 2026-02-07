@@ -1,32 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
+import { useState, useEffect } from 'react';
 import { safeGet } from '@/components/api/apiClient';
-import { mockFinancial, mockWorkflows, mockAlerts, mockInsights } from '@/components/api/mockData';
-import { base44 } from '@/api/base44Client';
 import { 
-  Activity, 
-  Zap, 
   DollarSign, 
+  Briefcase, 
   Users, 
-  ArrowRight,
-  Workflow as WorkflowIcon,
-  AlertTriangle,
-  CheckCircle,
+  Receipt,
+  Bell,
+  Settings,
+  Moon,
   TrendingUp,
-  Clock,
-  Loader2
+  TrendingDown,
+  ChevronDown,
+  Plus,
+  RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+
+// Mock data for Command Center
+const mockData = {
+  revenue: { today: 0, change: 0, trending: 'up' },
+  activeJobs: { count: 0, change: 0, trending: 'up' },
+  newLeads: { today: 0, week: 0, trending: 'neutral' },
+  outstanding: { amount: 0, invoices: 0, trending: 'neutral' },
+  leadsBySource: [
+    { name: 'Website', value: 0, color: '#06B6D4' },
+    { name: 'Referral', value: 0, color: '#8B5CF6' },
+    { name: 'Social Media', value: 0, color: '#F59E0B' },
+    { name: 'Other', value: 0, color: '#64748B' }
+  ],
+  jobsByStatus: [
+    { name: 'Scheduled', value: 0, color: '#06B6D4' },
+    { name: 'In Progress', value: 0, color: '#8B5CF6' },
+    { name: 'Completed', value: 0, color: '#10B981' },
+    { name: 'Cancelled', value: 0, color: '#EF4444' }
+  ],
+  invoiceAging: [
+    { name: 'Current', value: 0, color: '#10B981' },
+    { name: '1-30 days', value: 0, color: '#F59E0B' },
+    { name: '31-60 days', value: 0, color: '#F97316' },
+    { name: '60+ days', value: 0, color: '#EF4444' }
+  ]
+};
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
-  const [financial, setFinancial] = useState(null);
-  const [workflows, setWorkflows] = useState([]);
-  const [alerts, setAlerts] = useState([]);
-  const [insights, setInsights] = useState(null);
+  const [data, setData] = useState(mockData);
+  const [showQuickActions, setShowQuickActions] = useState(false);
 
   useEffect(() => {
     loadDashboard();
@@ -36,241 +58,257 @@ export default function Dashboard() {
     setLoading(true);
     
     try {
-      const [finRes, wfRes, alertRes, insightRes] = await Promise.all([
-        safeGet('/api/money/now'),
-        safeGet('/api/workflows'),
-        safeGet('/api/alerts'),
-        safeGet('/api/insights')
+      // Try to fetch data from APIs
+      const [revenueRes, jobsRes, leadsRes, invoicesRes] = await Promise.all([
+        safeGet('/api/revenue'),
+        safeGet('/api/jobs'),
+        safeGet('/api/leads'),
+        safeGet('/api/invoices')
       ]);
 
-      // Use backend data if available, otherwise fallback to mock data
-      setFinancial(finRes.ok ? finRes.data : mockFinancial);
-      setWorkflows((wfRes.ok ? (wfRes.data.workflows || wfRes.data || []) : mockWorkflows).slice(0, 4));
-      setAlerts((alertRes.ok ? (alertRes.data.alerts || alertRes.data || []) : mockAlerts).slice(0, 3));
-      setInsights(insightRes.ok ? insightRes.data : mockInsights);
+      // Use backend data if available, otherwise use mock data
+      const newData = { ...mockData };
+      
+      if (revenueRes.ok && revenueRes.data) {
+        newData.revenue = revenueRes.data;
+      }
+      if (jobsRes.ok && jobsRes.data) {
+        newData.activeJobs = jobsRes.data.activeJobs || mockData.activeJobs;
+        newData.jobsByStatus = jobsRes.data.byStatus || mockData.jobsByStatus;
+      }
+      if (leadsRes.ok && leadsRes.data) {
+        newData.newLeads = leadsRes.data.newLeads || mockData.newLeads;
+        newData.leadsBySource = leadsRes.data.bySource || mockData.leadsBySource;
+      }
+      if (invoicesRes.ok && invoicesRes.data) {
+        newData.outstanding = invoicesRes.data.outstanding || mockData.outstanding;
+        newData.invoiceAging = invoicesRes.data.aging || mockData.invoiceAging;
+      }
+
+      setData(newData);
     } catch (error) {
-      // Fallback to mock data if API fails
-      setFinancial(mockFinancial);
-      setWorkflows(mockWorkflows.slice(0, 4));
-      setAlerts(mockAlerts.slice(0, 3));
-      setInsights(mockInsights);
+      console.error('Error loading dashboard:', error);
+      setData(mockData);
     }
 
     setLoading(false);
   };
+
   if (loading) {
     return (
-      <div className="space-y-8">
-        <Skeleton className="h-20 w-full" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-          {[1,2,3,4].map(i => <Skeleton key={i} className="h-32" />)}
+      <div className="min-h-screen bg-[#F8FAFC] p-6 space-y-6">
+        <Skeleton className="h-24 w-full" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1,2,3,4].map(i => <Skeleton key={i} className="h-40" />)}
         </div>
-        <Skeleton className="h-96 w-full" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[1,2,3].map(i => <Skeleton key={i} className="h-80" />)}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      {/* Welcome Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Welcome back!</h1>
-          <p className="text-slate-500 mt-1">Here's what's happening with your operations today.</p>
-        </div>
-        <Button onClick={loadDashboard} variant="outline" size="sm">
-          <Activity className="w-4 h-4 mr-2" />
-          Refresh
-        </Button>
-      </div>
-
-      {/* Financial Stats */}
-      {financial && (
-        <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl p-6 text-white">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div>
-              <p className="text-slate-400 text-sm mb-1">Current Burn Rate</p>
-              <p className="text-3xl font-bold">${financial.current_burn_rate?.toFixed(2)}<span className="text-lg text-slate-400">/hr</span></p>
-            </div>
-            <div>
-              <p className="text-slate-400 text-sm mb-1">24h Projection</p>
-              <p className="text-3xl font-bold">${financial.projected_daily_burn?.toFixed(0)}</p>
-            </div>
-            <div>
-              <p className="text-slate-400 text-sm mb-1">Today's Net P&L</p>
-              <p className={`text-3xl font-bold ${financial.today?.net >= 0 ? 'text-cyan-400' : 'text-orange-400'}`}>
-                ${Math.abs(financial.today?.net || 0).toFixed(0)}
-              </p>
-            </div>
-            <div>
-              <p className="text-slate-400 text-sm mb-1">Active Issues</p>
-              <p className="text-3xl font-bold">{financial.active_issues || 0}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-        <StatCard
-          title="Active Workflows"
-          value={workflows.length.toString()}
-          icon={WorkflowIcon}
-          gradient="from-cyan-500 to-cyan-600"
-        />
-        <StatCard
-          title="Alerts"
-          value={alerts.length.toString()}
-          icon={AlertTriangle}
-          gradient="from-orange-500 to-orange-600"
-        />
-        <StatCard
-          title="Success Rate"
-          value={insights?.success_rate ? `${insights.success_rate.toFixed(1)}%` : 'N/A'}
-          icon={CheckCircle}
-          gradient="from-cyan-400 to-blue-500"
-        />
-        <StatCard
-          title="Total Runs"
-          value={insights?.total_runs?.toString() || '0'}
-          icon={Activity}
-          gradient="from-cyan-500 to-orange-500"
-        />
-      </div>
-
-      {/* Activity Chart */}
-      {insights?.trending && (
-        <div className="bg-white rounded-xl border border-slate-200/60 p-6">
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-slate-900">Operations Activity</h3>
-            <p className="text-sm text-slate-500">Workflow executions over time</p>
-          </div>
-          <ResponsiveContainer width="100%" height={280}>
-            <AreaChart data={insights.trending}>
-              <defs>
-                <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.4}/>
-                  <stop offset="95%" stopColor="#06b6d4" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
-              <YAxis stroke="#94a3b8" fontSize={12} />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: '#000000', 
-                  border: '1px solid #06b6d4',
-                  borderRadius: '12px',
-                  color: '#fff',
-                  boxShadow: '0 0 20px rgba(6, 182, 212, 0.3)'
-                }}
-              />
-              <Area 
-                type="monotone" 
-                dataKey="count" 
-                stroke="#06b6d4" 
-                strokeWidth={3}
-                fill="url(#colorValue)" 
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-
-      {/* Active Workflows */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
+    <div className="min-h-screen bg-[#F8FAFC] p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header Section */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">Active Workflows</h2>
-            <p className="text-sm text-slate-500">{workflows.length} workflows</p>
+            <h1 className="text-3xl font-bold text-slate-900">Command Center</h1>
+            <p className="text-slate-600 mt-1">Welcome back. Here's what's happening today.</p>
           </div>
-          <Link to={createPageUrl('Workflows')}>
-            <Button variant="ghost" className="text-slate-600">
-              View all <ArrowRight className="w-4 h-4 ml-1" />
+          
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Date Range Selector */}
+            <Button variant="outline" className="bg-white">
+              Jan 8 - Feb 7, 2026
+              <ChevronDown className="w-4 h-4 ml-2" />
             </Button>
-          </Link>
-        </div>
-        {workflows.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {workflows.map(wf => (
-              <div key={wf.workflow_id} className="bg-white rounded-xl border border-slate-200/60 p-4 hover:shadow-lg transition-all cursor-pointer">
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-semibold text-slate-900 line-clamp-2">{wf.name}</h3>
-                  <div className={`w-2 h-2 rounded-full shadow-lg ${wf.enabled ? 'bg-cyan-400 shadow-cyan-500/50' : 'bg-slate-300'}`}></div>
-                </div>
-                <p className="text-sm text-slate-500 mb-3 line-clamp-2">{wf.description || 'No description'}</p>
-                <div className="flex items-center gap-3 text-xs text-slate-400">
-                  <span className="capitalize">{wf.workflow_type || 'workflow'}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="bg-white rounded-xl border border-slate-200/60 p-12 text-center">
-            <WorkflowIcon className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-500">No workflows configured yet</p>
-          </div>
-        )}
-      </div>
+            
+            {/* Action Icons */}
+            <Button variant="ghost" size="icon" className="bg-white">
+              <Bell className="w-5 h-5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="bg-white">
+              <Moon className="w-5 h-5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="bg-white">
+              <Settings className="w-5 h-5" />
+            </Button>
+            
+            {/* Quick Actions Button */}
+            <Button 
+              className="bg-cyan-500 hover:bg-cyan-600 text-white"
+              onClick={() => setShowQuickActions(!showQuickActions)}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Quick Actions
+            </Button>
 
-      {/* Recent Alerts */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900">Recent Alerts</h2>
-            <p className="text-sm text-slate-500">{alerts.length} alerts</p>
-          </div>
-          <Link to={createPageUrl('Alerts')}>
-            <Button variant="ghost" className="text-slate-600">
-              View all <ArrowRight className="w-4 h-4 ml-1" />
+            {/* Refresh Button */}
+            <Button variant="outline" size="icon" onClick={loadDashboard}>
+              <RefreshCw className="w-4 h-4" />
             </Button>
-          </Link>
+          </div>
         </div>
-        {alerts.length > 0 ? (
-          <div className="space-y-3">
-            {alerts.map(alert => (
-              <div key={alert.alert_id} className="bg-white rounded-lg border border-slate-200/60 p-4">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className={`w-5 h-5 flex-shrink-0 ${
-                    alert.level === 'critical' ? 'text-rose-500' : 
-                    alert.level === 'warning' ? 'text-amber-500' : 'text-blue-500'
-                  }`} />
-                  <div className="flex-1">
-                    <h4 className="font-medium text-slate-900">{alert.message}</h4>
-                    <p className="text-sm text-slate-500 mt-1">Run: {alert.run_id || 'N/A'}</p>
-                  </div>
-                  <span className="text-xs text-slate-400">
-                    {alert.created_at ? new Date(alert.created_at).toLocaleTimeString() : ''}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="bg-white rounded-xl border border-slate-200/60 p-12 text-center">
-            <CheckCircle className="w-12 h-12 text-cyan-400/30 mx-auto mb-3" />
-            <p className="text-slate-500">No active alerts</p>
-          </div>
-        )}
+
+        {/* Top Metrics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <MetricCard
+            title="Today's Revenue"
+            value={`$${data.revenue.today.toLocaleString()}`}
+            change={data.revenue.change}
+            trending={data.revenue.trending}
+            icon={DollarSign}
+            iconColor="bg-cyan-500"
+          />
+          <MetricCard
+            title="Active Jobs"
+            value={data.activeJobs.count.toString()}
+            change={data.activeJobs.change}
+            trending={data.activeJobs.trending}
+            icon={Briefcase}
+            iconColor="bg-purple-500"
+          />
+          <MetricCard
+            title="New Leads Today"
+            value={data.newLeads.today.toString()}
+            subtitle={`${data.newLeads.week} this week`}
+            icon={Users}
+            iconColor="bg-orange-500"
+          />
+          <MetricCard
+            title="Outstanding"
+            value={`$${data.outstanding.amount.toLocaleString()}`}
+            subtitle={`${data.outstanding.invoices} invoices`}
+            icon={DollarSign}
+            iconColor="bg-blue-500"
+          />
+        </div>
+
+        {/* Bottom Section - Charts */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Leads by Source */}
+          <ChartCard
+            title="Leads by Source"
+            icon={Users}
+            iconColor="text-orange-500"
+          >
+            <PieChartComponent data={data.leadsBySource} />
+          </ChartCard>
+
+          {/* Jobs by Status */}
+          <ChartCard
+            title="Jobs by Status"
+            icon={Briefcase}
+            iconColor="text-purple-500"
+          >
+            <PieChartComponent data={data.jobsByStatus} />
+          </ChartCard>
+
+          {/* Invoice Aging */}
+          <ChartCard
+            title="Invoice Aging"
+            icon={Receipt}
+            iconColor="text-blue-500"
+            subtitle={`Total: $${data.invoiceAging.reduce((sum, item) => sum + item.value, 0).toLocaleString()}`}
+          >
+            <PieChartComponent data={data.invoiceAging} />
+          </ChartCard>
+        </div>
       </div>
     </div>
   );
 }
 
-function StatCard({ title, value, unit, icon: Icon, gradient }) {
+function MetricCard({ title, value, subtitle, change, trending, icon: Icon, iconColor }) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200/60 p-6">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm text-slate-500 mb-2">{title}</p>
-          <div className="flex items-baseline gap-1">
-            <p className="text-3xl font-bold text-slate-900">{value}</p>
-            {unit && <span className="text-sm text-slate-400">{unit}</span>}
-          </div>
+    <Card className="bg-white p-6 border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex-1">
+          <p className="text-sm text-slate-600 mb-1">{title}</p>
+          <h3 className="text-3xl font-bold text-slate-900">{value}</h3>
+          {subtitle && (
+            <p className="text-sm text-slate-500 mt-1">{subtitle}</p>
+          )}
+          {change !== undefined && (
+            <div className={`flex items-center gap-1 mt-2 text-sm ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {trending === 'up' ? (
+                <TrendingUp className="w-4 h-4" />
+              ) : trending === 'down' ? (
+                <TrendingDown className="w-4 h-4" />
+              ) : null}
+              <span>{change >= 0 ? '+' : ''}{change}%</span>
+            </div>
+          )}
         </div>
-        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center`}>
+        <div className={`w-12 h-12 rounded-lg ${iconColor} flex items-center justify-center`}>
           <Icon className="w-6 h-6 text-white" />
         </div>
       </div>
-    </div>
+    </Card>
+  );
+}
+
+function ChartCard({ title, icon: Icon, iconColor, subtitle, children }) {
+  return (
+    <Card className="bg-white p-6 border border-slate-200 rounded-lg shadow-sm">
+      <div className="flex items-center gap-2 mb-4">
+        <Icon className={`w-5 h-5 ${iconColor}`} />
+        <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
+      </div>
+      {subtitle && (
+        <p className="text-sm text-slate-600 mb-4">{subtitle}</p>
+      )}
+      <div className="h-64">
+        {children}
+      </div>
+    </Card>
+  );
+}
+
+function PieChartComponent({ data }) {
+  const hasData = data.some(item => item.value > 0);
+  
+  if (!hasData) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <p className="text-slate-400 text-sm">No data available</p>
+      </div>
+    );
+  }
+
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <PieChart>
+        <Pie
+          data={data}
+          cx="50%"
+          cy="50%"
+          innerRadius={60}
+          outerRadius={90}
+          paddingAngle={2}
+          dataKey="value"
+        >
+          {data.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={entry.color} />
+          ))}
+        </Pie>
+        <Tooltip 
+          contentStyle={{
+            backgroundColor: 'white',
+            border: '1px solid #e2e8f0',
+            borderRadius: '8px',
+            fontSize: '14px'
+          }}
+        />
+        <Legend 
+          verticalAlign="bottom" 
+          height={36}
+          iconType="circle"
+          formatter={(value) => <span className="text-sm text-slate-600">{value}</span>}
+        />
+      </PieChart>
+    </ResponsiveContainer>
   );
 }

@@ -66,7 +66,6 @@ import Copilot from './pages/Copilot';
 import CustomerPortal from './pages/CustomerPortal';
 import CustomerSuccess from './pages/CustomerSuccess';
 import Dashboard from './pages/Dashboard';
-import DashboardClassic from './pages/DashboardClassic';
 import DataImportExport from './pages/DataImportExport';
 import DispatchMap from './pages/DispatchMap';
 import Dispatches from './pages/Dispatches';
@@ -132,7 +131,6 @@ export const PAGES = {
     "CustomerPortal": CustomerPortal,
     "CustomerSuccess": CustomerSuccess,
     "Dashboard": Dashboard,
-    "DashboardClassic": DashboardClassic,
     "DataImportExport": DataImportExport,
     "DispatchMap": DispatchMap,
     "Dispatches": Dispatches,
