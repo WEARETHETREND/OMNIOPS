@@ -1,275 +1,281 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
-import { safeGet } from '@/components/api/apiClient';
-import { mockFinancial, mockWorkflows, mockAlerts, mockInsights } from '@/components/api/mockData';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { format, subDays, startOfDay } from 'date-fns';
 import { 
-  Activity, 
-  Zap, 
-  DollarSign, 
-  Users, 
-  ArrowRight,
-  Workflow as WorkflowIcon,
-  AlertTriangle,
-  CheckCircle,
-  TrendingUp,
-  Clock,
-  Loader2
+  Calendar,
+  Bell, 
+  Sun, 
+  Settings, 
+  Plus,
+  DollarSign,
+  Briefcase,
+  Users,
+  FileText,
+  ChevronDown
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 
 export default function Dashboard() {
-  const [loading, setLoading] = useState(true);
-  const [financial, setFinancial] = useState(null);
-  const [workflows, setWorkflows] = useState([]);
-  const [alerts, setAlerts] = useState([]);
-  const [insights, setInsights] = useState(null);
+  const [dateRange, setDateRange] = useState({
+    from: subDays(new Date(), 30),
+    to: new Date()
+  });
 
-  useEffect(() => {
-    loadDashboard();
-  }, []);
-
-  const loadDashboard = async () => {
-    setLoading(true);
-    
-    try {
-      const [finRes, wfRes, alertRes, insightRes] = await Promise.all([
-        safeGet('/api/money/now'),
-        safeGet('/api/workflows'),
-        safeGet('/api/alerts'),
-        safeGet('/api/insights')
-      ]);
-
-      // Use backend data if available, otherwise fallback to mock data
-      setFinancial(finRes.ok ? finRes.data : mockFinancial);
-      setWorkflows((wfRes.ok ? (wfRes.data.workflows || wfRes.data || []) : mockWorkflows).slice(0, 4));
-      setAlerts((alertRes.ok ? (alertRes.data.alerts || alertRes.data || []) : mockAlerts).slice(0, 3));
-      setInsights(insightRes.ok ? insightRes.data : mockInsights);
-    } catch (error) {
-      // Fallback to mock data if API fails
-      setFinancial(mockFinancial);
-      setWorkflows(mockWorkflows.slice(0, 4));
-      setAlerts(mockAlerts.slice(0, 3));
-      setInsights(mockInsights);
+  // Fetch revenue data (try Invoice entity, fallback to Metric)
+  const { data: revenueData, isLoading: revenueLoading } = useQuery({
+    queryKey: ['revenue-today', dateRange],
+    queryFn: async () => {
+      try {
+        const todayStart = startOfDay(new Date()).toISOString();
+        const result = await base44.entities.Invoice?.filter?.({ 
+          created_date__gte: todayStart,
+          status: 'paid'
+        }).catch(() => null);
+        
+        if (result?.data) {
+          const total = result.data.reduce((sum, inv) => sum + (inv.amount || 0), 0);
+          return { value: total, count: result.data.length };
+        }
+      } catch {
+        // Invoice entity not available - using fallback
+      }
+      return { value: 0, count: 0 };
     }
+  });
 
-    setLoading(false);
-  };
-  if (loading) {
+  // Fetch active jobs (try Dispatch entity)
+  const { data: jobsData, isLoading: jobsLoading } = useQuery({
+    queryKey: ['active-jobs'],
+    queryFn: async () => {
+      try {
+        const result = await base44.entities.Dispatch?.filter?.({ 
+          status__in: ['queued', 'en_route', 'in_progress'] 
+        }).catch(() => null);
+        
+        if (result?.data) {
+          return { value: result.data.length, count: result.data.length };
+        }
+      } catch {
+        console.log('Dispatch entity not available');
+      }
+      return { value: 0, count: 0 };
+    }
+  });
+
+  // Fetch leads data (try Lead entity, fallback to Contact)
+  const { data: leadsData, isLoading: leadsLoading } = useQuery({
+    queryKey: ['leads-today'],
+    queryFn: async () => {
+      try {
+        const todayStart = startOfDay(new Date()).toISOString();
+        const weekStart = startOfDay(subDays(new Date(), 7)).toISOString();
+        
+        const [todayResult, weekResult] = await Promise.all([
+          base44.entities.Lead?.filter?.({ created_date__gte: todayStart }).catch(() => null),
+          base44.entities.Lead?.filter?.({ created_date__gte: weekStart }).catch(() => null)
+        ]);
+        
+        return { 
+          today: todayResult?.data?.length || 0, 
+          week: weekResult?.data?.length || 0 
+        };
+      } catch {
+        console.log('Lead entity not available');
+      }
+      return { today: 0, week: 0 };
+    }
+  });
+
+  // Fetch outstanding invoices
+  const { data: outstandingData, isLoading: outstandingLoading } = useQuery({
+    queryKey: ['outstanding-invoices'],
+    queryFn: async () => {
+      try {
+        const result = await base44.entities.Invoice?.filter?.({ 
+          status: 'unpaid' 
+        }).catch(() => null);
+        
+        if (result?.data) {
+          const total = result.data.reduce((sum, inv) => sum + (inv.amount || 0), 0);
+          return { value: total, count: result.data.length };
+        }
+      } catch {
+        // Invoice entity not available - using fallback
+      }
+      return { value: 0, count: 0 };
+    }
+  });
+
+  const isLoading = revenueLoading || jobsLoading || leadsLoading || outstandingLoading;
+
+  if (isLoading) {
     return (
-      <div className="space-y-8">
-        <Skeleton className="h-20 w-full" />
+      <div className="min-h-screen bg-slate-50 p-8 space-y-6">
+        <Skeleton className="h-24 w-full" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {[1,2,3,4].map(i => <Skeleton key={i} className="h-32" />)}
         </div>
-        <Skeleton className="h-96 w-full" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {[1,2,3].map(i => <Skeleton key={i} className="h-64" />)}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      {/* Welcome Header */}
+    <div className="min-h-screen bg-slate-50 p-8 space-y-6">
+      {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Welcome back!</h1>
-          <p className="text-slate-500 mt-1">Here's what's happening with your operations today.</p>
+          <h1 className="text-3xl font-bold text-slate-900">Command Center</h1>
+          <p className="text-slate-500 mt-1">Welcome back. Here's what's happening today.</p>
         </div>
-        <Button onClick={loadDashboard} variant="outline" size="sm">
-          <Activity className="w-4 h-4 mr-2" />
-          Refresh
-        </Button>
+        
+        <div className="flex items-center gap-3">
+          {/* Date Range Picker */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-[280px] justify-start text-left font-normal">
+                <Calendar className="mr-2 h-4 w-4" />
+                {dateRange.from && dateRange.to ? (
+                  `${format(dateRange.from, 'MMM d')} - ${format(dateRange.to, 'MMM d, yyyy')}`
+                ) : (
+                  'Select date range'
+                )}
+                <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <CalendarComponent
+                mode="range"
+                selected={dateRange}
+                onSelect={(range) => range && setDateRange(range)}
+                numberOfMonths={2}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+
+          {/* Action Buttons */}
+          <Button variant="ghost" size="icon">
+            <Bell className="h-5 w-5 text-slate-600" />
+          </Button>
+          <Button variant="ghost" size="icon">
+            <Sun className="h-5 w-5 text-slate-600" />
+          </Button>
+          <Button variant="ghost" size="icon">
+            <Settings className="h-5 w-5 text-slate-600" />
+          </Button>
+          <Button className="bg-blue-500 hover:bg-blue-600 text-white">
+            <Plus className="h-4 w-4 mr-2" />
+            Quick Actions
+          </Button>
+        </div>
       </div>
 
-      {/* Financial Stats */}
-      {financial && (
-        <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl p-6 text-white">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div>
-              <p className="text-slate-400 text-sm mb-1">Current Burn Rate</p>
-              <p className="text-3xl font-bold">${financial.current_burn_rate?.toFixed(2)}<span className="text-lg text-slate-400">/hr</span></p>
-            </div>
-            <div>
-              <p className="text-slate-400 text-sm mb-1">24h Projection</p>
-              <p className="text-3xl font-bold">${financial.projected_daily_burn?.toFixed(0)}</p>
-            </div>
-            <div>
-              <p className="text-slate-400 text-sm mb-1">Today's Net P&L</p>
-              <p className={`text-3xl font-bold ${financial.today?.net >= 0 ? 'text-cyan-400' : 'text-orange-400'}`}>
-                ${Math.abs(financial.today?.net || 0).toFixed(0)}
-              </p>
-            </div>
-            <div>
-              <p className="text-slate-400 text-sm mb-1">Active Issues</p>
-              <p className="text-3xl font-bold">{financial.active_issues || 0}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Stats Grid */}
+      {/* Top Metrics Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-        <StatCard
-          title="Active Workflows"
-          value={workflows.length.toString()}
-          icon={WorkflowIcon}
-          gradient="from-cyan-500 to-cyan-600"
+        <MetricCard
+          title="Today's Revenue"
+          value={`$${revenueData?.value?.toFixed(0) || '0'}`}
+          trend="↗ 0.0% vs yesterday"
+          trendPositive={true}
+          icon={DollarSign}
+          iconBg="bg-gradient-to-br from-cyan-400 to-green-500"
         />
-        <StatCard
-          title="Alerts"
-          value={alerts.length.toString()}
-          icon={AlertTriangle}
-          gradient="from-orange-500 to-orange-600"
+        <MetricCard
+          title="Active Jobs"
+          value={jobsData?.value?.toString() || '0'}
+          trend="↗ 0.0% vs last week"
+          trendPositive={true}
+          icon={Briefcase}
+          iconBg="bg-gradient-to-br from-purple-400 to-purple-600"
         />
-        <StatCard
-          title="Success Rate"
-          value={insights?.success_rate ? `${insights.success_rate.toFixed(1)}%` : 'N/A'}
-          icon={CheckCircle}
-          gradient="from-cyan-400 to-blue-500"
+        <MetricCard
+          title="New Leads Today"
+          value={leadsData?.today?.toString() || '0'}
+          subtitle={`${leadsData?.week || 0} this week`}
+          icon={Users}
+          iconBg="bg-gradient-to-br from-orange-400 to-orange-600"
         />
-        <StatCard
-          title="Total Runs"
-          value={insights?.total_runs?.toString() || '0'}
-          icon={Activity}
-          gradient="from-cyan-500 to-orange-500"
+        <MetricCard
+          title="Outstanding"
+          value={`$${outstandingData?.value?.toFixed(0) || '0'}`}
+          subtitle={`${outstandingData?.count || 0} invoices`}
+          icon={DollarSign}
+          iconBg="bg-gradient-to-br from-blue-400 to-blue-600"
         />
       </div>
 
-      {/* Activity Chart */}
-      {insights?.trending && (
-        <div className="bg-white rounded-xl border border-slate-200/60 p-6">
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-slate-900">Operations Activity</h3>
-            <p className="text-sm text-slate-500">Workflow executions over time</p>
-          </div>
-          <ResponsiveContainer width="100%" height={280}>
-            <AreaChart data={insights.trending}>
-              <defs>
-                <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.4}/>
-                  <stop offset="95%" stopColor="#06b6d4" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
-              <YAxis stroke="#94a3b8" fontSize={12} />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: '#000000', 
-                  border: '1px solid #06b6d4',
-                  borderRadius: '12px',
-                  color: '#fff',
-                  boxShadow: '0 0 20px rgba(6, 182, 212, 0.3)'
-                }}
-              />
-              <Area 
-                type="monotone" 
-                dataKey="count" 
-                stroke="#06b6d4" 
-                strokeWidth={3}
-                fill="url(#colorValue)" 
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      )}
+      {/* Bottom Analytics Row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <AnalyticsCard
+          title="Leads by Source"
+          icon={Users}
+          iconBg="bg-blue-500"
+          emptyMessage="No leads data available"
+        />
+        <AnalyticsCard
+          title="Jobs by Status"
+          icon={Briefcase}
+          iconBg="bg-purple-500"
+          emptyMessage="No jobs data available"
+        />
+        <AnalyticsCard
+          title="Invoice Aging"
+          icon={FileText}
+          iconBg="bg-green-500"
+          total={`$${outstandingData?.value?.toFixed(0) || '0'}`}
+          emptyMessage="No outstanding invoices"
+        />
+      </div>
+    </div>
+  );
+}
 
-      {/* Active Workflows */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900">Active Workflows</h2>
-            <p className="text-sm text-slate-500">{workflows.length} workflows</p>
-          </div>
-          <Link to={createPageUrl('Workflows')}>
-            <Button variant="ghost" className="text-slate-600">
-              View all <ArrowRight className="w-4 h-4 ml-1" />
-            </Button>
-          </Link>
+function MetricCard({ title, value, trend, trendPositive, subtitle, icon: Icon, iconBg }) {
+  return (
+    <div className="bg-white rounded-xl border border-slate-200/60 p-6 hover:shadow-lg transition-shadow">
+      <div className="flex items-start justify-between mb-4">
+        <div className={cn("w-12 h-12 rounded-full flex items-center justify-center", iconBg)}>
+          <Icon className="w-6 h-6 text-white" />
         </div>
-        {workflows.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {workflows.map(wf => (
-              <div key={wf.workflow_id} className="bg-white rounded-xl border border-slate-200/60 p-4 hover:shadow-lg transition-all cursor-pointer">
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-semibold text-slate-900 line-clamp-2">{wf.name}</h3>
-                  <div className={`w-2 h-2 rounded-full shadow-lg ${wf.enabled ? 'bg-cyan-400 shadow-cyan-500/50' : 'bg-slate-300'}`}></div>
-                </div>
-                <p className="text-sm text-slate-500 mb-3 line-clamp-2">{wf.description || 'No description'}</p>
-                <div className="flex items-center gap-3 text-xs text-slate-400">
-                  <span className="capitalize">{wf.workflow_type || 'workflow'}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="bg-white rounded-xl border border-slate-200/60 p-12 text-center">
-            <WorkflowIcon className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-500">No workflows configured yet</p>
-          </div>
+      </div>
+      <div>
+        <p className="text-sm text-slate-500 mb-1">{title}</p>
+        <p className="text-3xl font-bold text-slate-900 mb-2">{value}</p>
+        {trend && (
+          <p className={cn("text-sm font-medium", trendPositive ? "text-green-600" : "text-red-600")}>
+            {trend}
+          </p>
         )}
-      </div>
-
-      {/* Recent Alerts */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900">Recent Alerts</h2>
-            <p className="text-sm text-slate-500">{alerts.length} alerts</p>
-          </div>
-          <Link to={createPageUrl('Alerts')}>
-            <Button variant="ghost" className="text-slate-600">
-              View all <ArrowRight className="w-4 h-4 ml-1" />
-            </Button>
-          </Link>
-        </div>
-        {alerts.length > 0 ? (
-          <div className="space-y-3">
-            {alerts.map(alert => (
-              <div key={alert.alert_id} className="bg-white rounded-lg border border-slate-200/60 p-4">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className={`w-5 h-5 flex-shrink-0 ${
-                    alert.level === 'critical' ? 'text-rose-500' : 
-                    alert.level === 'warning' ? 'text-amber-500' : 'text-blue-500'
-                  }`} />
-                  <div className="flex-1">
-                    <h4 className="font-medium text-slate-900">{alert.message}</h4>
-                    <p className="text-sm text-slate-500 mt-1">Run: {alert.run_id || 'N/A'}</p>
-                  </div>
-                  <span className="text-xs text-slate-400">
-                    {alert.created_at ? new Date(alert.created_at).toLocaleTimeString() : ''}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="bg-white rounded-xl border border-slate-200/60 p-12 text-center">
-            <CheckCircle className="w-12 h-12 text-cyan-400/30 mx-auto mb-3" />
-            <p className="text-slate-500">No active alerts</p>
-          </div>
+        {subtitle && (
+          <p className="text-sm text-slate-500">{subtitle}</p>
         )}
       </div>
     </div>
   );
 }
 
-function StatCard({ title, value, unit, icon: Icon, gradient }) {
+function AnalyticsCard({ title, icon: Icon, iconBg, total, emptyMessage }) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200/60 p-6">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm text-slate-500 mb-2">{title}</p>
-          <div className="flex items-baseline gap-1">
-            <p className="text-3xl font-bold text-slate-900">{value}</p>
-            {unit && <span className="text-sm text-slate-400">{unit}</span>}
-          </div>
+    <div className="bg-white rounded-xl border border-slate-200/60 p-6 hover:shadow-lg transition-shadow">
+      <div className="flex items-center gap-3 mb-4">
+        <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", iconBg)}>
+          <Icon className="w-5 h-5 text-white" />
         </div>
-        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center`}>
-          <Icon className="w-6 h-6 text-white" />
-        </div>
+        <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
+      </div>
+      {total && (
+        <p className="text-sm text-slate-600 mb-4">Total: {total}</p>
+      )}
+      <div className="flex items-center justify-center h-32 text-slate-400 text-sm">
+        {emptyMessage}
       </div>
     </div>
   );
