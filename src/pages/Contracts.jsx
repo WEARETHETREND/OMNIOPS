@@ -15,6 +15,8 @@ import {
   Clock,
   XCircle
 } from 'lucide-react';
+import AdvancedFilters from '../components/search/AdvancedFilters';
+import { useFilteredData } from '../components/search/useFilteredData';
 import {
   Dialog,
   DialogContent,
@@ -35,7 +37,7 @@ import {
 
 export default function ContractsPage() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [filters, setFilters] = useState({});
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [newContract, setNewContract] = useState({
     title: '',
@@ -84,12 +86,53 @@ export default function ContractsPage() {
     createMutation.mutate(contractData);
   };
 
-  const filteredContracts = contracts.filter(contract => {
-    const matchesSearch = contract.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         contract.customer_name?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || contract.status === statusFilter;
-    return matchesSearch && matchesStatus;
+  const searchFiltered = contracts.filter(contract => {
+    if (!searchQuery) return true;
+    const searchStr = `${contract.title} ${contract.customer_name} ${contract.company}`.toLowerCase();
+    return searchStr.includes(searchQuery.toLowerCase());
   });
+
+  const filteredContracts = useFilteredData(searchFiltered, filters);
+
+  const filterConfig = [
+    {
+      key: 'status',
+      label: 'Status',
+      type: 'select',
+      options: [
+        { value: 'lead', label: 'Lead' },
+        { value: 'contacted', label: 'Contacted' },
+        { value: 'bid_submitted', label: 'Bid Submitted' },
+        { value: 'won', label: 'Won' },
+        { value: 'in_progress', label: 'In Progress' },
+        { value: 'completed', label: 'Completed' },
+        { value: 'lost', label: 'Lost' }
+      ]
+    },
+    {
+      key: 'industry',
+      label: 'Industry',
+      type: 'select',
+      options: [
+        { value: 'hvac', label: 'HVAC' },
+        { value: 'plumbing', label: 'Plumbing' },
+        { value: 'electrical', label: 'Electrical' },
+        { value: 'cleaning', label: 'Cleaning' },
+        { value: 'maintenance', label: 'Maintenance' },
+        { value: 'construction', label: 'Construction' }
+      ]
+    },
+    {
+      key: 'start_date',
+      label: 'Start Date',
+      type: 'date'
+    },
+    {
+      key: 'contract_value',
+      label: 'Contract Value',
+      type: 'number'
+    }
+  ];
 
   const totalValue = contracts.reduce((sum, c) => sum + (c.value || 0), 0);
   const activeContracts = contracts.filter(c => c.status === 'active').length;
@@ -166,19 +209,11 @@ export default function ContractsPage() {
                 className="pl-9"
               />
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="All Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="draft">Draft</SelectItem>
-                <SelectItem value="pending_signature">Pending Signature</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="expired">Expired</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
-              </SelectContent>
-            </Select>
+            <AdvancedFilters 
+              filters={filters}
+              onFiltersChange={setFilters}
+              filterConfig={filterConfig}
+            />
             <Button onClick={() => setCreateDialogOpen(true)} className="bg-[#2196f3]">
               <Plus className="w-4 h-4 mr-2" />
               New Contract
