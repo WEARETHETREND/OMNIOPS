@@ -55,6 +55,7 @@ import Breadcrumbs from '@/components/ui/Breadcrumbs';
 const navigation = [
   { name: 'Home', page: 'Home', icon: LayoutDashboard },
   { name: 'Command Center', page: 'Dashboard', icon: LayoutDashboard },
+  { name: 'Classic Dashboard', page: 'DashboardClassic', icon: LayoutDashboard },
   { name: 'AI Copilot', page: 'Copilot', icon: Bot },
   { name: 'Workflows', page: 'Workflows', icon: Workflow },
   { name: 'Runs', page: 'Runs', icon: Activity },
