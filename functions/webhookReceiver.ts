@@ -7,6 +7,19 @@ Deno.serve(async (req) => {
     // Get webhook data
     const webhookData = await req.json();
     const source = req.headers.get('x-webhook-source') || 'unknown';
+    const webhookSecret = req.headers.get('x-webhook-secret');
+    
+    // Validate webhook authenticity
+    const expectedSecret = Deno.env.get('WEBHOOK_SECRET');
+    if (!expectedSecret) {
+      console.error('WEBHOOK_SECRET not configured');
+      return Response.json({ error: 'Webhook authentication not configured' }, { status: 500 });
+    }
+    
+    if (webhookSecret !== expectedSecret) {
+      console.warn(`Unauthorized webhook attempt from ${source}`);
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     
     console.log(`Received webhook from ${source}:`, webhookData);
 
